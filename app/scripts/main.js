@@ -5,7 +5,10 @@
         contentType: 'text/json',
         responseTime: 750,
         responseText: {
-            price: 44899
+            name: 'Apple iPhone 5S',
+            image: 'http://img5a.flixcart.com/image/mobile/z/h/f/apple-iphone-5s-400x400-imadpppc54zfpj9c.jpeg',
+            price: 45940,
+            time: new Date()
         }
     })
 })(jQuery);
@@ -33,8 +36,13 @@
                             //TODO handle error
                             return;
                         }
-                        var price = res.price;
-                        
+                        var price = res.price,
+                            name = res.name,
+                            image = res.image,
+                            time = res.time;
+
+                        console.log(res)
+
                     });
                 }
 
