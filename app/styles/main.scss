@@ -34,7 +34,13 @@ body {
         margin-top: 0;
         margin-bottom: 0;
         line-height: 40px;
-        padding-bottom: 19px;
+        padding-bottom: 0px;
+    }
+
+    /* User CSS */
+    .text-sub-heading {
+        color: #777;
+        font-weight: bold;
     }
 }
 
@@ -90,4 +96,18 @@ body {
     .jumbotron {
         border-bottom: 0;
     }
+}
+
+
+.media > .pull-left {
+    margin-right: 20px;
+}
+
+.current-price {
+    border-radius: $border-radius-small;
+    background: #1abc9c;
+    color: #fff;
+    padding: 10px 6px;
+    font-weight: bold;
+    text-shadow: 0 1px 0px rgba(0,0,0,0.4);
 }

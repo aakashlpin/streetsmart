@@ -10,7 +10,20 @@
             price: 45940,
             time: new Date()
         }
-    })
+    });
+
+    //this request on server side should do these things in order
+    //1. Check if the email is verified on server
+    //  1.1. if step 1 is false => Send out an email verification request
+    //  1.2. if step 1 is true => Queue the request for processing. Limit to 3?
+    $.mockjax({
+        url: '/queue',
+        contentType: 'text/json',
+        responseTime: 750,
+        responseText: {
+            isEmailVerified: false
+        }
+    });
 })(jQuery);
 
 
@@ -36,12 +49,32 @@
                             //TODO handle error
                             return;
                         }
-                        var price = res.price,
-                            name = res.name,
-                            image = res.image,
-                            time = res.time;
 
-                        console.log(res)
+                        var priceVal = res.price,
+                            nameVal = res.name,
+                            imageVal = res.image,
+                            timeVal = res.time;
+
+                        if ('content' in document.createElement('template')) {
+                            //only if the browser supports template tag natively
+                            var tmpl = document.querySelector('#tmplNotifyMe');
+                            var titleDOM = tmpl.content.querySelector('#product-title');
+                            var priceDOM = tmpl.content.querySelector('#product-price');
+                            var imageDOM = tmpl.content.querySelector('#product-image');
+
+                            titleDOM.textContent = nameVal;
+                            priceDOM.textContent = priceVal;
+                            imageDOM.src = imageVal;
+                            imageDOM.alt = nameVal;
+
+                            //clone this new template and put it in response container
+                            var clone = document.importNode(tmpl.content, true);
+                            var responseContainer = document.querySelector('#response-container');
+                            responseContainer.appendChild(clone);
+
+                        } else {
+                            //fuck you
+                        }
 
                     });
                 }
