@@ -5,8 +5,8 @@ module.exports = function(app){
 	app.get('/', home.index);
 
 	//API
-	var jobs = require('../app/controllers/jobs');
-	app.get('/inputurl', jobs.processURL);
-	app.get('/queue', jobs.processQueue);
+	var api = require('../app/controllers/api');
+	app.get('/inputurl', api.processInputURL);
+	app.get('/queue', api.processQueue);
 
 };

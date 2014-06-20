@@ -25,12 +25,12 @@ function newJob (name){
 
 jobs.process('scraper', function (job, done){
     /* carry out all the job function here */
-    processURL(done);
+    // processURL(done);
 });
 
-var processURL = function(done) {
+var processURL = function(url, callback) {
     jsdom.env(
-        "http://www.flipkart.com/apple-iphone-5s/p/itmdv6f75dyxhmt4?pid=MOBDPPZZPXVDJHSQ&otracker=variants",
+        url,
         ["http://code.jquery.com/jquery.js"],
         function (errors, window) {
             var price = window.$("meta[itemprop='price']").attr('content'),
@@ -38,8 +38,12 @@ var processURL = function(done) {
             name = window.$('[itemprop="name"]').text().replace(/^\s+|\s+$/g,'', ''),
             image = window.$('.product-image').attr('src');
 
-            console.log(name, currency, price, image);
-            done && done();
+            callback && callback({
+                price: price,
+                currency: currency,
+                name: name,
+                image: image
+            });
         }
     );
 
