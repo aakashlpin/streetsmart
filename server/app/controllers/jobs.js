@@ -1,9 +1,10 @@
 var fs = require('fs');
-var kue = require('kue')
-, jobs = kue.createQueue();
-kue.app.listen(3001);
+var kue = require('kue');
+var jobs = kue.createQueue();
 var jsdom  = require('jsdom');
-var jquery = fs.readFileSync("./public/js/jquery.min.js").toString();
+var config = require('../../config/config');
+
+kue.app.listen(3001);
 
 function newJob (name){
     name = name || 'Default_Name';
@@ -44,15 +45,17 @@ var processURL = function(done) {
 
 };
 
+var procesQueue = function() {
+    console.log('processing queue');
+};
+
 var init = function() {
     setInterval(function (){
         newJob('Scrape iPhone product page');
-    }, 15000);
+    }, config.requestTimeout);
 
 }
 
-
-exports = {
-    init: init,
-    processURL: processURL
-};
+exports.init = init;
+exports.processURL = processURL;
+exports.processQueue = procesQueue;

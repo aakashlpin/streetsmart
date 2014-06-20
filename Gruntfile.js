@@ -18,7 +18,7 @@ module.exports = function (grunt) {
     // Configurable paths
     var config = {
         app: 'app',
-        dist: 'dist'
+        dist: './server/public'
     };
 
     // Define the configuration for all the tasks

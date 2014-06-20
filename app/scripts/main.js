@@ -1,3 +1,4 @@
+'use strict';
 //the following have to be the collections on the server
 //1. verified_emails
 //2. queued_requests
@@ -30,7 +31,7 @@
 })(jQuery);
 
 
-;(function(window, $) {
+(function(window, $) {
     var urlForm = {
         $el: $('#fkURLForm'),
         $inputEl: $('#productPageURL'),
@@ -42,8 +43,8 @@
                 //assuming it to be an event
                 var evt = args[0];
                 var value = $.trim($(evt.target).val());
-                if ((value.indexOf('flipkart.com') > 0)
-                && (value !== urlForm.oldURL)) {
+                if ((value.indexOf('flipkart.com') > 0) &&
+                    (value !== urlForm.oldURL)) {
                     //lets just assume this is a valid url
                     urlForm.oldURL = value;
 
@@ -55,8 +56,7 @@
 
                         var priceVal = res.price,
                             nameVal = res.name,
-                            imageVal = res.image,
-                            timeVal = res.time;
+                            imageVal = res.image;
 
                         if ('content' in document.createElement('template')) {
                             //only if the browser supports template tag natively

@@ -1,8 +1,7 @@
 var express = require('express'),
 mongoose = require('mongoose'),
 fs = require('fs'),
-config = require('./config/config'),
-jobs = require('./jobs');
+config = require('./config/config');
 
 mongoose.connect(config.db);
 var db = mongoose.connection;
@@ -18,7 +17,6 @@ fs.readdirSync(modelsPath).forEach(function (file) {
 });
 
 var app = express();
-jobs.init();
 require('./config/express')(app, config);
 require('./config/routes')(app);
 
