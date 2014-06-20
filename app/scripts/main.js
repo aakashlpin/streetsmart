@@ -31,6 +31,10 @@
 
 
 (function(window, $) {
+    function supportsTemplate() {
+        return ('content' in document.createElement('template'));
+    }
+
     var urlForm = {
         $el: $('#fkURLForm'),
         $inputEl: $('#productPageURL'),
@@ -46,6 +50,16 @@
                     (value !== urlForm.oldURL)) {
                     //lets just assume this is a valid url
                     urlForm.oldURL = value;
+                    urlForm.$inputEl.attr('disabled', 'disabled');
+
+                    var responseContainer = document.querySelector('#response-container');
+
+                    if (supportsTemplate()) {
+                        var tmpl = document.querySelector('#loader');
+                        var clone = document.importNode(tmpl.content, true);
+                        responseContainer.innerHTML = '';
+                        responseContainer.appendChild(clone);
+                    }
 
                     $.getJSON('/inputurl', {url: value}, function(res) {
                         if (!res.price) {
@@ -53,11 +67,12 @@
                             return;
                         }
 
+                        urlForm.$inputEl.removeAttr('disabled');
                         var priceVal = res.price,
                             nameVal = res.name,
                             imageVal = res.image;
 
-                        if ('content' in document.createElement('template')) {
+                        if (supportsTemplate()) {
                             //only if the browser supports template tag natively
                             var tmpl = document.querySelector('#tmplNotifyMe');
                             var titleDOM = tmpl.content.querySelector('#product-title');
@@ -71,7 +86,7 @@
 
                             //clone this new template and put it in response container
                             var clone = document.importNode(tmpl.content, true);
-                            var responseContainer = document.querySelector('#response-container');
+                            responseContainer.innerHTML = '';
                             responseContainer.appendChild(clone);
 
                             //bind the event here
