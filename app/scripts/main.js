@@ -1,3 +1,6 @@
+//the following have to be the collections on the server
+//1. verified_emails
+//2. queued_requests
 (function($) {
     //stub out some ajax requests
     $.mockjax({
@@ -72,6 +75,9 @@
                             var responseContainer = document.querySelector('#response-container');
                             responseContainer.appendChild(clone);
 
+                            //bind the event here
+                            $(FinalSubmissionForm.el).on('submit', FinalSubmissionForm.handleFormSubmit);
+
                         } else {
                             //fuck you
                         }
@@ -81,13 +87,20 @@
 
             }
 
-        },
-        handleFormSubmit: function() {
-
         }
     };
 
-    urlForm.$el.on('submit', urlForm.handleFormSubmit);
+
+    var FinalSubmissionForm = {
+        el: '#fkSubmissionForm',
+        handleFormSubmit: function(e) {
+            e.preventDefault();
+            $.getJSON('/queue', $(this).serialize(), function(res) {
+                console.log(res);
+            });
+        }
+    };
+
     urlForm.$inputEl.on('keyup', urlForm.handleURLInput);
 
 })(window, jQuery);
