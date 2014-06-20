@@ -45,11 +45,11 @@
                 //I don't know how to say if the argument is an event
                 //assuming it to be an event
                 var evt = args[0];
-                var value = $.trim($(evt.target).val());
-                if ((value.indexOf('flipkart.com') > 0) &&
-                    (value !== urlForm.oldURL)) {
+                var url = $.trim($(evt.target).val());
+                if ((url.indexOf('flipkart.com') > 0) &&
+                    (url !== urlForm.oldURL)) {
                     //lets just assume this is a valid url
-                    urlForm.oldURL = value;
+                    urlForm.oldURL = url;
                     urlForm.$inputEl.attr('disabled', 'disabled');
 
                     var responseContainer = document.querySelector('#response-container');
@@ -61,7 +61,7 @@
                         responseContainer.appendChild(clone);
                     }
 
-                    $.getJSON('/inputurl', {url: value}, function(res) {
+                    $.getJSON('/inputurl', {url: url}, function(res) {
                         if (!res.price) {
                             //TODO handle error
                             return;
@@ -78,11 +78,19 @@
                             var titleDOM = tmpl.content.querySelector('#product-title');
                             var priceDOM = tmpl.content.querySelector('#product-price');
                             var imageDOM = tmpl.content.querySelector('#product-image');
+                            var productURLDOM = tmpl.content.querySelector('#productURL');
+                            var productPriceDOM = tmpl.content.querySelector('#currentPrice');
+                            var productNameDOM = tmpl.content.querySelector('#productName');
 
                             titleDOM.textContent = nameVal;
                             priceDOM.textContent = priceVal;
                             imageDOM.src = imageVal;
                             imageDOM.alt = nameVal;
+
+                            //hidden input fields
+                            productURLDOM.value = url;
+                            productNameDOM.value = nameVal;
+                            productPriceDOM.value = priceVal;
 
                             //clone this new template and put it in response container
                             var clone = document.importNode(tmpl.content, true);
@@ -92,8 +100,6 @@
                             //bind the event here
                             $(FinalSubmissionForm.el).on('submit', FinalSubmissionForm.handleFormSubmit);
 
-                        } else {
-                            //fuck you
                         }
 
                     });
