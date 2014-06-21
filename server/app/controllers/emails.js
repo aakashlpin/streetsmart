@@ -3,7 +3,8 @@
 var path       = require('path'),
 templatesDir   = path.resolve(__dirname, '..', 'templates'),
 emailTemplates = require('email-templates'),
-nodemailer     = require('nodemailer');
+nodemailer     = require('nodemailer'),
+config         = require('../../config/config');
 
 // Prepare nodemailer transport object
 var transport = nodemailer.createTransport('SMTP', {
@@ -23,7 +24,8 @@ module.exports = {
             } else {
                 var locals = {
                     user: user,
-                    product: product
+                    product: product,
+                    verificationLink: config.server + '/verify?' + 'email=' + user.email
                 };
 
                 template('verifier', locals, function(err, html) {

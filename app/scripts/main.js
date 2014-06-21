@@ -1,35 +1,4 @@
 'use strict';
-//the following have to be the collections on the server
-//1. verified_emails
-//2. queued_requests
-// (function($) {
-//     //stub out some ajax requests
-//     $.mockjax({
-//         url: '/inputurl',
-//         contentType: 'text/json',
-//         responseTime: 750,
-//         responseText: {
-//             name: 'Apple iPhone 5S',
-//             image: 'http://img5a.flixcart.com/image/mobile/z/h/f/apple-iphone-5s-400x400-imadpppc54zfpj9c.jpeg',
-//             price: 45940
-//         }
-//     });
-//
-//     //this request on server side should do these things in order
-//     //1. Check if the email is verified on server
-//     //  1.1. if step 1 is false => Send out an email verification request
-//     //  1.2. if step 1 is true => Queue the request for processing. Limit to 3?
-//     $.mockjax({
-//         url: '/queue',
-//         contentType: 'text/json',
-//         responseTime: 750,
-//         responseText: {
-//             isEmailVerified: false
-//         }
-//     });
-// })(jQuery);
-
-
 (function(window, $) {
     function supportsTemplate() {
         return ('content' in document.createElement('template'));
@@ -81,6 +50,8 @@
                             var productURLDOM = tmpl.content.querySelector('#productURL');
                             var productPriceDOM = tmpl.content.querySelector('#currentPrice');
                             var productNameDOM = tmpl.content.querySelector('#productName');
+                            var productImageDOM = tmpl.content.querySelector('#productImage');
+                            // var sellerDOM = tmpl.content.querySelector('#seller');
 
                             titleDOM.textContent = nameVal;
                             priceDOM.textContent = priceVal;
@@ -91,6 +62,7 @@
                             productURLDOM.value = url;
                             productNameDOM.value = nameVal;
                             productPriceDOM.value = priceVal;
+                            productImageDOM.value = imageVal;
 
                             //clone this new template and put it in response container
                             var clone = document.importNode(tmpl.content, true);

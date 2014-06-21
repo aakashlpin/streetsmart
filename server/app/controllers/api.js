@@ -14,7 +14,8 @@ module.exports = {
         });
     },
     processQueue: function(req, res) {
-        var productData = _.pick(req.query, ['currentPrice', 'productName', 'productURL']);
+        var productData = _.pick(req.query, ['currentPrice', 'productName',
+        'productURL', 'productImage', 'seller']);
         var user = _.pick(req.query, ['inputEmail']);
 
         var userData = {
@@ -44,7 +45,8 @@ module.exports = {
                         console.log('error sending verification email => ', err);
                         return;
                     }
-                    console.log('verification email sent to => ', userData.email, ' with status => ', status);
+                    console.log('verification email sent to => ',
+                    userData.email, ' with status => ', status);
                 });
 
             } else {

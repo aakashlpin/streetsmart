@@ -11,6 +11,7 @@ var config = {
             name: 'streetsmart'
         },
         port: 3000,
+        server: 'http://localhost:3000',
         db: 'mongodb://localhost/streetsmart-development',
         requestTimeout: 1*60*1000,    //1 minute
         cronPattern: '*/5 * * * *'    //every 5 minutes
@@ -22,6 +23,7 @@ var config = {
             name: 'streetsmart'
         },
         port: 3000,
+        server: 'localhost:3000',
         db: 'mongodb://localhost/streetsmart-test',
         requestTimeout: 1*60*1000,    //1 minute
         cronPattern: '*/5 * * * *'    //every 5 minutes
@@ -33,6 +35,7 @@ var config = {
             name: 'streetsmart'
         },
         port: 3000,
+        server: 'http://becheap.in',
         db: 'mongodb://localhost/streetsmart-production',
         requestTimeout: 30*60*1000,    //30 minutes
         cronPattern: '* */2 * * *'    //every 2 hours
