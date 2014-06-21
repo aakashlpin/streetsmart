@@ -1,7 +1,11 @@
 'use strict';
 var jobs = require('./jobs');
-var emails = require('./emails');
+var Emails = require('./emails');
 var _ = require('underscore');
+var mongoose = require('mongoose');
+var User = mongoose.model('User');
+var Job = mongoose.model('Job');
+
 module.exports = {
     processInputURL: function(req, res) {
         var url = req.query.url;
@@ -10,28 +14,64 @@ module.exports = {
         });
     },
     processQueue: function(req, res) {
-        var data = _.pick(req.query, ['currentPrice', 'productName', 'productURL']);
+        var productData = _.pick(req.query, ['currentPrice', 'productName', 'productURL']);
         var user = _.pick(req.query, ['inputEmail']);
 
         var userData = {
             email: user.inputEmail
         };
 
-        var productData = {
-            name: data.productName,
-            price: data.currentPrice,
-            url: data.productURL
+        var userQuery = {
+            query: userData
         };
 
-        emails.send(userData, productData, function(err, status) {
+        User.get(userQuery, function(err, userQueryResult) {
             if (err) {
-                res.json({err: err});
+                console.log(err);
                 return;
             }
 
-            res.json({
-                status: status
+            var isEmailVerified = userQueryResult && userQueryResult.email;
+            if (!isEmailVerified) {
+                //1. send response back for the UI
+                res.json({
+                    status: 'Almost Done! Just verify your email, then sit back and relax!'
+                });
+
+                //2. send verification email
+                Emails.sendVerifier(userData, productData, function(err, status) {
+                    if (err) {
+                        console.log('error sending verification email => ', err);
+                        return;
+                    }
+                    console.log('verification email sent to => ', userData.email, ' with status => ', status);
+                });
+
+            } else {
+                res.json({
+                    status: 'Sweet! We\'ll keep you posted as the price changes.'
+                });
+            }
+
+            //add job to the db
+            var newJobData = {
+                email: userData.email,
+                currentPrice: productData.currentPrice,
+                productName: productData.productName,
+                productURL: productData.productURL,
+                productImage: productData.productImage,
+                seller: productData.seller,
+                isEmailVerified: !!isEmailVerified
+            };
+
+            Job.post({query: newJobData}, function(err, createdJob) {
+                if (err) {
+                    console.log('error adding job to db => ', err);
+                    return;
+                }
+                console.log('job created => ', createdJob);
             });
         });
+
     }
 };

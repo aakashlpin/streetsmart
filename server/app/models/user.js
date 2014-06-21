@@ -1,3 +1,4 @@
+'use strict';
 // Email model
 // used to quicky check if email exists
 // if it does, we can proceed without sending a verification email
@@ -27,6 +28,11 @@ UserSchema.statics.post = function(req, callback) {
         User.save(callback);
 
     }.bind(this));
+};
+
+UserSchema.statics.get = function(req, callback) {
+    var data = _.pick(req.query, ['email']);
+    this.findOne({email: data.email}).lean().exec(callback);
 };
 
 mongoose.model('User', UserSchema);
