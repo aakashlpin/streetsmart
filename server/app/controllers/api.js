@@ -1,10 +1,11 @@
+'use strict';
 var jobs = require('./jobs');
 var emails = require('./emails');
 var _ = require('underscore');
 module.exports = {
     processInputURL: function(req, res) {
         var url = req.query.url;
-        jobs.processURL(url, function(crawledInfo) {
+        jobs.processURL(url, function(err, crawledInfo) {
             res.json(crawledInfo);
         });
     },
@@ -30,7 +31,7 @@ module.exports = {
 
             res.json({
                 status: status
-            })
+            });
         });
     }
-}
+};

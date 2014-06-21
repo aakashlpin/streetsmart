@@ -1,34 +1,67 @@
-module.exports = {
-    send: function(user, product, callback) {
-        var path         = require('path')
-        , templatesDir   = path.resolve(__dirname, '..', 'templates')
-        , emailTemplates = require('email-templates')
-        , nodemailer     = require('nodemailer');
+'use strict';
 
+var path       = require('path'),
+templatesDir   = path.resolve(__dirname, '..', 'templates'),
+emailTemplates = require('email-templates'),
+nodemailer     = require('nodemailer');
+
+// Prepare nodemailer transport object
+var transport = nodemailer.createTransport('SMTP', {
+    service: 'Gmail',
+    auth: {
+        user: 'aakash.lpin@gmail.com',
+        pass: 'unnxguhjdeeflxua'
+    }
+});
+
+module.exports = {
+    sendVerifier: function(user, product, callback) {
         emailTemplates(templatesDir, function(err, template) {
             if (err) {
                 callback(err);
+
             } else {
+                var locals = {
+                    user: user,
+                    product: product
+                };
 
-                // ## Send a single email
-
-                // Prepare nodemailer transport object
-                var transport = nodemailer.createTransport("SMTP", {
-                    service: "Gmail",
-                    auth: {
-                        user: "aakash.lpin@gmail.com",
-                        pass: "unnxguhjdeeflxua"
+                template('verifier', locals, function(err, html) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        transport.sendMail({
+                            from: 'Flipkart StreetSmart <aakash.lpin@gmail.com>',
+                            to: locals.user.email,
+                            subject: 'Confirm email to receive price change notifications',
+                            html: html,
+                            generateTextFromHTML: true
+                        }, function(err, responseStatus) {
+                            if (err) {
+                                callback(err);
+                            } else {
+                                callback(null, responseStatus.message);
+                            }
+                        });
                     }
                 });
+            }
+        });
 
-                // An example users object with formatted email function
+    },
+    sendNotifier: function(user, product, callback) {
+        emailTemplates(templatesDir, function(err, template) {
+            if (err) {
+                callback(err);
+
+            } else {
                 var locals = {
                     user: user,
                     product: product
                 };
 
                 // Send a single email
-                template('notifier', locals, function(err, html, text) {
+                template('notifier', locals, function(err, html) {
                     if (err) {
                         callback(err);
                     } else {
@@ -37,8 +70,7 @@ module.exports = {
                             to: locals.user.email,
                             subject: 'Price change notification for ' + locals.product.name,
                             html: html,
-                            // generateTextFromHTML: true,
-                            text: text
+                            generateTextFromHTML: true
                         }, function(err, responseStatus) {
                             if (err) {
                                 callback(err);
@@ -51,4 +83,4 @@ module.exports = {
             }
         });
     }
-}
+};

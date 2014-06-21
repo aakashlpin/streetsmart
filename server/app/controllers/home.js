@@ -1,5 +1,5 @@
 var mongoose = require('mongoose'),
-Article = mongoose.model('Article');
+User = mongoose.model('User');
 
 exports.index = function(req, res){
     res.render('index');

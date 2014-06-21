@@ -1,3 +1,5 @@
+'use strict';
+
 var express = require('express'),
 mongoose = require('mongoose'),
 fs = require('fs'),
@@ -15,6 +17,9 @@ fs.readdirSync(modelsPath).forEach(function (file) {
         require(modelsPath + '/' + file);
     }
 });
+
+var jobs = require('./app/controllers/jobs');
+jobs.init();
 
 var app = express();
 require('./config/express')(app, config);

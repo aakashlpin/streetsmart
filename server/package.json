@@ -13,7 +13,9 @@
     "jsdom": "^0.11.0",
     "nodemailer": "^0.7.0",
     "email-templates": "^1.0.0",
-    "underscore": "^1.6.0"
+    "underscore": "^1.6.0",
+    "cron": "^1.0.4",
+    "time": "^0.11.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
