@@ -1,31 +1,31 @@
 'use strict';
-(function($) {
-    //stub out some ajax requests
-    $.mockjax({
-        url: '/inputurl',
-        contentType: 'text/json',
-        responseTime: 2000,
-        responseText: {
-            name: 'Apple iPhone 5S',
-            image: 'http://img5a.flixcart.com/image/mobile/z/h/f/apple-iphone-5s-400x400-imadpppc54zfpj9c.jpeg',
-            price: 45940,
-            time: new Date()
-        }
-    });
-
-    //this request on server side should do these things in order
-    //1. Check if the email is verified on server
-    //  1.1. if step 1 is false => Send out an email verification request
-    //  1.2. if step 1 is true => Queue the request for processing. Limit to 3?
-    $.mockjax({
-        url: '/queue',
-        contentType: 'text/json',
-        responseTime: 1000,
-        responseText: {
-            status: 'Sweet! We\'ll keep you posted as the price changes.'
-        }
-    });
-})(jQuery);
+// (function($) {
+//     //stub out some ajax requests
+//     $.mockjax({
+//         url: '/inputurl',
+//         contentType: 'text/json',
+//         responseTime: 2000,
+//         responseText: {
+//             name: 'Apple iPhone 5S',
+//             image: 'http://img5a.flixcart.com/image/mobile/z/h/f/apple-iphone-5s-400x400-imadpppc54zfpj9c.jpeg',
+//             price: 45940,
+//             time: new Date()
+//         }
+//     });
+//
+//     //this request on server side should do these things in order
+//     //1. Check if the email is verified on server
+//     //  1.1. if step 1 is false => Send out an email verification request
+//     //  1.2. if step 1 is true => Queue the request for processing. Limit to 3?
+//     $.mockjax({
+//         url: '/queue',
+//         contentType: 'text/json',
+//         responseTime: 1000,
+//         responseText: {
+//             status: 'Sweet! We\'ll keep you posted as the price changes.'
+//         }
+//     });
+// })(jQuery);
 
 (function(window, $) {
     function supportsTemplate() {

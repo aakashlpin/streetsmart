@@ -15,7 +15,6 @@ var config = {
         db: 'mongodb://localhost/streetsmart-development',
         flipkartAffiliateKey: 'affid',
         flipkartAffiliateId: 'aakashlpi',
-        requestTimeout: 1*60*1000,    //1 minute
         cronPattern: '0-59/5 * * * *'    //every 5 minutes
     },
 
@@ -29,7 +28,6 @@ var config = {
         db: 'mongodb://localhost/streetsmart-test',
         flipkartAffiliateKey: 'affid',
         flipkartAffiliateId: 'aakashlpi',
-        requestTimeout: 1*60*1000,    //1 minute
         cronPattern: '0-59/5 * * * *'    //every 5 minutes
     },
 
@@ -39,12 +37,11 @@ var config = {
             name: 'streetsmart'
         },
         port: 3000,
-        server: 'http://becheap.in',
+        server: 'http://cheapass.in',
         db: 'mongodb://localhost/streetsmart-production',
         flipkartAffiliateKey: 'affid',
         flipkartAffiliateId: 'aakashlpi',
-        requestTimeout: 30*60*1000,    //30 minutes
-        cronPattern: '* 0-23/1 * * *'    //every 1 hours
+        cronPattern: '0-59/15 * * * *'    //every 15 minutes
     }
 };
 

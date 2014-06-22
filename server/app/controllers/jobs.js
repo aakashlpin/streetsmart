@@ -23,6 +23,7 @@ function newJob (jobData) {
 
     job
     .on('complete', function (result){
+        console.log('job completed', result);
         jobData = job.data.jobData;
         var jobQuery = {email: jobData.email, productURL: jobData.productURL};
         Jobs.getOneGeneric(jobQuery, function(err, jobQueryResult) {
@@ -59,6 +60,7 @@ function newJob (jobData) {
         });
     })
     .on('failed', function (){
+        console.log('job failed. re-queuing');
         //move the job to inactive state
         //this will re-enqueue the job
         job.state('inactive').priority('high').save();
@@ -71,7 +73,7 @@ function processURL(url, callback) {
     jsdom.env(url, ['http://code.jquery.com/jquery.js'], function (errors, window) {
         var $, price, currency, name, image;
         $ = window.jQuery;
-        if (typeof $ === void 0)  {
+        if (typeof $ === 'undefined')  {
             callback('Error: jQuery couldn\'t load');
             return;
         }
