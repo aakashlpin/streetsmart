@@ -14,4 +14,7 @@ module.exports = function(app){
 
 	//Email verification
 	app.get('/verify', api.verifyEmail);
+
+	//Redirect to flipkart
+	app.get('/redirect', api.redirectToSeller);
 };

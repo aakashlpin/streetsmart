@@ -7,6 +7,16 @@ var User = mongoose.model('User');
 var Job = mongoose.model('Job');
 var config = require('../../config/config');
 
+function getURLWithAffiliateId(url) {
+    var urlSymbol = url.indexOf('?') > 0 ? '&': '?';
+    var stringToMatch = config.flipkartAffiliateKey + '=' + config.flipkartAffiliateId;
+    if (url.indexOf(stringToMatch) > 0) {
+        return url;
+    } else {
+        return url + urlSymbol + stringToMatch;
+    }
+}
+
 module.exports = {
     processInputURL: function(req, res) {
         var url = req.query.url;
@@ -56,15 +66,12 @@ module.exports = {
                 });
             }
 
-            var urlSymbol = productData.productURL.indexOf('?') > 0 ? '&': '?';
-            productData.productURL += urlSymbol + 'affid=' + config.flipkartAffiliateId;
-
             //add job to the db
             var newJobData = {
                 email: userData.email,
                 currentPrice: productData.currentPrice,
                 productName: productData.productName,
-                productURL: productData.productURL,
+                productURL: getURLWithAffiliateId(productData.productURL),
                 productImage: productData.productImage,
                 seller: productData.seller,
                 isEmailVerified: !!isEmailVerified
@@ -141,5 +148,14 @@ module.exports = {
                 });
             });
         });
+    },
+    redirectToSeller: function(req, res) {
+        if (req.query.url) {
+            var url = getURLWithAffiliateId(req.query.url);
+            res.redirect(url);
+
+        } else {
+            res.redirect('/500');
+        }
     }
 };
