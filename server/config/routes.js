@@ -9,12 +9,17 @@ module.exports = function(app){
 
 	//API
 	var api = require('../app/controllers/api');
+
+	//UI AJAX calls
 	app.get('/inputurl', api.processInputURL);
 	app.get('/queue', api.processQueue);
 
 	//Email verification
 	app.get('/verify', api.verifyEmail);
 
-	//Redirect to flipkart
+	//Redirect to seller
 	app.get('/redirect', api.redirectToSeller);
+
+	//Unsubscribe
+	app.get('/unsubscribe', api.unsubscribe);
 };

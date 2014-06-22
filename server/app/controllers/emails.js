@@ -4,6 +4,7 @@ var path       = require('path'),
 templatesDir   = path.resolve(__dirname, '..', 'templates'),
 emailTemplates = require('email-templates'),
 nodemailer     = require('nodemailer'),
+_              = require('underscore'),
 config         = require('../../config/config');
 
 // Prepare nodemailer transport object
@@ -62,6 +63,15 @@ module.exports = {
                     product: product,
                     server: config.server
                 };
+
+                var encodedEmail = encodeURIComponent(product.email);
+                var encodedURL = encodeURIComponent(product.productURL);
+                var baseUnsubscribeLink = config.server + '/unsubscribe?email=' + encodedEmail;
+                _.extend(locals.product, {
+                    productUnsubscribeLink: baseUnsubscribeLink + '&productURL=' + encodedURL,
+                    allUnsubscribeLink: baseUnsubscribeLink,
+                    selfProductRedirectURL: config.server + '/redirect?url=' + encodedURL
+                });
 
                 // Send a single email
                 template('notifier', locals, function(err, html) {

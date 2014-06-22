@@ -6,11 +6,11 @@ Just writing to let you know that the price of the product
 
 <br><br>
 You can view or buy the product on <%= product.seller %> by
-<a href="<%= server %>/redirect?url=<%= product.productURL %>">clicking here</a>.
+<a href="<%= product.selfProductRedirectURL %>">clicking here</a>.
 
 <br><br><br>
-You can unsubscribe from notifications to this product by
-<a href="<%= server %>/unsubscribe?email=<%= product.email %>&productURL=<%= product.productURL %>">clicking here</a>.
+Had enough? Stop tracking this product by
+<a href="<%= product.productUnsubscribeLink %>">clicking here</a>.
 <br><br>
-Or, you can unsubcribe to all notifications by
-<a href="<%= server %>/unsubscribe?email=<%= product.email %>">clicking here</a>.
+Alternatively, you can stop tracking all products by
+<a href="<%= product.allUnsubscribeLink %>">clicking here</a>.

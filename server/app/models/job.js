@@ -20,6 +20,11 @@ var JobSchema = new Schema({
     isActive: Boolean
 });
 
+JobSchema.statics.markJobsAsInactive = function(query, callback) {
+    var updateWith = {isActive: false};
+    var updateOptions = {multi: true};
+    this.update(query, updateWith, updateOptions, callback);
+};
 
 JobSchema.statics.updateNewPrice = function(query, updateWith, callback) {
     var newPrice = updateWith.price;
@@ -40,7 +45,7 @@ JobSchema.statics.updateNewPrice = function(query, updateWith, callback) {
             }
 
             this.update(query, updateParams, updateOptions, callback);
-            
+
         } else {
             callback(err, null);
         }

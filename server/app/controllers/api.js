@@ -151,11 +151,40 @@ module.exports = {
     },
     redirectToSeller: function(req, res) {
         if (req.query.url) {
-            var url = getURLWithAffiliateId(req.query.url);
+            var url = getURLWithAffiliateId(decodeURIComponent(req.query.url));
             res.redirect(url);
 
         } else {
             res.redirect('/500');
         }
+    },
+    unsubscribe: function(req, res) {
+        var queryParams = _.pick(req.query, ['email', 'productURL']);
+        var dbQuery;
+        if (queryParams.productURL && queryParams.email) {
+            //unsubscribe from email + product combination
+            dbQuery = {
+                email: decodeURIComponent(queryParams.email),
+                productURL: decodeURIComponent(queryParams.productURL)
+            };
+
+        } else if (queryParams.email) {
+            //unsubscribe all products for this email
+            dbQuery = {
+                email: decodeURIComponent(queryParams.email)
+            };
+
+        } else {
+            res.redirect('/500');
+            return;
+        }
+
+        Job.markJobsAsInactive(dbQuery, function(err, dbQueryRes) {
+            if (err) {
+                console.log('error unsubscribing ', queryParams.email);
+            } else {
+                console.log('user documents unsubscribed => ', dbQueryRes);
+            }
+        });
     }
 };
