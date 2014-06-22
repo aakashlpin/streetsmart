@@ -29,7 +29,7 @@
         <form role="form" id="fkURLForm">
             <div class="form-group">
                 <label for="productPageURL">Product Page URL</label>
-                <input type="url" class="form-control input-lg" id="productPageURL" placeholder="http://www.flipkart.com/apple-iphone-5s/p/itmdv6f75dyxhmt4?pid=MOBDPPZZPXVDJHSQ&otracker=variants">
+                <input type="url" autofocus class="form-control input-lg" id="productPageURL" placeholder="http://www.flipkart.com/apple-iphone-5s/p/itmdv6f75dyxhmt4?pid=MOBDPPZZPXVDJHSQ&otracker=variants">
             </div>
         </form>
 
@@ -38,7 +38,7 @@
 
     <template id="loader">
         <div class="text-center">
-            <img src="./images/loader.gif" alt="Fetching information from URL" />
+            <img src="./images/loader.gif" style="width: 32px;" alt="Fetching information from URL" />
         </div>
     </template>
 
@@ -72,6 +72,9 @@
         </div>
     </template>
 
+    <template id="illegalProductPage">
+        <p class="text-danger">Ummm. Something went wrong. Are you sure you pasted URL of a product page from Flipkart?</p>
+    </template>
 
 <!-- build:js scripts/vendor.js -->
 <!-- bower:js -->

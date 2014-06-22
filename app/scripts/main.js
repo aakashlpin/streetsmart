@@ -36,13 +36,24 @@
         $el: $('#fkURLForm'),
         $inputEl: $('#productPageURL'),
         oldURL: null,
-        handleURLInput: function() {
-            var args = Array.prototype.slice.call(arguments, 0);
-            if (args.length === 1) {
-                //I don't know how to say if the argument is an event
-                //assuming it to be an event
-                var evt = args[0];
-                var url = $.trim($(evt.target).val());
+        handleURLInputClick: function(e) {
+            $(e.target).select();
+        },
+        handleURLInputPaste: function(evt) {
+            if (evt.type === 'submit') {
+                evt.preventDefault();
+            }
+            
+            setTimeout(function() {
+                var url;
+                //setTimeout is necessary to ensure that the content actually gets pasted
+                if (evt.type === 'submit') {
+                    url = $.trim(urlForm.$inputEl.val());
+                    evt.preventDefault();
+
+                } else {
+                    url = $.trim($(evt.target).val());
+                }
                 if ((url.indexOf('flipkart.com') > 0) &&
                     (url !== urlForm.oldURL)) {
                     //lets just assume this is a valid url
@@ -60,7 +71,13 @@
 
                     $.getJSON('/inputurl', {url: url}, function(res) {
                         if (!res.price) {
-                            //TODO handle error
+                            if (supportsTemplate()) {
+                                tmpl = document.querySelector('#illegalProductPage');
+                                clone = document.importNode(tmpl.content, true);
+                                responseContainer.innerHTML = '';
+                                responseContainer.appendChild(clone);
+                                urlForm.$inputEl.removeAttr('disabled').click();
+                            }
                             return;
                         }
 
@@ -71,15 +88,16 @@
 
                         if (supportsTemplate()) {
                             //only if the browser supports template tag natively
-                            var tmpl = document.querySelector('#tmplNotifyMe');
-                            var titleDOM = tmpl.content.querySelector('#product-title');
-                            var priceDOM = tmpl.content.querySelector('#product-price');
-                            var imageDOM = tmpl.content.querySelector('#product-image');
-                            var productURLDOM = tmpl.content.querySelector('#productURL');
-                            var productPriceDOM = tmpl.content.querySelector('#currentPrice');
-                            var productNameDOM = tmpl.content.querySelector('#productName');
-                            var productImageDOM = tmpl.content.querySelector('#productImage');
-                            var inputEmailDOM = tmpl.content.querySelector('#inputEmail');
+                            tmpl = document.querySelector('#tmplNotifyMe');
+                            var tmplContent = tmpl.content;
+                            var titleDOM = tmplContent.querySelector('#product-title');
+                            var priceDOM = tmplContent.querySelector('#product-price');
+                            var imageDOM = tmplContent.querySelector('#product-image');
+                            var productURLDOM = tmplContent.querySelector('#productURL');
+                            var productPriceDOM = tmplContent.querySelector('#currentPrice');
+                            var productNameDOM = tmplContent.querySelector('#productName');
+                            var productImageDOM = tmplContent.querySelector('#productImage');
+                            var inputEmailDOM = tmplContent.querySelector('#inputEmail');
                             // var sellerDOM = tmpl.content.querySelector('#seller');
 
                             titleDOM.textContent = nameVal;
@@ -101,9 +119,10 @@
                             }
 
                             //clone this new template and put it in response container
-                            var clone = document.importNode(tmpl.content, true);
+                            clone = document.importNode(tmpl.content, true);
                             responseContainer.innerHTML = '';
                             responseContainer.appendChild(clone);
+                            $('#inputEmail').focus();
 
                             //bind the event here
                             $(FinalSubmissionForm.el).on('submit', FinalSubmissionForm.handleFormSubmit);
@@ -113,8 +132,8 @@
                     });
                 }
 
-            }
 
+            }.bind(this), 0);
         }
     };
 
@@ -137,6 +156,8 @@
         }
     };
 
-    urlForm.$inputEl.on('keyup', urlForm.handleURLInput);
+    urlForm.$el.on('submit', urlForm.handleURLInputPaste);
+    urlForm.$inputEl.on('paste', urlForm.handleURLInputPaste);
+    urlForm.$inputEl.on('click', urlForm.handleURLInputClick);
 
 })(window, jQuery);
