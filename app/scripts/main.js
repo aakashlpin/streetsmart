@@ -89,11 +89,7 @@
             e.preventDefault();
             $.getJSON('/queue', $(this).serialize(), function(res) {
                 console.log(res);
-                if (res.isEmailVerified) {
-                    //good! success message
-                } else {
-                    //notify to get his email verified
-                }
+                
             });
         }
     };

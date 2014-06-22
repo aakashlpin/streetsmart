@@ -59,7 +59,8 @@ module.exports = {
             } else {
                 var locals = {
                     user: user,
-                    product: product
+                    product: product,
+                    server: config.server
                 };
 
                 // Send a single email
@@ -70,7 +71,7 @@ module.exports = {
                         transport.sendMail({
                             from: 'Flipkart StreetSmart <aakash.lpin@gmail.com>',
                             to: locals.user.email,
-                            subject: 'Price change notification for ' + locals.product.name,
+                            subject: 'Price change notification for ' + locals.product.productName,
                             html: html,
                             generateTextFromHTML: true
                         }, function(err, responseStatus) {

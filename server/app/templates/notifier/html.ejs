@@ -2,11 +2,15 @@ Hi,
 
 <br><br>
 Just writing to let you know that the price of the product
-<b><%= product.name %></b> has changed to <b>Rs.<%= product.price %>/-</b>
+<b><%= product.productName %></b> has changed to <b>Rs.<%= product.currentPrice %>/-</b>
 
 <br><br>
 You can view or buy the product on <%= product.seller %> by
-<a href="<%= product.url %>">clicking here</a>.
+<a href="<%= product.productURL %>">clicking here</a>.
 
 <br><br><br>
-You can unsubscribe from these notifications by <a href="#">clicking here</a>.
+You can unsubscribe from notifications to this product by
+<a href="<%= server %>/unsubscribe?email=<%= product.email %>&productURL=<%= product.productURL %>">clicking here</a>.
+<br><br>
+Or, you can unsubcribe to all notifications by
+<a href="<%= server %>/unsubscribe?email=<%= product.email %>">clicking here</a>.

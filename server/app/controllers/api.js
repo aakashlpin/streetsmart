@@ -5,6 +5,7 @@ var _ = require('underscore');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Job = mongoose.model('Job');
+var config = require('../../config/config');
 
 module.exports = {
     processInputURL: function(req, res) {
@@ -54,6 +55,9 @@ module.exports = {
                     status: 'Sweet! We\'ll keep you posted as the price changes.'
                 });
             }
+
+            var urlSymbol = productData.productURL.indexOf('?') > 0 ? '&': '?';
+            productData.productURL += urlSymbol + 'affid=' + config.flipkartAffiliateId;
 
             //add job to the db
             var newJobData = {
