@@ -12,7 +12,7 @@ var Emails = require('./emails');
 var jobsQ = kue.createQueue(),
 Jobs = mongoose.model('Job');
 
-kue.app.listen(3001);
+kue.app.listen(config.kuePort);
 
 function newJob (jobData) {
     var job = jobsQ.create('scraper', {

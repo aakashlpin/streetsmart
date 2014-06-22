@@ -10,8 +10,9 @@ var config = {
         app: {
             name: 'streetsmart'
         },
-        port: 3000,
-        server: 'http://localhost:3000',
+        port: 6000,
+        kuePort: 6001,
+        server: 'http://localhost:6000',
         db: 'mongodb://localhost/streetsmart-development',
         flipkartAffiliateKey: 'affid',
         flipkartAffiliateId: 'aakashlpi',
@@ -23,8 +24,9 @@ var config = {
         app: {
             name: 'streetsmart'
         },
-        port: 3000,
-        server: 'localhost:3000',
+        port: 6000,
+        kuePort: 6001,
+        server: 'localhost:6000',
         db: 'mongodb://localhost/streetsmart-test',
         flipkartAffiliateKey: 'affid',
         flipkartAffiliateId: 'aakashlpi',
@@ -36,7 +38,8 @@ var config = {
         app: {
             name: 'streetsmart'
         },
-        port: 3000,
+        port: 6000,
+        kuePort: 6001,
         server: 'http://cheapass.in',
         db: 'mongodb://localhost/streetsmart-production',
         flipkartAffiliateKey: 'affid',

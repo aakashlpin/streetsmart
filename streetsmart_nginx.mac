@@ -1,0 +1,26 @@
+upstream streetsmart {
+  server 127.0.0.1:6000 max_fails=0 fail_timeout=10s;
+  keepalive 512;
+}
+
+server {
+  root /Users/aakashlpin/projects/streetsmart/server/public;
+  try_files $uri $uri.html $uri/ @notfound;
+  server_name cheapass.in;
+
+  keepalive_timeout 10;
+
+  location ~* \.(css|js|gif|jpe?g|png)$ {
+    expires max;
+    add_header Pragma public;
+    add_header Cache-Control "public, must-revalidate, proxy-revalidate";
+  }
+
+  location / {
+    proxy_pass http://streetsmart;
+  }
+
+  location @notfound {
+    try_files /404.html =404;
+  }
+}
