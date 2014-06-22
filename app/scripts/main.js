@@ -1,4 +1,32 @@
 'use strict';
+(function($) {
+    //stub out some ajax requests
+    $.mockjax({
+        url: '/inputurl',
+        contentType: 'text/json',
+        responseTime: 2000,
+        responseText: {
+            name: 'Apple iPhone 5S',
+            image: 'http://img5a.flixcart.com/image/mobile/z/h/f/apple-iphone-5s-400x400-imadpppc54zfpj9c.jpeg',
+            price: 45940,
+            time: new Date()
+        }
+    });
+
+    //this request on server side should do these things in order
+    //1. Check if the email is verified on server
+    //  1.1. if step 1 is false => Send out an email verification request
+    //  1.2. if step 1 is true => Queue the request for processing. Limit to 3?
+    $.mockjax({
+        url: '/queue',
+        contentType: 'text/json',
+        responseTime: 1000,
+        responseText: {
+            status: 'Sweet! We\'ll keep you posted as the price changes.'
+        }
+    });
+})(jQuery);
+
 (function(window, $) {
     function supportsTemplate() {
         return ('content' in document.createElement('template'));
@@ -51,6 +79,7 @@
                             var productPriceDOM = tmpl.content.querySelector('#currentPrice');
                             var productNameDOM = tmpl.content.querySelector('#productName');
                             var productImageDOM = tmpl.content.querySelector('#productImage');
+                            var inputEmailDOM = tmpl.content.querySelector('#inputEmail');
                             // var sellerDOM = tmpl.content.querySelector('#seller');
 
                             titleDOM.textContent = nameVal;
@@ -63,6 +92,13 @@
                             productNameDOM.value = nameVal;
                             productPriceDOM.value = priceVal;
                             productImageDOM.value = imageVal;
+
+                            if ('localStorage' in window) {
+                                var userEmail = localStorage.getItem('userEmail');
+                                if (userEmail) {
+                                    inputEmailDOM.value = userEmail;
+                                }
+                            }
 
                             //clone this new template and put it in response container
                             var clone = document.importNode(tmpl.content, true);
@@ -87,10 +123,17 @@
         el: '#fkSubmissionForm',
         handleFormSubmit: function(e) {
             e.preventDefault();
-            $.getJSON('/queue', $(this).serialize(), function(res) {
+            var payload = $(this).serialize();
+            var email = $('#inputEmail').val();
+            FinalSubmissionForm.saveEmailLocally(email);
+            $.getJSON('/queue', payload, function(res) {
                 console.log(res);
-                
             });
+        },
+        saveEmailLocally: function(email) {
+            if ('localStorage' in window) {
+                localStorage.setItem('userEmail', email);
+            }
         }
     };
 
