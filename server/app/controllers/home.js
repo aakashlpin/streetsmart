@@ -1,6 +1,13 @@
-var mongoose = require('mongoose'),
-User = mongoose.model('User');
+'use strict';
 
 exports.index = function(req, res){
     res.render('index');
+};
+
+exports.serverError = function(req, res) {
+    res.render('500.html');
+};
+
+exports.gameOn = function(req, res) {
+    res.render('emailVerified.html');
 };

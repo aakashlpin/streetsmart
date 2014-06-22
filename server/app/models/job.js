@@ -20,6 +20,23 @@ var JobSchema = new Schema({
     isActive: Boolean
 });
 
+JobSchema.statics.get = function(req, callback) {
+    //get all the jobs for an email
+    var data = _.pick(req.query, ['email']);
+    this.find({email: data.email}).lean().exec(callback);
+};
+
+JobSchema.statics.getOneGeneric = function(query, callback) {
+    this.findOne(query).lean().exec(callback);
+};
+
+JobSchema.statics.activateAllJobsForEmail = function(req, callback) {
+    var query    = _.pick(req.query, ['email']);
+    var data     = {isActive: true};
+    var options  = {multi: true};
+    this.update(query, data, options, callback);
+};
+
 JobSchema.statics.post = function(req, callback) {
     var data, Job;
 

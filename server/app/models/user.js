@@ -21,7 +21,7 @@ UserSchema.statics.post = function(req, callback) {
             return callback(err);
         }
         if (user) {
-            return callback(user);
+            return callback(null, user);
         }
 
         User = new this(data);

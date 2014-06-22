@@ -75,5 +75,67 @@ module.exports = {
             });
         });
 
+    },
+    verifyEmail: function(req, res) {
+        var email = req.query.email;
+        var userQuery = {
+            query: {
+                email: email
+            }
+        };
+
+        //check if email has already been verified
+        User.get(userQuery, function(err, userQueryResponse) {
+            if (err) {
+                console.log('error =>', err);
+            }
+            if (userQueryResponse && userQueryResponse.email) {
+                //the user has already been verified
+                res.redirect('/gameon');
+                return;
+            }
+
+            //just verify that atleast one entry exists in the jobs collection for this email
+            Job.get(userQuery, function(err, user) {
+                var isLegit = true;
+                if (err) {
+                    console.log('error getting user information in job collection => ', err);
+                    isLegit = false;
+                }
+                if (!user) {
+                    //bummer! Illegal request
+                    console.log('Nice! Someone is trying to be hack around with the verification email!');
+                    isLegit = false;
+                }
+
+                if (!isLegit) {
+                    res.redirect('/500');
+                    return;
+                }
+
+                //send the emailVerified template to client
+                res.redirect('/gameon');
+
+                //put this email in the users collection
+                User.post(userQuery, function(err, userQueryResponse) {
+                    if (err) {
+                        console.log('error putting user info in db => ', err);
+                    }
+                    if (userQueryResponse) {
+                        console.log('user with email ', email, ' put in the verified email collection');
+                    }
+                });
+
+                //update isActive for all jobs for this email to be true
+                Job.activateAllJobsForEmail(userQuery, function(err, updateRes) {
+                    if (err) {
+                        console.log('error activating jobs => ', err);
+                    }
+                    if (updateRes) {
+                        console.log('activated all jobs for email ', email);
+                    }
+                });
+            });
+        });
     }
 };

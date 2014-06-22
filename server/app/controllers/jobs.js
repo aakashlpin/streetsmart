@@ -1,13 +1,14 @@
 'use strict';
-
 var kue = require('kue');
 var jsdom  = require('jsdom');
+// var fs = require('fs');
 var  _ = require('underscore');
 var config = require('../../config/config');
 var CronJob = require('cron').CronJob;
 var mongoose = require('mongoose');
 var Emails = require('./emails');
 
+// var jquery = fs.readFileSync(__dirname+'/../../jquery.js', 'utf-8');
 var jobsQ = kue.createQueue(),
 Jobs = mongoose.model('Job');
 
@@ -21,18 +22,18 @@ function newJob (jobData) {
     });
 
     job
-    .on('complete', function (){
-        console.log('Job', job.id, 'with name', job.data.name, 'is done');
-        //job.result will contain the callback result after scraping
-        var jobData = job.data.jobData;
-        var jobQuery = {query: {email: jobData.email, productURL: jobData.productURL}};
-        Jobs.get(jobQuery, function(err, jobQueryResult) {
+    .on('complete', function (result){
+        jobData = job.data.jobData;
+        var jobQuery = {email: jobData.email, productURL: jobData.productURL};
+        Jobs.getOneGeneric(jobQuery, function(err, jobQueryResult) {
             if (err) {
                 console.log('jobQuery failed!! OMG I have lost faith in humanity');
                 return;
             }
-            var previousPrice = jobQueryResult.currentPrice;
-            var newPrice = job.result.price;
+
+            var previousPrice = parseInt(jobQueryResult.currentPrice, 10);
+            var newPrice = parseInt(result.price, 10);
+
             if (previousPrice !== newPrice) {
                 //send out an email
                 //modify the DB's currentPrice field and productPriceHistory array
@@ -45,6 +46,10 @@ function newJob (jobData) {
                         console.log(message);
                     }
                 });
+
+                //TODO move this processing to job process
+                //TODO since productPriceHistory is an array, either get->modify->update or directly create a static method to update
+                // var updateWith = {currentPrice: newPrice, }
 
             } else {
                 //make an entry in the DB's productPriceHistory array
@@ -60,10 +65,17 @@ function newJob (jobData) {
 
 function processURL(url, callback) {
     jsdom.env(url, ['http://code.jquery.com/jquery.js'], function (errors, window) {
-        var price = window.$('meta[itemprop="price"]').attr('content'),
-        currency = window.$('meta[itemprop="priceCurrency"]').attr('content'),
-        name = window.$('[itemprop="name"]').text().replace(/^\s+|\s+$/g,'', ''),
-        image = window.$('.product-image').attr('src');
+        var $, price, currency, name, image;
+        $ = window.jQuery;
+        if (typeof $ === void 0)  {
+            callback('Error: jQuery couldn\'t load');
+            return;
+        }
+
+        price = $('meta[itemprop="price"]').attr('content');
+        currency = $('meta[itemprop="priceCurrency"]').attr('content');
+        name = $('[itemprop="name"]').text().replace(/^\s+|\s+$/g,'', '');
+        image = $('.product-image').attr('src');
 
         var callBackData = {
             price: price,
@@ -73,7 +85,7 @@ function processURL(url, callback) {
         };
 
         if (callback) {
-            callback(errors, callBackData);
+            callback(null, callBackData);
         }
     });
 }
@@ -90,7 +102,11 @@ function init() {
 }
 
 jobsQ.process('scraper', function (job, done){
-    processURL(job.jobData.productURL, done);
+    if (job.data.jobData) {
+        processURL(job.data.jobData.productURL, done);
+    } else {
+        done('Couldn\'t find jobData to scrape');
+    }
 });
 
 exports.init = init;

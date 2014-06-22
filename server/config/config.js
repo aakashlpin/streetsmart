@@ -14,7 +14,7 @@ var config = {
         server: 'http://localhost:3000',
         db: 'mongodb://localhost/streetsmart-development',
         requestTimeout: 1*60*1000,    //1 minute
-        cronPattern: '*/5 * * * *'    //every 5 minutes
+        cronPattern: '0-59/1 * * * *'    //every 5 minutes
     },
 
     test: {
@@ -26,7 +26,7 @@ var config = {
         server: 'localhost:3000',
         db: 'mongodb://localhost/streetsmart-test',
         requestTimeout: 1*60*1000,    //1 minute
-        cronPattern: '*/5 * * * *'    //every 5 minutes
+        cronPattern: '0-59/5 * * * *'    //every 5 minutes
     },
 
     production: {
@@ -38,7 +38,7 @@ var config = {
         server: 'http://becheap.in',
         db: 'mongodb://localhost/streetsmart-production',
         requestTimeout: 30*60*1000,    //30 minutes
-        cronPattern: '* */2 * * *'    //every 2 hours
+        cronPattern: '* 0-23/1 * * *'    //every 1 hours
     }
 };
 
