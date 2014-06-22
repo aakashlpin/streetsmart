@@ -43,28 +43,32 @@
             if (evt.type === 'submit') {
                 evt.preventDefault();
             }
-            
-            setTimeout(function() {
-                var url;
-                //setTimeout is necessary to ensure that the content actually gets pasted
-                if (evt.type === 'submit') {
-                    url = $.trim(urlForm.$inputEl.val());
-                    evt.preventDefault();
 
-                } else {
-                    url = $.trim($(evt.target).val());
+            var tmpl, clone;
+            setTimeout(function() {
+                //setTimeout is necessary to ensure that the content actually gets pasted
+                var url = $.trim(urlForm.$inputEl.val());
+                var responseContainer = document.querySelector('#response-container');
+
+                if (url.indexOf('flipkart.com') < 0) {
+                    if (supportsTemplate()) {
+                        tmpl = document.querySelector('#illegalSeller');
+                        clone = document.importNode(tmpl.content, true);
+                        responseContainer.innerHTML = '';
+                        responseContainer.appendChild(clone);
+                    }
+
                 }
+
                 if ((url.indexOf('flipkart.com') > 0) &&
                     (url !== urlForm.oldURL)) {
                     //lets just assume this is a valid url
                     urlForm.oldURL = url;
                     urlForm.$inputEl.attr('disabled', 'disabled');
 
-                    var responseContainer = document.querySelector('#response-container');
-
                     if (supportsTemplate()) {
-                        var tmpl = document.querySelector('#loader');
-                        var clone = document.importNode(tmpl.content, true);
+                        tmpl = document.querySelector('#loader');
+                        clone = document.importNode(tmpl.content, true);
                         responseContainer.innerHTML = '';
                         responseContainer.appendChild(clone);
                     }
@@ -97,8 +101,6 @@
                             var productPriceDOM = tmplContent.querySelector('#currentPrice');
                             var productNameDOM = tmplContent.querySelector('#productName');
                             var productImageDOM = tmplContent.querySelector('#productImage');
-                            var inputEmailDOM = tmplContent.querySelector('#inputEmail');
-                            // var sellerDOM = tmpl.content.querySelector('#seller');
 
                             titleDOM.textContent = nameVal;
                             priceDOM.textContent = priceVal;
@@ -111,21 +113,24 @@
                             productPriceDOM.value = priceVal;
                             productImageDOM.value = imageVal;
 
-                            if ('localStorage' in window) {
-                                var userEmail = localStorage.getItem('userEmail');
-                                if (userEmail) {
-                                    inputEmailDOM.value = userEmail;
-                                }
-                            }
-
                             //clone this new template and put it in response container
                             clone = document.importNode(tmpl.content, true);
                             responseContainer.innerHTML = '';
                             responseContainer.appendChild(clone);
-                            $('#inputEmail').focus();
+
+                            var inputEmailClonedDOM = $('#inputEmail');
+                            if ('localStorage' in window) {
+                                var userEmail = localStorage.getItem('userEmail');
+                                if (userEmail) {
+                                    inputEmailClonedDOM.val(userEmail);
+                                }
+                            }
+
+                            inputEmailClonedDOM.focus();
 
                             //bind the event here
                             $(FinalSubmissionForm.el).on('submit', FinalSubmissionForm.handleFormSubmit);
+                            $(FinalSubmissionForm.reloadBtn).on('click', FinalSubmissionForm.resetState);
 
                         }
 
@@ -140,19 +145,32 @@
 
     var FinalSubmissionForm = {
         el: '#fkSubmissionForm',
+        reloadBtn: '#reloadBtn',
         handleFormSubmit: function(e) {
             e.preventDefault();
             var payload = $(this).serialize();
-            var email = $('#inputEmail').val();
+            var inputEmailDOM = $('#inputEmail');
+            var submitBtn = $('#submitBtn');
+            var reloadBtn = $('#reloadBtn');
+            var messageContainer = $('#queueResponse');
+            var email = inputEmailDOM.val();
+            submitBtn.attr('disabled', 'disabled');
             FinalSubmissionForm.saveEmailLocally(email);
             $.getJSON('/queue', payload, function(res) {
-                console.log(res);
+                var message = res.status;
+                inputEmailDOM.attr('disabled', 'disabled');
+                submitBtn.hide();
+                reloadBtn.removeClass('hide');
+                messageContainer.removeClass('hide').hide().find('.js-queue-response').html(message).end().fadeIn();
             });
         },
         saveEmailLocally: function(email) {
             if ('localStorage' in window) {
                 localStorage.setItem('userEmail', email);
             }
+        },
+        resetState: function() {
+            location.reload();
         }
     };
 
