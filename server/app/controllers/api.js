@@ -43,7 +43,7 @@ module.exports = {
                 return;
             }
 
-            var isEmailVerified = userQueryResult && userQueryResult.email;
+            var isEmailVerified = !!(userQueryResult && userQueryResult.email);
             if (!isEmailVerified) {
                 //1. send response back for the UI
                 res.json({
@@ -74,7 +74,7 @@ module.exports = {
                 productURL: getURLWithAffiliateId(productData.productURL),
                 productImage: productData.productImage,
                 seller: productData.seller,
-                isEmailVerified: !!isEmailVerified
+                isEmailVerified: isEmailVerified    //this is needed for some checks while creating a new job
             };
 
             Job.post({query: newJobData}, function(err, createdJob) {

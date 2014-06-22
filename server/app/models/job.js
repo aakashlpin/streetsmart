@@ -77,31 +77,43 @@ JobSchema.statics.post = function(req, callback) {
         'productImage', 'productName']
     );
 
-    this.findOne({email: data.email, productURL: data.productURL}, function(err, job) {
+    var findQuery = {email: data.email, productURL: data.productURL};
+    this.findOne(findQuery, function(err, job) {
         if (err) {
             return callback(err);
         }
 
         if (job) {
-            return callback('This URL is already being tracked for you.');
+            if (!job.isActive && job.isEmailVerified) {
+                //use case:
+                //person starts tracking a product
+                //then unsubscribes for this product
+                //then starts tracking this product again
+                //since I want to maintain uniqueness of email+productURL, updating it
+                this.update(findQuery, {isActive: true}, {}, callback);
+
+            } else {
+                callback('This URL is already being tracked for you.');
+            }
+
+        } else {
+            //create a new job entry
+            Job = new this({
+                email: data.email,
+                productURL: data.productURL,
+                productName: data.productName,
+                productImage: data.productImage,
+                seller: data.seller || 'Flipkart',
+                currentPrice: data.currentPrice,
+                productPriceHistory: [{
+                    date: new Date(),
+                    price: data.currentPrice
+                }],
+                isActive: data.isEmailVerified
+            });
+
+            Job.save(callback);
         }
-
-        //create a new job entry
-        Job = new this({
-            email: data.email,
-            productURL: data.productURL,
-            productName: data.productName,
-            productImage: data.productImage,
-            seller: data.seller || 'Flipkart',
-            currentPrice: data.currentPrice,
-            productPriceHistory: [{
-                date: new Date(),
-                price: data.currentPrice
-            }],
-            isActive: data.isEmailVerified
-        });
-
-        Job.save(callback);
 
     }.bind(this));
 };
