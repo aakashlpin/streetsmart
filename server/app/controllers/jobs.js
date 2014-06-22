@@ -60,6 +60,9 @@ function newJob (jobData) {
     })
     .on('failed', function (){
         console.log('Job', job.id, 'with name', job.data.name, 'has failed');
+        //move the job to inactive state
+        //this will re-enqueue the job
+        job.state('inactive').priority('high').save();
     });
 
     job.save();

@@ -14,7 +14,7 @@ var config = {
         server: 'http://localhost:3000',
         db: 'mongodb://localhost/streetsmart-development',
         requestTimeout: 1*60*1000,    //1 minute
-        cronPattern: '0-59/1 * * * *'    //every 5 minutes
+        cronPattern: '0-59/5 * * * *'    //every 5 minutes
     },
 
     test: {
