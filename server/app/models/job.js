@@ -20,6 +20,33 @@ var JobSchema = new Schema({
     isActive: Boolean
 });
 
+
+JobSchema.statics.updateNewPrice = function(query, updateWith, callback) {
+    var newPrice = updateWith.price;
+    this.findOne(query, function(err, doc) {
+        var updateParams = {
+            productPriceHistory: doc.productPriceHistory
+        };
+        var updateOptions = {};
+
+        if (doc) {
+            updateParams.productPriceHistory.push({
+                date: new Date(),
+                price: newPrice
+            });
+
+            if (doc.currentPrice !== newPrice) {
+                updateParams.currentPrice = newPrice;
+            }
+
+            this.update(query, updateParams, updateOptions, callback);
+            
+        } else {
+            callback(err, null);
+        }
+    }.bind(this));
+};
+
 JobSchema.statics.get = function(req, callback) {
     //get all the jobs for an email
     var data = _.pick(req.query, ['email']);

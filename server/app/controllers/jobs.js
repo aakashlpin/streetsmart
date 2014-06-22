@@ -46,14 +46,16 @@ function newJob (jobData) {
                         console.log(message);
                     }
                 });
-
-                //TODO move this processing to job process
-                //TODO since productPriceHistory is an array, either get->modify->update or directly create a static method to update
-                // var updateWith = {currentPrice: newPrice, }
-
-            } else {
-                //make an entry in the DB's productPriceHistory array
             }
+
+            Jobs.updateNewPrice(jobQuery, {price: newPrice}, function(err, updatedJob) {
+                if (err) {
+                    console.log('updating price failed => ', err);
+                }
+                if (updatedJob) {
+                    console.log('entry in the db updated ', updatedJob);
+                }
+            });
         });
     })
     .on('failed', function (){
