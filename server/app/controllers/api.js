@@ -49,7 +49,7 @@ module.exports = {
                 return;
             }
 
-            var isEmailVerified = !!(userQueryResult && userQueryResult.email);
+            var isEmailVerified = !!(!!userQueryResult && userQueryResult.email);
             if (!isEmailVerified) {
                 //1. send response back for the UI
                 logger.log('info', 'new user unverified', {email: userQueryResult.email});
