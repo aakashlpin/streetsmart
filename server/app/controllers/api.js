@@ -6,6 +6,7 @@ var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Job = mongoose.model('Job');
 var config = require('../../config/config');
+var logger = require('../../logger').logger;
 
 function getURLWithAffiliateId(url) {
     var urlSymbol = url.indexOf('?') > 0 ? '&': '?';
@@ -21,6 +22,11 @@ module.exports = {
     processInputURL: function(req, res) {
         var url = req.query.url;
         jobs.processURL(url, function(err, crawledInfo) {
+            if (err) {
+                logger.log('error', 'processing URL from UI failed', {error: err});
+                res.json({error: 'Oops. Our servers screwed up! Try again, please?'});
+                return;
+            }
             res.json(crawledInfo);
         });
     },
@@ -39,13 +45,14 @@ module.exports = {
 
         User.get(userQuery, function(err, userQueryResult) {
             if (err) {
-                console.log(err);
+                logger.log(err);
                 return;
             }
 
             var isEmailVerified = !!(userQueryResult && userQueryResult.email);
             if (!isEmailVerified) {
                 //1. send response back for the UI
+                logger.log('info', 'new user unverified', {email: userQueryResult.email});
                 res.json({
                     status: 'Almost Done! Just verify your email, then sit back and relax!'
                 });
@@ -53,14 +60,14 @@ module.exports = {
                 //2. send verification email
                 Emails.sendVerifier(userData, productData, function(err, status) {
                     if (err) {
-                        console.log('error sending verification email => ', err);
+                        logger.log('error', 'error sending verification email', {error: err});
                         return;
                     }
-                    console.log('verification email sent to => ',
-                    userData.email, ' with status => ', status);
+                    logger.log('info', 'verification email triggered', {status: status});
                 });
 
             } else {
+                logger.log('info', 'returning user', {email: userQueryResult.email});
                 res.json({
                     status: 'Sweet! We\'ll keep you posted as the price changes.'
                 });
@@ -79,10 +86,10 @@ module.exports = {
 
             Job.post({query: newJobData}, function(err, createdJob) {
                 if (err) {
-                    console.log('error adding job to db => ', err);
+                    logger.log('error', 'error adding job to db', {error: err});
                     return;
                 }
-                console.log('job created => ', createdJob);
+                logger.log('info', 'new job', {job: createdJob});
             });
         });
 
@@ -98,7 +105,7 @@ module.exports = {
         //check if email has already been verified
         User.get(userQuery, function(err, userQueryResponse) {
             if (err) {
-                console.log('error =>', err);
+                logger.log('error', 'querying user db failed', {error: err});
             }
             if (userQueryResponse && userQueryResponse.email) {
                 //the user has already been verified
@@ -110,12 +117,12 @@ module.exports = {
             Job.get(userQuery, function(err, user) {
                 var isLegit = true;
                 if (err) {
-                    console.log('error getting user information in job collection => ', err);
+                    logger.log('error', 'error getting user information in job collection', {error: err});
                     isLegit = false;
                 }
                 if (!user) {
                     //bummer! Illegal request
-                    console.log('Nice! Someone is trying to be hack around with the verification email!');
+                    logger.log('warning', 'Nice! Someone is trying to be hack around with the verification email!');
                     isLegit = false;
                 }
 
@@ -130,20 +137,20 @@ module.exports = {
                 //put this email in the users collection
                 User.post(userQuery, function(err, userQueryResponse) {
                     if (err) {
-                        console.log('error putting user info in db => ', err);
+                        logger.log('error', 'error putting user info in db', {error: err});
                     }
                     if (userQueryResponse) {
-                        console.log('user with email ', email, ' put in the verified email collection');
+                        // logger.log('info', 'user with email ', email, ' put in the verified email collection');
                     }
                 });
 
                 //update isActive for all jobs for this email to be true
                 Job.activateAllJobsForEmail(userQuery, function(err, updateRes) {
                     if (err) {
-                        console.log('error activating jobs => ', err);
+                        logger.log('error', 'error activating jobs', {error: err});
                     }
                     if (updateRes) {
-                        console.log('activated all jobs for email ', email);
+                        // logger.log('activated all jobs for email ', email);
                     }
                 });
             });
@@ -181,9 +188,9 @@ module.exports = {
 
         Job.markJobsAsInactive(dbQuery, function(err, dbQueryRes) {
             if (err) {
-                console.log('error unsubscribing ', queryParams.email);
+                logger.log('error', 'error unsubscribing', {email: queryParams.email});
             } else {
-                console.log('user documents unsubscribed => ', dbQueryRes);
+                // logger.log('user documents unsubscribed => ', dbQueryRes);
             }
         });
     }

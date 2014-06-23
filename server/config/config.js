@@ -16,7 +16,7 @@ var config = {
         db: 'mongodb://localhost/streetsmart-development',
         flipkartAffiliateKey: 'affid',
         flipkartAffiliateId: 'aakashlpi',
-        cronPattern: '0-59/2 * * * *'    //every 5 minutes
+        cronPattern: '0-59/5 * * * *'    //every 5 minutes
     },
 
     test: {
