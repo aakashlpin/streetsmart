@@ -1,14 +1,14 @@
 'use strict';
 var kue = require('kue');
-var jsdom  = require('jsdom');
-// var fs = require('fs');
+var request = require('request');
+var parser  = require('cheerio');
 var  _ = require('underscore');
 var config = require('../../config/config');
 var CronJob = require('cron').CronJob;
 var mongoose = require('mongoose');
 var Emails = require('./emails');
+var logger = require('../../logger').logger;
 
-// var jquery = fs.readFileSync(__dirname+'/../../jquery.js', 'utf-8');
 var jobsQ = kue.createQueue(),
 Jobs = mongoose.model('Job');
 
@@ -23,12 +23,12 @@ function newJob (jobData) {
 
     job
     .on('complete', function (result){
-        console.log('job completed', result);
+        logger.log('info', 'scraping job completed', {result: result});
         jobData = job.data.jobData;
         var jobQuery = {email: jobData.email, productURL: jobData.productURL};
         Jobs.getOneGeneric(jobQuery, function(err, jobQueryResult) {
             if (err) {
-                console.log('jobQuery failed!! OMG I have lost faith in humanity');
+                logger.log('error', 'jobQuery failed', {err: err});
                 return;
             }
 
@@ -42,25 +42,25 @@ function newJob (jobData) {
                 var emailProduct = _.extend(jobData, {currentPrice: newPrice});
                 Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
                     if (err) {
-                        console.log(err);
+                        logger.log('error', 'while sending notifier email', {err: err});
                     } else {
-                        console.log(message);
+                        logger.log('silly', 'successfully sent notifier email', {message: message});
                     }
                 });
             }
 
             Jobs.updateNewPrice(jobQuery, {price: newPrice}, function(err, updatedJob) {
                 if (err) {
-                    console.log('updating price failed => ', err);
+                    logger.log('error', 'updating price after scraping failed', {err: err});
                 }
                 if (updatedJob) {
-                    console.log('entry in the db updated ', updatedJob);
+                    logger.log('silly', 'documents updated after scraping', {count: updatedJob});
                 }
             });
         });
     })
     .on('failed', function (){
-        console.log('job failed. re-queuing');
+        logger.log('error', 'scraping job failed');
         //move the job to inactive state
         //this will re-enqueue the job
         job.state('inactive').priority('high').save();
@@ -70,28 +70,39 @@ function newJob (jobData) {
 }
 
 function processURL(url, callback) {
-    jsdom.env(url, ['http://code.jquery.com/jquery.js'], function (errors, window) {
-        var $, price, currency, name, image;
-        $ = window.jQuery;
-        if (typeof $ === 'undefined')  {
-            callback('Error: jQuery couldn\'t load');
-            return;
+    if (process.env.NODE_ENV !== 'production') {
+        logger.profile('scrape');
+    }
+
+    logger.log('info', 'scrape', {url: url});
+
+    request.get(url, function(error, response, body) {
+        if (!error && response.statusCode === 200) {
+            var $, price, currency, name, image;
+            $ = parser.load(body);
+
+            if (!callback) {
+                logger.log('error', 'scraping without a callback');
+            }
+
+            price = $('meta[itemprop="price"]').attr('content');
+            currency = $('meta[itemprop="priceCurrency"]').attr('content');
+            name = $('[itemprop="name"]').text().replace(/^\s+|\s+$/g, '');
+            image = $('.product-image').attr('src');
+
+            callback && callback(null, {
+                price: price,
+                currency: currency,
+                name: name,
+                image: image
+            });
+
+        } else {
+            logger.log('error', 'request module', {error: error, response: response});
         }
 
-        price = $('meta[itemprop="price"]').attr('content');
-        currency = $('meta[itemprop="priceCurrency"]').attr('content');
-        name = $('[itemprop="name"]').text().replace(/^\s+|\s+$/g,'', '');
-        image = $('.product-image').attr('src');
-
-        var callBackData = {
-            price: price,
-            currency: currency,
-            name: name,
-            image: image
-        };
-
-        if (callback) {
-            callback(null, callBackData);
+        if (process.env.NODE_ENV !== 'production') {
+            logger.profile('scrape');
         }
     });
 }
@@ -99,18 +110,26 @@ function processURL(url, callback) {
 function init() {
     new CronJob(config.cronPattern, function(){
         Jobs.getActiveJobs(function(err, activeJobs) {
+            if (err) {
+                logger.log('error', 'unable to get active jobs from db', {err: err});
+                return;
+            }
+
+            logger.log('info', 'active jobs', {count: activeJobs.length});
+
             activeJobs.forEach(function(activeJob) {
                 newJob(activeJob);
             });
+
         });
     }, null, true, 'Asia/Kolkata');
-
 }
 
 jobsQ.process('scraper', function (job, done){
     if (job.data.jobData) {
         processURL(job.data.jobData.productURL, done);
     } else {
+        logger.log('error', 'jobQ scraper processing failed', {jobObject: job});
         done('Couldn\'t find jobData to scrape');
     }
 });
