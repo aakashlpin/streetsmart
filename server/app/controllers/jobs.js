@@ -39,7 +39,11 @@ function newJob (jobData) {
                 //send out an email
                 //modify the DB's currentPrice field and productPriceHistory array
                 var emailUser = {email: jobData.email};
-                var emailProduct = _.extend(jobData, {currentPrice: newPrice});
+                var emailProduct = _.extend(jobData, {
+                    currentPrice: newPrice,
+                    oldPrice: previousPrice,
+                    measure: previousPrice > newPrice ? 'dropped': 'increased'
+                });
                 Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
                     if (err) {
                         logger.log('error', 'while sending notifier email', {err: err});

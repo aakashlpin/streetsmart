@@ -2,7 +2,10 @@ Hi,
 
 <br><br>
 Just writing to let you know that the price of the product
-<b><%= product.productName %></b> has changed to <b>Rs.<%= product.currentPrice %>/-</b>
+<b><%= product.productName %></b> has <%= product.measure %> to <b>Rs.<%= product.currentPrice %>/-</b>
+
+<br><br>
+Last tracked price of this product was Rs.<%= product.oldPrice %>/-
 
 <br><br>
 You can view or buy the product on <%= product.seller %> by
