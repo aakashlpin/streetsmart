@@ -16,62 +16,65 @@ kue.app.listen(config.kuePort);
 
 function newJob (jobData) {
     var job = jobsQ.create('scraper', {
+        url: jobData.productURL,
         name: jobData.productName,
-        title: 'Processing ' + jobData.productName + ' for ' + jobData.email,
-        jobData: jobData
+        title: 'Processing ' + jobData.productName + ' for ' + jobData.email
     });
 
     job
     .on('complete', function (result){
         logger.log('info', 'scraping job completed', {result: result});
-        jobData = job.data.jobData;
         var jobQuery = {email: jobData.email, productURL: jobData.productURL};
-        Jobs.getOneGeneric(jobQuery, function(err, jobQueryResult) {
-            if (err) {
-                logger.log('error', 'jobQuery failed', {err: err});
-                return;
-            }
+        var previousPrice = parseInt(jobData.currentPrice, 10);
+        var newPrice = parseInt(result.price, 10);
 
-            var previousPrice = parseInt(jobQueryResult.currentPrice, 10);
-            var newPrice = parseInt(result.price, 10);
-
-            if (previousPrice !== newPrice) {
-                //send out an email
-                //modify the DB's currentPrice field and productPriceHistory array
-                var emailUser = {email: jobData.email};
-                var emailProduct = _.extend(jobData, {
-                    currentPrice: newPrice,
-                    oldPrice: previousPrice,
-                    measure: previousPrice > newPrice ? 'dropped': 'increased'
-                });
-                Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
-                    if (err) {
-                        logger.log('error', 'while sending notifier email', {err: err});
-                    } else {
-                        logger.log('silly', 'successfully sent notifier email', {message: message});
-                    }
-                });
-            }
-
-            Jobs.updateNewPrice(jobQuery, {price: newPrice}, function(err, updatedJob) {
+        if (previousPrice !== newPrice) {
+            //send out an email
+            //modify the DB's currentPrice field and productPriceHistory array
+            var emailUser = {email: jobData.email};
+            var emailProduct = _.extend(jobData, {
+                currentPrice: newPrice,
+                oldPrice: previousPrice,
+                measure: previousPrice > newPrice ? 'dropped': 'increased'
+            });
+            Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
                 if (err) {
-                    logger.log('error', 'updating price after scraping failed', {err: err});
-                }
-                if (updatedJob) {
-                    logger.log('silly', 'documents updated after scraping', {count: updatedJob});
+                    logger.log('error', 'while sending notifier email', {err: err});
+                } else {
+                    logger.log('silly', 'successfully sent notifier email', {message: message});
                 }
             });
+        }
+
+        Jobs.updateNewPrice(jobQuery, {price: newPrice}, function(err, updatedJob) {
+            if (err) {
+                logger.log('error', 'updating price after scraping failed', {err: err});
+            }
+            if (updatedJob) {
+                logger.log('silly', 'documents updated after scraping', {count: updatedJob});
+            }
         });
     })
-    .on('failed', function (){
-        logger.log('error', 'scraping job failed');
-        //move the job to inactive state
-        //this will re-enqueue the job
-        job.state('inactive').priority('high').save();
-    });
-
-    job.save();
+    .attempts(3)
+    .backoff({type:'exponential'})
+    .save();
 }
+
+jobsQ.on('job complete', function(id, result) {
+    //free up the memory
+    kue.Job.get(id, function(err, job) {
+        if (err) {
+            return;
+        }
+        job.remove(function(err) {
+            if (err) {
+                logger.log('warn', 'failed to remove completed job #%d', job.id);
+                return;
+            }
+            logger.log('info', 'removed completed job #%d', job.id);
+        });
+    });
+});
 
 function processURL(url, callback) {
     if (process.env.NODE_ENV !== 'production') {
@@ -130,12 +133,12 @@ function init() {
     }, null, true, 'Asia/Kolkata');
 }
 
-jobsQ.process('scraper', function (job, done){
-    if (job.data.jobData) {
-        processURL(job.data.jobData.productURL, done);
+jobsQ.process('scraper', function (job, done) {
+    if (job.data.url) {
+        processURL(job.data.url, done);
     } else {
         logger.log('error', 'jobQ scraper processing failed', {jobObject: job});
-        done('Couldn\'t find jobData to scrape');
+        done('Couldn\'t find jobURL to scrape');
     }
 });
 
