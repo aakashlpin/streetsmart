@@ -23,10 +23,11 @@ module.exports = {
                 callback(err);
 
             } else {
+                var encodedEmail = encodeURIComponent(user.email);
                 var locals = {
                     user: user,
                     product: product,
-                    verificationLink: config.server + '/verify?' + 'email=' + user.email
+                    verificationLink: config.server + '/verify?' + 'email=' + encodedEmail
                 };
 
                 template('verifier', locals, function(err, html) {
