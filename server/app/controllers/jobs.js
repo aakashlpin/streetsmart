@@ -103,6 +103,7 @@ function processURL(url, callback) {
 
         } else {
             logger.log('error', 'request module', {error: error, response: response});
+            callback && callback('error in scraping');
         }
 
         if (process.env.NODE_ENV !== 'production') {
