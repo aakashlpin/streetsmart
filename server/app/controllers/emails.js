@@ -23,10 +23,11 @@ module.exports = {
                 callback(err);
 
             } else {
+                var encodedEmail = encodeURIComponent(user.email);
                 var locals = {
                     user: user,
                     product: product,
-                    verificationLink: config.server + '/verify?' + 'email=' + user.email
+                    verificationLink: config.server + '/verify?' + 'email=' + encodedEmail
                 };
 
                 template('verifier', locals, function(err, html) {
@@ -34,7 +35,7 @@ module.exports = {
                         callback(err);
                     } else {
                         transport.sendMail({
-                            from: 'Flipkart StreetSmart <aakash.lpin@gmail.com>',
+                            from: 'Cheapass India <aakash.lpin@gmail.com>',
                             to: locals.user.email,
                             subject: 'Confirm email to receive price change notifications',
                             html: html,
@@ -79,7 +80,7 @@ module.exports = {
                         callback(err);
                     } else {
                         transport.sendMail({
-                            from: 'Flipkart StreetSmart <aakash.lpin@gmail.com>',
+                            from: 'Cheapass India <aakash.lpin@gmail.com>',
                             to: locals.user.email,
                             subject: 'Price change notification for ' + locals.product.productName,
                             html: html,

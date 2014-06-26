@@ -4,6 +4,11 @@ upstream streetsmart {
 }
 
 server {
+  server_name www.cheapass.in;
+  rewrite ^(.*) http://cheapass.in$1 permanent;
+}
+
+server {
   root /Users/aakashlpin/projects/streetsmart/server/public;
   try_files $uri $uri.html $uri/ @notfound;
   server_name cheapass.in;

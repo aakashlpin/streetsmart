@@ -89,13 +89,12 @@ module.exports = {
                     logger.log('error', 'error adding job to db', {error: err});
                     return;
                 }
-                logger.log('info', 'new job', {job: createdJob});
             });
         });
 
     },
     verifyEmail: function(req, res) {
-        var email = req.query.email;
+        var email = decodeURIComponent(req.query.email);
         var userQuery = {
             query: {
                 email: email
