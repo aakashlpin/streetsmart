@@ -192,5 +192,9 @@ module.exports = {
                 // logger.log('user documents unsubscribed => ', dbQueryRes);
             }
         });
+    },
+    ping: function(req, res) {
+        //to test if server is up
+        res.json({status: 'ok'});
     }
 };
