@@ -28,6 +28,11 @@ function newJob (jobData) {
         var previousPrice = parseInt(jobData.currentPrice, 10);
         var newPrice = parseInt(result.price, 10);
 
+        if (_.isNaN(newPrice)) {
+            logger.log('error', 'price parseInt resulted as NaN. original data attached', {price: result.price});
+            return;
+        }
+
         if (previousPrice !== newPrice) {
             //send out an email
             //modify the DB's currentPrice field and productPriceHistory array
