@@ -18,6 +18,10 @@ function getURLWithAffiliateId(url) {
     }
 }
 
+function illegalRequest(res) {
+    res.redirect('/500');
+}
+
 module.exports = {
     processInputURL: function(req, res) {
         var url = req.query.url;
@@ -94,7 +98,26 @@ module.exports = {
 
     },
     verifyEmail: function(req, res) {
-        var email = decodeURIComponent(req.query.email);
+        var queryObject = req.query;
+        if (!queryObject.email) {
+            illegalRequest(res);
+            return;
+        }
+
+        var email;
+        if (queryObject.email === decodeURIComponent(queryObject.email)) {
+            //query string isn't encoded
+            email = queryObject.email;
+        } else {
+            //query string is encoded
+            email = decodeURIComponent(queryObject.email);
+        }
+
+        if (!email || (typeof email === 'undefined')) {
+            illegalRequest(res);
+            return;
+        }
+
         var userQuery = {
             query: {
                 email: email
@@ -126,7 +149,7 @@ module.exports = {
                 }
 
                 if (!isLegit) {
-                    res.redirect('/500');
+                    illegalRequest(res);
                     return;
                 }
 
