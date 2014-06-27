@@ -4,6 +4,11 @@ var mongoose = require('mongoose'),
 Schema = mongoose.Schema,
 _ = require('underscore');
 
+var ProductPriceHistorySchema = new Schema({
+    date: Date,
+    price: Number
+}, {_id: false});
+
 var JobSchema = new Schema({
     email: String,
     seller: String,    //future proof
@@ -11,12 +16,7 @@ var JobSchema = new Schema({
     productName: String,
     productImage: String,
     currentPrice: Number,
-    productPriceHistory: [
-        {
-            date: Date,
-            price: Number
-        }
-    ],
+    productPriceHistory: [ProductPriceHistorySchema],
     isActive: Boolean
 });
 
