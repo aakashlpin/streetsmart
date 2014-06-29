@@ -3,14 +3,13 @@
 <head>
     <meta charset="utf-8">
     <title>Track Price Changes | Flipkart Products | Amazon Products | Notifications by Email</title>
-    <meta name="description" content="Track price changes to Flipkart products and get notified by email when the price changes.">
+    <meta name="description" content="Track price changes to Flipkart, Amazon products and get notified by email when the price changes.">
     <meta name="viewport" content="width=device-width">
     <meta name="google-site-verification" content="Wu9IL2WJLd4pQoZSQdDKhvMqVJZkje_p1FYRIFU94J0" />
     <link rel="shortcut icon" href="http://faviconist.com/icons/d924a197b16ce0732340f3dd6987c1ef/favicon.ico" />
     <meta name="og_title" property="og:title" content="Price Tracker for products on Flipkart, Amazon. Get notified by email when the price of your favourite product changes."/>
     <meta name="og_site_name" property="og:site_name" content="Cheapass.in"/>
     <meta name="og_url" property="og:url" content="http://cheapass.in" />
-    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
     <!-- build:css styles/vendor.css -->
     <!-- bower:css -->
     <!-- endbower -->
@@ -40,6 +39,11 @@
         <div id="response-container" style="margin: 30px 0;"></div>
 
         <footer>
+            <h5>Supported Sellers:</h5>
+            <ul class="list-unstyled list-sellers list-inline">
+                <li class="item"><a target="_blank" href="http://flipkart.com"><img src="images/flipkart.png" alt="Flipkart.com" /></a></li>
+                <li class="item"><a target="_blank" href="http://amazon.in"><img src="images/amazon.png" alt="Amazon.in" /></a></li>
+            </ul>
             <p class="text-muted">
                 A little something by <a target="_blank" href="http://twitter.com/aakashlpin">Aakash Goel</a>
             </p>
@@ -88,11 +92,11 @@
     </template>
 
     <template id="illegalProductPage">
-        <p class="text-danger">Ummm. Something went wrong. Are you sure you pasted URL of a product page from one of the sellers we support?</p>
+        <p class="text-danger">Ummm. Something went wrong. If you entered link of product page and it didn't work, please <a href="mailto: aakash.lpin@gmail.com">shoot me an email?</a></p>
     </template>
 
     <template id="illegalSeller">
-        <p class="text-danger">Shoo! My super powers tell me this URL doesn't belong to sellers we support.</p>
+        <p class="text-danger">Shoo! My super powers tell me this link doesn't belong to sellers we support.</p>
     </template>
 
     <!-- build:js scripts/vendor.js -->

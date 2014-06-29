@@ -1,4 +1,4 @@
-/* global _ */
+/* global _, _gaq */
 'use strict';
 // (function($) {
 //     //stub out some ajax requests
@@ -32,8 +32,6 @@
     function supportsTemplate() {
         if ('content' in document.createElement('template')) {
             return true;
-        }  else {
-            //TODO put a GA tracking event here
         }
     }
 
@@ -68,12 +66,15 @@
                         clone = document.importNode(tmpl.content, true);
                         responseContainer.innerHTML = '';
                         responseContainer.appendChild(clone);
+                    }  else {
+                        //track non template supporting users
+                        _gaq.push(['_trackEvent', 'HTML5', 'browser does not support native template']);
                     }
                 }
 
+                //using oldURL as a previously entered whatever
+                urlForm.oldURL = url;
                 if (urlForm.isLegitSeller(url) && (url !== urlForm.oldURL)) {
-                    //lets just assume this is a valid url
-                    urlForm.oldURL = url;
                     urlForm.$inputEl.attr('disabled', 'disabled');
 
                     if (supportsTemplate()) {

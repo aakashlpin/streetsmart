@@ -114,6 +114,12 @@ body {
 
 #product-image {
     @media only screen and (min-width: 768px) {
-        max-width: 350px;        
+        max-width: 350px;
+    }
+}
+
+.list-sellers {
+    img {
+        height: 30px;
     }
 }
