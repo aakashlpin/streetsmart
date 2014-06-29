@@ -42,7 +42,7 @@
         sellers: ['flipkart.com', 'amazon.in'],
         isLegitSeller: function(url) {
             var sellers = urlForm.sellers;
-            return _.find(sellers, function(seller) {
+            return !!_.find(sellers, function(seller) {
                 return url.indexOf(seller) >= 0;
             });
         },
@@ -72,11 +72,10 @@
                     }
                 }
 
-                //using oldURL as a previously entered whatever
-                urlForm.oldURL = url;
                 if (urlForm.isLegitSeller(url) && (url !== urlForm.oldURL)) {
+                    //using oldURL as a previously entered whatever
+                    urlForm.oldURL = url;
                     urlForm.$inputEl.attr('disabled', 'disabled');
-
                     if (supportsTemplate()) {
                         tmpl = document.querySelector('#loader');
                         clone = document.importNode(tmpl.content, true);
