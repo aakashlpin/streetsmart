@@ -8,6 +8,7 @@ var CronJob = require('cron').CronJob;
 var mongoose = require('mongoose');
 var Emails = require('./emails');
 var logger = require('../../logger').logger;
+var sellerUtils = require('../utils/seller');
 
 var jobsQ = kue.createQueue(),
 Jobs = mongoose.model('Job');
@@ -90,23 +91,18 @@ function processURL(url, callback) {
 
     request.get(url, function(error, response, body) {
         if (!error && response.statusCode === 200) {
-            var $, price, currency, name, image;
-            $ = parser.load(body);
+            var $ = parser.load(body);
 
             if (!callback) {
                 logger.log('error', 'scraping without a callback');
             }
 
-            price = $('meta[itemprop="price"]').attr('content');
-            currency = $('meta[itemprop="priceCurrency"]').attr('content');
-            name = $('[itemprop="name"]').text().replace(/^\s+|\s+$/g, '');
-            image = $('.product-image').attr('src');
-
+            var seller = sellerUtils.getSellerFromURL(url);
+            var scrapedData = require('../sellers/' + seller)($);
             callback && callback(null, {
-                price: price,
-                currency: currency,
-                name: name,
-                image: image
+                price: scrapedData.price,
+                name: scrapedData.name,
+                image: scrapedData.image
             });
 
         } else {

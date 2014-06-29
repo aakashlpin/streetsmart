@@ -2,12 +2,12 @@
 <html class="no-js">
 <head>
     <meta charset="utf-8">
-    <title>Track Price Changes | Flipkart Products | Notifications by Email</title>
+    <title>Track Price Changes | Flipkart Products | Amazon Products | Notifications by Email</title>
     <meta name="description" content="Track price changes to Flipkart products and get notified by email when the price changes.">
     <meta name="viewport" content="width=device-width">
     <meta name="google-site-verification" content="Wu9IL2WJLd4pQoZSQdDKhvMqVJZkje_p1FYRIFU94J0" />
     <link rel="shortcut icon" href="http://faviconist.com/icons/d924a197b16ce0732340f3dd6987c1ef/favicon.ico" />
-    <meta name="og_title" property="og:title" content="Price Tracker for Flipkart products. Get notified by email when the price of your favourite product changes."/>
+    <meta name="og_title" property="og:title" content="Price Tracker for products on Flipkart, Amazon. Get notified by email when the price of your favourite product changes."/>
     <meta name="og_site_name" property="og:site_name" content="Cheapass.in"/>
     <meta name="og_url" property="og:url" content="http://cheapass.in" />
     <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
@@ -27,7 +27,7 @@
     <div class="container">
         <div class="header">
             <h3>cheap☃ass</h3>
-            <p class="text-muted">Track price changes on Flipkart. Get notified by email.</p>
+            <p class="text-muted">Track changes in price. Get notified by email.</p>
         </div>
 
         <form role="form" id="fkURLForm">
@@ -76,7 +76,6 @@
                     <input type="hidden" name="productName" id="productName" value="">
                     <input type="hidden" name="productURL" id="productURL" value="">
                     <input type="hidden" name="productImage" id="productImage" value="">
-                    <input type="hidden" name="seller" id="seller" value="Flipkart">
                     <div class="form-group">
                         <div class="col-sm-offset-2 col-sm-10">
                             <button type="submit" class="btn btn-info" id="submitBtn">Keep me notified</button>
@@ -89,16 +88,17 @@
     </template>
 
     <template id="illegalProductPage">
-        <p class="text-danger">Ummm. Something went wrong. Are you sure you pasted URL of a product page from Flipkart?</p>
+        <p class="text-danger">Ummm. Something went wrong. Are you sure you pasted URL of a product page from one of the sellers we support?</p>
     </template>
 
     <template id="illegalSeller">
-        <p class="text-danger">Shoo! My super powers tell me this URL doesn't belong to Flipkart.</p>
+        <p class="text-danger">Shoo! My super powers tell me this URL doesn't belong to sellers we support.</p>
     </template>
 
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
     <script src="../bower_components/jquery/dist/jquery.js"></script>
+    <script src="../bower_components/underscore/underscore.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 

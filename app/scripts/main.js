@@ -1,3 +1,4 @@
+/* global _ */
 'use strict';
 // (function($) {
 //     //stub out some ajax requests
@@ -29,13 +30,24 @@
 
 (function(window, $) {
     function supportsTemplate() {
-        return ('content' in document.createElement('template'));
+        if ('content' in document.createElement('template')) {
+            return true;
+        }  else {
+            //TODO put a GA tracking event here
+        }
     }
 
     var urlForm = {
         $el: $('#fkURLForm'),
         $inputEl: $('#productPageURL'),
         oldURL: null,
+        sellers: ['flipkart.com', 'amazon.in'],
+        isLegitSeller: function(url) {
+            var sellers = urlForm.sellers;
+            return _.find(sellers, function(seller) {
+                return url.indexOf(seller) >= 0;
+            });
+        },
         handleURLInputClick: function(e) {
             $(e.target).select();
         },
@@ -50,18 +62,16 @@
                 var url = $.trim(urlForm.$inputEl.val());
                 var responseContainer = document.querySelector('#response-container');
 
-                if (url.indexOf('flipkart.com') < 0) {
+                if (!urlForm.isLegitSeller(url)) {
                     if (supportsTemplate()) {
                         tmpl = document.querySelector('#illegalSeller');
                         clone = document.importNode(tmpl.content, true);
                         responseContainer.innerHTML = '';
                         responseContainer.appendChild(clone);
                     }
-
                 }
 
-                if ((url.indexOf('flipkart.com') > 0) &&
-                    (url !== urlForm.oldURL)) {
+                if (urlForm.isLegitSeller(url) && (url !== urlForm.oldURL)) {
                     //lets just assume this is a valid url
                     urlForm.oldURL = url;
                     urlForm.$inputEl.attr('disabled', 'disabled');
@@ -87,8 +97,8 @@
 
                         urlForm.$inputEl.removeAttr('disabled');
                         var priceVal = res.price,
-                            nameVal = res.name,
-                            imageVal = res.image;
+                        nameVal = res.name,
+                        imageVal = res.image;
 
                         if (supportsTemplate()) {
                             //only if the browser supports template tag natively

@@ -111,3 +111,9 @@ body {
     font-weight: bold;
     text-shadow: 0 1px 0px rgba(0,0,0,0.4);
 }
+
+#product-image {
+    @media only screen and (min-width: 768px) {
+        max-width: 350px;        
+    }
+}

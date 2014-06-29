@@ -7,10 +7,12 @@ var User = mongoose.model('User');
 var Job = mongoose.model('Job');
 var config = require('../../config/config');
 var logger = require('../../logger').logger;
+var sellerUtils = require('../utils/seller');
 
 function getURLWithAffiliateId(url) {
     var urlSymbol = url.indexOf('?') > 0 ? '&': '?';
-    var stringToMatch = config.flipkartAffiliateKey + '=' + config.flipkartAffiliateId;
+    var seller = sellerUtils.getSellerFromURL(url);
+    var stringToMatch = config[seller].key +  '=' + config[seller].value;
     if (url.indexOf(stringToMatch) > 0) {
         return url;
     } else {
@@ -36,8 +38,11 @@ module.exports = {
     },
     processQueue: function(req, res) {
         var productData = _.pick(req.query, ['currentPrice', 'productName',
-        'productURL', 'productImage', 'seller']);
+        'productURL', 'productImage']);
         var user = _.pick(req.query, ['inputEmail']);
+
+        //Determine the seller here instead of UI
+        productData.seller = sellerUtils.getSellerFromURL(productData.productURL);
 
         var userData = {
             email: user.inputEmail
@@ -207,6 +212,8 @@ module.exports = {
             res.redirect('/500');
             return;
         }
+
+        res.redirect('/unsubscribed');
 
         Job.markJobsAsInactive(dbQuery, function(err, dbQueryRes) {
             if (err) {

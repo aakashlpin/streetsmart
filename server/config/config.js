@@ -14,8 +14,14 @@ var config = {
         kuePort: 6001,
         server: 'http://cheapass.in',
         db: 'mongodb://localhost/streetsmart-development',
-        flipkartAffiliateKey: 'affid',
-        flipkartAffiliateId: 'aakashlpi',
+        flipkart: {
+            key: 'affid',
+            value: 'aakashlpi'
+        },
+        amazon: {
+            key: 'tag',
+            value: 'cheapass0a-21'
+        },
         cronPattern: '0-59/5 * * * *'    //every 5 minutes
     },
 
@@ -28,23 +34,15 @@ var config = {
         kuePort: 6001,
         server: 'http://cheapass.in',
         db: 'mongodb://localhost/streetsmart-production',
-        flipkartAffiliateKey: 'affid',
-        flipkartAffiliateId: 'aakashlpi',
-        cronPattern: '0-59/15 * * * *'    //every 15 minutes
-    },
-
-    test: {
-        root: rootPath,
-        app: {
-            name: 'streetsmart'
+        flipkart: {
+            key: 'affid',
+            value: 'aakashlpi'
         },
-        port: 6000,
-        kuePort: 6001,
-        server: 'localhost:6000',
-        db: 'mongodb://localhost/streetsmart-test',
-        flipkartAffiliateKey: 'affid',
-        flipkartAffiliateId: 'aakashlpi',
-        cronPattern: '0-59/5 * * * *'    //every 5 minutes
+        amazon: {
+            key: 'tag',
+            value: 'cheapass0a-21'
+        },
+        cronPattern: '0-59/15 * * * *'    //every 15 minutes
     }
 };
 

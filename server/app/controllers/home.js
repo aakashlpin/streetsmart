@@ -11,3 +11,7 @@ exports.serverError = function(req, res) {
 exports.gameOn = function(req, res) {
     res.render('emailVerified.html');
 };
+
+exports.unsubscribed = function(req, res) {
+    res.render('unsubscribed.html');
+};
