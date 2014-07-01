@@ -89,12 +89,16 @@ function processURL(url, callback) {
 
     logger.log('info', 'scrape', {url: url});
 
+    var seller = sellerUtils.getSellerFromURL(url);
     var requestOptions = {
-        url: url,
-        headers: {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36'
-        }
+        url: url
     };
+
+    if (seller === 'jabong') {
+        requestOptions.headers = {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36'
+        };
+    }
 
     request(requestOptions, function(error, response, body) {
         if (!error && response.statusCode === 200) {
@@ -104,7 +108,6 @@ function processURL(url, callback) {
                 logger.log('error', 'scraping without a callback');
             }
 
-            var seller = sellerUtils.getSellerFromURL(url);
             var scrapedData = require('../sellers/' + seller)($);
             callback && callback(null, {
                 price: scrapedData.price,

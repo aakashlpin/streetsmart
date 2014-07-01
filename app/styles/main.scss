@@ -119,7 +119,14 @@ body {
 }
 
 .list-sellers {
-    img {
-        height: 30px;
+    a {
+        display: block;
     }
+    img {
+        width: 62px;
+    }
+}
+
+.logo {
+    width: 134px;
 }
