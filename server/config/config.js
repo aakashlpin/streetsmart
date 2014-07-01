@@ -31,8 +31,8 @@ var sellerConfig = {
         value: null
     },
     infibeam: {
-        key: null,
-        value: null
+        key: 'trackId',
+        value: 'aaka'
     },
     pepperfry: {
         key: null,
