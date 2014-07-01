@@ -12,11 +12,17 @@ var sellerUtils = require('../utils/seller');
 function getURLWithAffiliateId(url) {
     var urlSymbol = url.indexOf('?') > 0 ? '&': '?';
     var seller = sellerUtils.getSellerFromURL(url);
-    var stringToMatch = config[seller].key +  '=' + config[seller].value;
-    if (url.indexOf(stringToMatch) > 0) {
-        return url;
+    var sellerKey = config[seller].key,
+    sellerValue = config[seller].value;
+    if (sellerKey && sellerValue) {
+        var stringToMatch = sellerKey + '=' + sellerValue;
+        if (url.indexOf(stringToMatch) > 0) {
+            return url;
+        } else {
+            return url + urlSymbol + stringToMatch;
+        }
     } else {
-        return url + urlSymbol + stringToMatch;
+        return url;
     }
 }
 

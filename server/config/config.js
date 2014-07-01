@@ -22,6 +22,14 @@ var config = {
             key: 'tag',
             value: 'cheapass0a-21'
         },
+        myntra: {
+            key: null,
+            value: null
+        },
+        jabong: {
+            key: null,
+            value: null
+        },
         cronPattern: '0-59/5 * * * *'    //every 5 minutes
     },
 
@@ -41,6 +49,14 @@ var config = {
         amazon: {
             key: 'tag',
             value: 'cheapass0a-21'
+        },
+        myntra: {
+            key: null,
+            value: null
+        },
+        jabong: {
+            key: null,
+            value: null
         },
         cronPattern: '0-59/15 * * * *'    //every 15 minutes
     }
