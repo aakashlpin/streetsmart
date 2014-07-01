@@ -16,10 +16,6 @@ module.exports = {
             return 'fabfurnish';
         } else if (url.indexOf('bajaao.com') >= 0) {
             return 'bajaao';
-        } else if (url.indexOf('yebhi.com') >= 0) {
-            return 'yebhi';
-        } else if (url.indexOf('inkfruit.com') >= 0) {
-            return 'inkfruit';
         } else if (url.indexOf('pepperfry.com') >= 0) {
             return 'pepperfry';
         } else if (url.indexOf('zovi.com') >= 0) {
