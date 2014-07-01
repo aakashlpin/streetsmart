@@ -18,12 +18,6 @@ module.exports = {
             return 'bajaao';
         } else if (url.indexOf('pepperfry.com') >= 0) {
             return 'pepperfry';
-        } else if (url.indexOf('zovi.com') >= 0) {
-            return 'zovi';
-        } else if (url.indexOf('koovs.com') >= 0) {
-            return 'koovs';
-        } else if (url.indexOf('cromaretail.com') >= 0) {
-            return 'cromaretail';
         }
         return null;
     }
