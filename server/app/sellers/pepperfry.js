@@ -3,9 +3,8 @@ var _ = require('underscore');
 module.exports = function($) {
 	var priceDOM = $('[itemprop="price"]');
 	var price;
-	price = priceDOM.find('span').remove().replace(',', '');
+	price = parseInt(priceDOM.text().split('Rs.')[1].replace(',', ''), 10);
 
-	price = parseInt(price, 10);
 	if (_.isNaN(price)) {
 		price = false;
 	}

@@ -1,8 +1,11 @@
 'use strict';
 var _ = require('underscore');
 module.exports = function($) {
-	var price = $('[itemprop="price"]').attr('content').replace(',', '');
-	price = parseInt(price, 10);
+	var price = $('[itemprop="price"]').attr('content') || false;
+	if (price) {
+		price = parseInt(price.replace(',', ''), 10);
+	}
+
 	if (_.isNaN(price)) {
 		price = false;
 	}
