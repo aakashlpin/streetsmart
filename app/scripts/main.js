@@ -39,7 +39,9 @@
         $el: $('#fkURLForm'),
         $inputEl: $('#productPageURL'),
         oldURL: null,
-        sellers: ['flipkart.com', 'amazon.in'],
+        sellers: ['flipkart.com', 'amazon.in', 'infibeam.com', 'bajaao.com',
+        'jabong.com', 'myntra.com', 'pepperfry.com', 'snapdeal.com',
+        'fabfurnish.com'],
         isLegitSeller: function(url) {
             var sellers = urlForm.sellers;
             return !!_.find(sellers, function(seller) {
