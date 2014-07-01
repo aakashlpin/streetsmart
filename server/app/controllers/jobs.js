@@ -89,7 +89,14 @@ function processURL(url, callback) {
 
     logger.log('info', 'scrape', {url: url});
 
-    request.get(url, function(error, response, body) {
+    var requestOptions = {
+        url: url,
+        headers: {
+            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36'
+        }
+    };
+
+    request(requestOptions, function(error, response, body) {
         if (!error && response.statusCode === 200) {
             var $ = parser.load(body);
 
