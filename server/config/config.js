@@ -14,7 +14,7 @@ var commonConfig = {
     kuePort: 6001,
     server: 'http://cheapass.in',
     postmarkAPIKey: '72f0644f-1c98-492e-b8f7-a7cff8b1b908',
-    sellers: [
+    sellers: {
         flipkart: {
             key: 'affid',
             value: 'aakashlpi',
@@ -23,7 +23,7 @@ var commonConfig = {
         amazon: {
             key: 'tag',
             value: 'cheapass0a-21',
-            cronPattern: '* 0-23/1 * * *'   //1 hour
+            cronPattern: '0 0-23/1 * * *'   //1 hour
         },
         myntra: {
             key: null,
@@ -37,30 +37,30 @@ var commonConfig = {
         },
         fabfurnish: {
             key: null,
-            value: null
+            value: null,
             cronPattern: '30 0-23/3 * * *'
         },
         infibeam: {
             key: 'trackId',
-            value: 'aaka'
+            value: 'aaka',
             cronPattern: '45 0-23/3 * * *'
         },
         bajaao: {
             key: null,
-            value: null
+            value: null,
             cronPattern: '0 1-23/3 * * *'
         },
         pepperfry: {
             key: null,
-            value: null
+            value: null,
             cronPattern: '15 1-23/3 * * *'
         },
         snapdeal: {
             key: null,
-            value: null
+            value: null,
             cronPattern: '30 1-23/3 * * *'
         }
-    ]
+    }
 };
 
 var config = {

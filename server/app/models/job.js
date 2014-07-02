@@ -122,4 +122,8 @@ JobSchema.statics.getActiveJobs = function(callback) {
     this.find({isActive: true}).lean().exec(callback);
 };
 
+JobSchema.statics.getActiveJobsForSeller = function(seller, callback) {
+    this.find({seller: seller, isActive: true}).lean().exec(callback);
+};
+
 mongoose.model('Job', JobSchema);

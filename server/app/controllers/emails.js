@@ -31,15 +31,15 @@ module.exports = {
                         callback(err);
                     } else {
                         postmark.send({
-                            from: 'Cheapass India <notifications@cheapass.in>',
-                            to: locals.user.email,
-                            subject: 'Confirm email to receive price change notifications',
-                            html: html
+                            'From': 'Cheapass India <notifications@cheapass.in>',
+                            'To': locals.user.email,
+                            'HtmlBody': html,
+                            'Subject': 'Confirm email to receive price change notifications'
                         }, function(err, responseStatus) {
                             if (err) {
                                 callback(err);
                             } else {
-                                callback(null, responseStatus.message);
+                                callback(null, responseStatus);
                             }
                         });
                     }
@@ -75,15 +75,15 @@ module.exports = {
                         callback(err);
                     } else {
                         postmark.send({
-                            from: 'Cheapass India <notifications@cheapass.in>',
-                            to: locals.user.email,
-                            subject: 'Price change notification for ' + locals.product.productName,
-                            html: html
+                            'From': 'Cheapass India <notifications@cheapass.in>',
+                            'To': locals.user.email,
+                            'HtmlBody': html,
+                            'Subject': 'Price change notification for ' + locals.product.productName,
                         }, function(err, responseStatus) {
                             if (err) {
                                 callback(err);
                             } else {
-                                callback(null, responseStatus.message);
+                                callback(null, responseStatus);
                             }
                         });
                     }

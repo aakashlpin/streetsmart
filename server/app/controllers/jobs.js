@@ -127,14 +127,17 @@ function processURL(url, callback) {
 }
 
 function init() {
-    if (!config.isCronActive) return;
+    if (!config.isCronActive) {
+        return;
+    }
 
     //since each seller has different cron pattern
     //fetch each seller's cron pattern and create different cron jobs
     var sellers = config.sellers;
-    _.each(sellers, function(seller) {
-        new CronJob(seller.cronPattern, function() {
-            Jobs.getActiveJobs(function(err, activeJobs) {
+    _.each(_.keys(sellers), function(seller) {
+        var sellerData = sellers[seller];
+        new CronJob(sellerData.cronPattern, function() {
+            Jobs.getActiveJobsForSeller(seller, function(err, activeJobs) {
                 if (err) {
                     logger.log('error', 'unable to get active jobs from db', {err: err});
                     return;
