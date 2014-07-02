@@ -12,8 +12,8 @@ var sellerUtils = require('../utils/seller');
 function getURLWithAffiliateId(url) {
     var urlSymbol = url.indexOf('?') > 0 ? '&': '?';
     var seller = sellerUtils.getSellerFromURL(url);
-    var sellerKey = config[seller].key,
-    sellerValue = config[seller].value;
+    var sellerKey = config.sellers[seller].key,
+    sellerValue = config.sellers[seller].value;
     if (sellerKey && sellerValue) {
         var stringToMatch = sellerKey + '=' + sellerValue;
         if (url.indexOf(stringToMatch) > 0) {

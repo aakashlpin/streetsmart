@@ -127,21 +127,28 @@ function processURL(url, callback) {
 }
 
 function init() {
-    new CronJob(config.cronPattern, function(){
-        Jobs.getActiveJobs(function(err, activeJobs) {
-            if (err) {
-                logger.log('error', 'unable to get active jobs from db', {err: err});
-                return;
-            }
+    if (!config.isCronActive) return;
 
-            logger.log('info', 'active jobs', {count: activeJobs.length});
+    //since each seller has different cron pattern
+    //fetch each seller's cron pattern and create different cron jobs
+    var sellers = config.sellers;
+    _.each(sellers, function(seller) {
+        new CronJob(seller.cronPattern, function() {
+            Jobs.getActiveJobs(function(err, activeJobs) {
+                if (err) {
+                    logger.log('error', 'unable to get active jobs from db', {err: err});
+                    return;
+                }
 
-            activeJobs.forEach(function(activeJob) {
-                newJob(activeJob);
+                logger.log('info', 'active jobs', {count: activeJobs.length});
+
+                activeJobs.forEach(function(activeJob) {
+                    newJob(activeJob);
+                });
+
             });
-
-        });
-    }, null, true, 'Asia/Kolkata');
+        }, null, true, 'Asia/Kolkata');
+    });
 }
 
 jobsQ.process('scraper', function (job, done) {

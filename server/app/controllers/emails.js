@@ -3,18 +3,14 @@
 var path       = require('path'),
 templatesDir   = path.resolve(__dirname, '..', 'templates'),
 emailTemplates = require('email-templates'),
-nodemailer     = require('nodemailer'),
+// nodemailer     = require('nodemailer'),
 _              = require('underscore'),
 config         = require('../../config/config');
 
+var postmark = require('postmark')(config.postmarkAPIKey);
+
 // Prepare nodemailer transport object
-var transport = nodemailer.createTransport('SMTP', {
-    service: 'Gmail',
-    auth: {
-        user: 'aakash.lpin@gmail.com',
-        pass: 'unnxguhjdeeflxua'
-    }
-});
+// var transport = nodemailer.createTransport('postmark');
 
 module.exports = {
     sendVerifier: function(user, product, callback) {
@@ -34,12 +30,11 @@ module.exports = {
                     if (err) {
                         callback(err);
                     } else {
-                        transport.sendMail({
-                            from: 'Cheapass India <aakash.lpin@gmail.com>',
+                        postmark.send({
+                            from: 'Cheapass India <notifications@cheapass.in>',
                             to: locals.user.email,
                             subject: 'Confirm email to receive price change notifications',
-                            html: html,
-                            generateTextFromHTML: true
+                            html: html
                         }, function(err, responseStatus) {
                             if (err) {
                                 callback(err);
@@ -79,12 +74,11 @@ module.exports = {
                     if (err) {
                         callback(err);
                     } else {
-                        transport.sendMail({
-                            from: 'Cheapass India <aakash.lpin@gmail.com>',
+                        postmark.send({
+                            from: 'Cheapass India <notifications@cheapass.in>',
                             to: locals.user.email,
                             subject: 'Price change notification for ' + locals.product.productName,
-                            html: html,
-                            generateTextFromHTML: true
+                            html: html
                         }, function(err, responseStatus) {
                             if (err) {
                                 callback(err);
