@@ -94,7 +94,7 @@ function processURL(url, callback) {
         url: url
     };
 
-    if (seller === 'jabong') {
+    if (config.sellers[seller].requiresUserAgent) {
         requestOptions.headers = {
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36'
         };
@@ -136,14 +136,15 @@ function init() {
     var sellers = config.sellers;
     _.each(_.keys(sellers), function(seller) {
         var sellerData = sellers[seller];
+        var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
         new CronJob(sellerData.cronPattern, function() {
-            Jobs.getActiveJobsForSeller(seller, function(err, activeJobs) {
+            SellerJobModel.get(function(err, activeJobs) {
                 if (err) {
                     logger.log('error', 'unable to get active jobs from db', {err: err});
                     return;
                 }
 
-                logger.log('info', 'active jobs', {count: activeJobs.length});
+                logger.log('info', 'active jobs for seller', {seller: seller, count: activeJobs.length});
 
                 activeJobs.forEach(function(activeJob) {
                     newJob(activeJob);

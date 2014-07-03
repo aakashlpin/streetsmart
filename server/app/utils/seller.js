@@ -1,3 +1,5 @@
+'use strict';
+var mongoose = require('mongoose');
 module.exports = {
     getSellerFromURL: function(url) {
         if (url.indexOf('flipkart.com') >= 0) {
@@ -5,9 +7,9 @@ module.exports = {
         } else if (url.indexOf('amazon.in') >= 0) {
             return 'amazon';
         } else if (url.indexOf('jabong.com') >= 0) {
-        	return 'jabong';
+            return 'jabong';
         } else if (url.indexOf('myntra.com') >= 0) {
-        	return 'myntra';
+            return 'myntra';
         } else if (url.indexOf('infibeam.com') >= 0) {
             return 'infibeam';
         } else if (url.indexOf('snapdeal.com') >= 0) {
@@ -20,5 +22,9 @@ module.exports = {
             return 'pepperfry';
         }
         return null;
+    },
+    getSellerJobModelInstance: function(seller) {
+        var jobSellerModelName = seller + '_job';
+        return mongoose.model(jobSellerModelName);
     }
 };

@@ -1,8 +1,10 @@
 'use strict';
+var home = require('../app/controllers/home');
+var migrations = require('../app/migrations/index');
+
 module.exports = function(app){
 
 	//home route
-	var home = require('../app/controllers/home');
 	app.get('/', home.index);
 	app.get('/500', home.serverError);
 	app.get('/gameon', home.gameOn);
@@ -26,4 +28,7 @@ module.exports = function(app){
 
 	//new relic ping
 	app.get('/ping', api.ping);
+
+	//1 time migration scripts
+	app.get('/migrate', migrations.shardJobs);
 };

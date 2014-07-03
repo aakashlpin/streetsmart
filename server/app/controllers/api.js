@@ -104,6 +104,9 @@ module.exports = {
                     logger.log('error', 'error adding job to db', {error: err});
                     return;
                 }
+                if (createdJob) {
+                    //good job
+                }
             });
         });
 
@@ -221,12 +224,14 @@ module.exports = {
 
         res.redirect('/unsubscribed');
 
-        Job.markJobsAsInactive(dbQuery, function(err, dbQueryRes) {
+        var seller = sellerUtils.getSellerFromURL(dbQuery.productURL);
+        var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
+        SellerJobModel.removeJob(dbQuery, function(err) {
             if (err) {
-                logger.log('error', 'error unsubscribing', {email: queryParams.email});
-            } else {
-                // logger.log('user documents unsubscribed => ', dbQueryRes);
+                logger.log('error', 'error unsubscribing for data', dbQuery);
+                return;
             }
+            logger.log('info', 'unsubscribed user', dbQuery);
         });
     },
     ping: function(req, res) {

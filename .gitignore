@@ -7,3 +7,4 @@ test/bower_components
 logs
 server/public
 server/newrelic_agent.log
+.idea
