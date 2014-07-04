@@ -8,3 +8,4 @@ logs
 server/public
 server/newrelic_agent.log
 .idea
+scripts/backup
