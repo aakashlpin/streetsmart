@@ -36,7 +36,7 @@ function newJob (jobData) {
             return;
         }
 
-        if (previousPrice === newPrice) {
+        if (previousPrice !== newPrice) {
             //send out an email
             //modify the DB's currentPrice field and productPriceHistory array
             var emailUser = {email: jobData.email};
