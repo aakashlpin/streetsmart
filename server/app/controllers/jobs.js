@@ -3,6 +3,7 @@ var kue = require('kue');
 var request = require('request');
 var parser  = require('cheerio');
 var  _ = require('underscore');
+_.str = require('underscore.string');
 var config = require('../../config/config');
 var CronJob = require('cron').CronJob;
 var mongoose = require('mongoose');
@@ -35,15 +36,18 @@ function newJob (jobData) {
             return;
         }
 
-        if (previousPrice !== newPrice) {
+        if (previousPrice === newPrice) {
             //send out an email
             //modify the DB's currentPrice field and productPriceHistory array
             var emailUser = {email: jobData.email};
             var emailProduct = _.extend(jobData, {
                 currentPrice: newPrice,
                 oldPrice: previousPrice,
+                seller: _.str.capitalize(sellerUtils.getSellerFromURL(jobData.productURL)),
                 measure: previousPrice > newPrice ? 'dropped': 'increased'
             });
+
+            //send notification email for price change
             Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
                 if (err) {
                     logger.log('error', 'while sending notifier email', {err: err});

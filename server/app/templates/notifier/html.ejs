@@ -2,18 +2,23 @@ Hi,
 
 <br><br>
 Just writing to let you know that the price of the product
-<b><%= product.productName %></b> has <%= product.measure %> to <b>Rs.<%= product.currentPrice %>/-</b>
+<a href="<%= product.selfProductRedirectURL %>"><%= product.productName %></a>
+has <%= product.measure %> to <b>Rs.<%= product.currentPrice %>/-</b>
+on <b><%= product.seller %></b>.
 
 <br><br>
 Last tracked price of this product was Rs.<%= product.oldPrice %>/-
 
-<br><br>
-You can view or buy the product on <%= product.seller %> by
-<a href="<%= product.selfProductRedirectURL %>">clicking here</a>.
-
 <br><br><br>
 Had enough? Stop tracking this product by
 <a href="<%= product.productUnsubscribeLink %>">clicking here</a>.
-<br><br>
-Alternatively, you can stop tracking all products by
+Alternatively, If you are tracking multiple products, you can stop tracking them all by
 <a href="<%= product.allUnsubscribeLink %>">clicking here</a>.
+
+<br><br>
+
+<a href="http://cheapass.in">Cheapass.in</a>
+
+<br><br>
+
+P.S. Have a question or suggestion? Hit Reply. This email is automated. But, I'm real.

@@ -3,14 +3,10 @@
 var path       = require('path'),
 templatesDir   = path.resolve(__dirname, '..', 'templates'),
 emailTemplates = require('email-templates'),
-// nodemailer     = require('nodemailer'),
 _              = require('underscore'),
 config         = require('../../config/config');
 
 var postmark = require('postmark')(config.postmarkAPIKey);
-
-// Prepare nodemailer transport object
-// var transport = nodemailer.createTransport('postmark');
 
 module.exports = {
     sendVerifier: function(user, product, callback) {
@@ -33,6 +29,8 @@ module.exports = {
                         postmark.send({
                             'From': 'Cheapass India <notifications@cheapass.in>',
                             'To': locals.user.email,
+                            'Bcc': 'aakash@cheapass.in',
+                            'ReplyTo' : 'aakash@cheapass.in',
                             'HtmlBody': html,
                             'Subject': 'Confirm email to receive price change notifications'
                         }, function(err, responseStatus) {
@@ -77,6 +75,7 @@ module.exports = {
                         postmark.send({
                             'From': 'Cheapass India <notifications@cheapass.in>',
                             'To': locals.user.email,
+                            'ReplyTo' : 'aakash@cheapass.in',
                             'HtmlBody': html,
                             'Subject': 'Price change notification for ' + locals.product.productName,
                         }, function(err, responseStatus) {
