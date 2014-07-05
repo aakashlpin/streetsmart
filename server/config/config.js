@@ -20,63 +20,90 @@ var commonConfig = {
             key: 'affid',
             value: 'aakashlpi',
             requiresUserAgent: false,
-            cronPattern: '0-59/30 * * * *'    //30 mins
+            cronPattern: {
+                'development': '0-59/5 * * * *',
+                'production': '0-59/30 * * * *'
+            }
         },
         amazon: {
             url: 'amazon.in',
             key: 'tag',
             value: 'cheapass0a-21',
             requiresUserAgent: false,
-            cronPattern: '0 0-23/1 * * *'   //1 hour
+            cronPattern: {
+                'development': '1-59/5 * * * *',
+                'production': '0 0-23/1 * * *'
+            }
         },
         myntra: {
             url: 'myntra.com',
             key: null,
             value: null,
             requiresUserAgent: false,
-            cronPattern: '0 0-23/3 * * *'
+            cronPattern: {
+                'development': '2-59/5 * * * *',
+                'production': '0 0-23/3 * * *'
+            }
         },
         jabong: {
             url: 'jabong.com',
             key: null,
             value: null,
             requiresUserAgent: true,
-            cronPattern: '15 0-23/3 * * *'
+            cronPattern: {
+                'development': '3-59/5 * * * *',
+                'production': '15 0-23/3 * * *'
+            }
         },
         fabfurnish: {
             url: 'fabfurnish.com',
             key: null,
             value: null,
             requiresUserAgent: false,
-            cronPattern: '30 0-23/3 * * *'
+            cronPattern: {
+                'development': '4-59/5 * * * *',
+                'production': '30 0-23/3 * * *'
+            }
         },
         infibeam: {
             url: 'infibeam.com',
             key: 'trackId',
             value: 'aaka',
             requiresUserAgent: false,
-            cronPattern: '45 0-23/3 * * *'
+            cronPattern: {
+                'development': '6-59/5 * * * *',
+                'production': '45 0-23/3 * * *'
+            }
         },
         bajaao: {
             url: 'bajaao.com',
             key: null,
             value: null,
             requiresUserAgent: false,
-            cronPattern: '0 1-23/3 * * *'
+            cronPattern: {
+                'development': '7-59/5 * * * *',
+                'production': '0 1-23/3 * * *'
+            }
         },
         pepperfry: {
             url: 'pepperfry.com',
             key: null,
             value: null,
             requiresUserAgent: false,
-            cronPattern: '15 1-23/3 * * *'
+            cronPattern: {
+                'development': '8-59/5 * * * *',
+                'production': '15 1-23/3 * * *'
+            }
         },
         snapdeal: {
             url: 'snapdeal.com',
             key: null,
             value: null,
             requiresUserAgent: false,
-            cronPattern: '30 1-23/3 * * *'
+            cronPattern: {
+                'development': '9-59/5 * * * *',
+                'production': '30 1-23/3 * * *'
+            }
         }
     }
 };

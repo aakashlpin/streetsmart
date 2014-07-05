@@ -9,6 +9,7 @@ var mongoose = require('mongoose');
 var Emails = require('./emails');
 var logger = require('../../logger').logger;
 var sellerUtils = require('../utils/seller');
+var async = require('async');
 
 var jobsQ = kue.createQueue(),
 Jobs = mongoose.model('Job');
@@ -23,7 +24,7 @@ function newJob (jobData) {
     });
 
     job
-    .on('complete', function (result){
+    .on('complete', function (result) {
         logger.log('info', 'scraping job completed', {result: result});
         var jobQuery = {email: jobData.email, productURL: jobData.productURL};
         var previousPrice = parseInt(jobData.currentPrice, 10);
@@ -66,7 +67,7 @@ function newJob (jobData) {
     .save();
 }
 
-jobsQ.on('job complete', function(id, result) {
+jobsQ.on('job complete', function(id) {
     //free up the memory
     kue.Job.get(id, function(err, job) {
         if (err) {
@@ -109,15 +110,19 @@ function processURL(url, callback) {
             }
 
             var scrapedData = require('../sellers/' + seller)($);
-            callback && callback(null, {
-                price: scrapedData.price,
-                name: scrapedData.name,
-                image: scrapedData.image
-            });
+            if (callback) {
+                callback(null, {
+                    price: scrapedData.price,
+                    name: scrapedData.name,
+                    image: scrapedData.image
+                });
+            }
 
         } else {
             logger.log('error', 'request module', {error: error, response: response});
-            callback && callback('error in scraping');
+            if (callback) {
+                callback('error in scraping');
+            }
         }
 
         if (process.env.NODE_ENV !== 'production') {
@@ -128,31 +133,49 @@ function processURL(url, callback) {
 
 function init() {
     if (!config.isCronActive) {
+        logger.log('error', '=========== Cron Jobs are disabled =============');
         return;
     }
 
     //since each seller has different cron pattern
     //fetch each seller's cron pattern and create different cron jobs
+    var env = process.env.NODE_ENV || 'development';
     var sellers = config.sellers;
-    _.each(_.keys(sellers), function(seller) {
+
+    function cronWorker(seller, SellerJobModel) {
+        SellerJobModel.get(function(err, activeJobs) {
+            if (err) {
+                logger.log('error', 'unable to get active jobs from db', {err: err});
+                return;
+            }
+
+            logger.log('info', 'active jobs for seller', {
+                seller: seller,
+                activeJobs: activeJobs.length
+            });
+
+            activeJobs.forEach(function(activeJob) {
+                newJob(activeJob);
+            });
+        });
+    }
+
+    function createWorkerForSeller (seller, asyncEachCallback) {
         var sellerData = sellers[seller];
         var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
-        new CronJob(sellerData.cronPattern, function() {
-            SellerJobModel.get(function(err, activeJobs) {
-                if (err) {
-                    logger.log('error', 'unable to get active jobs from db', {err: err});
-                    return;
-                }
+        new CronJob({
+            cronTime: sellerData.cronPattern[env],
+            onTick: function() {
+                cronWorker(seller, SellerJobModel);
+            },
+            start: true,
+            timeZone: 'Asia/Kolkata'
+        });
+        asyncEachCallback();
+    }
 
-                logger.log('info', 'active jobs for seller', {seller: seller, count: activeJobs.length});
-
-                activeJobs.forEach(function(activeJob) {
-                    newJob(activeJob);
-                });
-
-            });
-        }, null, true, 'Asia/Kolkata');
-    });
+    //foreach seller, create a cron job
+    async.each(_.keys(sellers), createWorkerForSeller);
 }
 
 jobsQ.process('scraper', function (job, done) {

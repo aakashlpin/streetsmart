@@ -88,54 +88,16 @@ JobSchema.statics.post = function(req, callback) {
     }.bind(this));
 };
 
-// JobSchema.statics.markJobsAsInactive = function(query, callback) {
-//     var updateWith = {isActive: false};
-//     var updateOptions = {multi: true};
-//     this.update(query, updateWith, updateOptions, callback);
-// };
-//
-// JobSchema.statics.updateNewPrice = function(query, updateWith, callback) {
-//     var newPrice = updateWith.price;
-//     this.findOne(query, function(err, doc) {
-//         var updateParams = {
-//             productPriceHistory: doc.productPriceHistory
-//         };
-//         var updateOptions = {};
-//
-//         if (doc) {
-//             updateParams.productPriceHistory.push({
-//                 date: new Date(),
-//                 price: newPrice
-//             });
-//
-//             if (doc.currentPrice !== newPrice) {
-//                 updateParams.currentPrice = newPrice;
-//             }
-//
-//             this.update(query, updateParams, updateOptions, callback);
-//
-//         } else {
-//             callback(err, null);
-//         }
-//     }.bind(this));
-// };
-//
+JobSchema.statics.updateNewPrice = function(query, updateWith, callback) {
+    var seller = SellerUtils.getSellerFromURL(query.productURL);
+    var sellerJobModel = SellerUtils.getSellerJobModelInstance(seller);
+    sellerJobModel.updateNewPrice(query, updateWith, callback);
+};
+
 JobSchema.statics.get = function(req, callback) {
     //get all the jobs for an email
     var data = _.pick(req.query, ['email']);
     this.find({email: data.email}).lean().exec(callback);
 };
-//
-// JobSchema.statics.getOneGeneric = function(query, callback) {
-//     this.findOne(query).lean().exec(callback);
-// };
-
-// JobSchema.statics.getActiveJobs = function(callback) {
-//     this.find({isActive: true}).lean().exec(callback);
-// };
-//
-// JobSchema.statics.getActiveJobsForSeller = function(seller, callback) {
-//     this.find({seller: seller, isActive: true}).lean().exec(callback);
-// };
 
 mongoose.model('Job', JobSchema);

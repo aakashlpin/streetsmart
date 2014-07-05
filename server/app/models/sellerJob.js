@@ -53,6 +53,10 @@ SellerJobSchema.statics.getOneGeneric = function(query, callback) {
     this.findOne(query).lean().exec(callback);
 };
 
+SellerJobSchema.statics.get = function(callback) {
+    this.find().lean().exec(callback);
+};
+
 SellerJobSchema.statics.addJob = function(jobData, callback) {
     var data = _.pick(jobData, ['email', 'currentPrice', 'productURL',
     'productImage', 'productName', 'productPriceHistory']);
