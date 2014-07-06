@@ -130,3 +130,13 @@ body {
 .logo {
     width: 134px;
 }
+
+.visible-touch {
+    display: none;
+}
+
+.touch {
+    .visible-touch {
+        display: block;
+    }
+}
