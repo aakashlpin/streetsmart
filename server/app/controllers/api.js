@@ -2,6 +2,7 @@
 var jobs = require('./jobs');
 var Emails = require('./emails');
 var _ = require('underscore');
+_.str = require('underscore.string');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 var Job = mongoose.model('Job');
@@ -73,7 +74,8 @@ module.exports = {
                 });
 
                 //2. send verification email
-                Emails.sendVerifier(userData, productData, function(err, status) {
+                var emailProductData = _.extend({}, productData, {seller: _.str.capitalize(productData.seller)});
+                Emails.sendVerifier(userData, emailProductData, function(err, status) {
                     if (err) {
                         logger.log('error', 'error sending verification email', {error: err});
                         return;
