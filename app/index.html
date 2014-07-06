@@ -1,5 +1,5 @@
 <!doctype html>
-<html class="no-js">
+<html>
 <head>
     <meta charset="utf-8">
     <title>Track changes in product price. Get notifications by email.</title>
@@ -33,10 +33,7 @@
         <form role="form" id="fkURLForm">
             <div class="form-group">
                 <label for="productPageURL">Product Page Link?</label>
-                <input type="url" autofocus class="form-control input-lg" id="productPageURL" placeholder="http://www.flipkart.com/apple-iphone-5s/p/itmdv6f75dyxhmt4?pid=MOBDPPZZPXVDJHSQ" required>
-            </div>
-            <div class="form-group visible-touch">
-                <button type="submit" class="btn btn-primary btn-lg btn-block">Hit me, cheapass!</button>
+                <input required="required" type="url" autofocus class="form-control input-lg" id="productPageURL" placeholder="http://www.flipkart.com/apple-iphone-5s/p/itmdv6f75dyxhmt4?pid=MOBDPPZZPXVDJHSQ">
             </div>
         </form>
 
@@ -68,11 +65,11 @@
     </template>
 
     <template id="tmplNotifyMe">
-        <div class="media">
-            <div class="pull-left">
+        <div class="row">
+            <div class="col-xs-12 col-sm-5">
                 <img id="product-image" src="" alt="">
             </div>
-            <div class="media-body">
+            <div class="col-xs-12 col-sm-7">
                 <h2 id="product-title"></h2>
                 <h4 class="current-price">Current Price: Rs. <span id="product-price"></span></h4>
                 <form class="form-horizontal" role="form" id="fkSubmissionForm" style="margin-top: 20px;">
@@ -113,7 +110,6 @@
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
     <script src="../bower_components/jquery/dist/jquery.js"></script>
-    <script src="../bower_components/modernizr/modernizr.js"></script>
     <script src="../bower_components/underscore/underscore.js"></script>
     <!-- endbower -->
     <!-- endbuild -->

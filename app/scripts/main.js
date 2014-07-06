@@ -1,4 +1,4 @@
-/* global _, _gaq */
+/* global _ */
 'use strict';
 // (function($) {
 //     //stub out some ajax requests
@@ -28,13 +28,34 @@
 //     });
 // })(jQuery);
 
-(function(window, $) {
-    function supportsTemplate() {
-        if ('content' in document.createElement('template')) {
-            return true;
-        }
+/* POLYFILL */
+(function templatePolyfill(d) {
+    if('content' in d.createElement('template')) {
+        return false;
     }
 
+    var qPlates = d.getElementsByTagName('template'),
+        plateLen = qPlates.length,
+        elPlate,
+        qContent,
+        contentLen,
+        docContent;
+
+    for(var x=0; x<plateLen; ++x) {
+        elPlate = qPlates[x];
+        qContent = elPlate.childNodes;
+        contentLen = qContent.length;
+        docContent = d.createDocumentFragment();
+
+        while(qContent[0]) {
+            docContent.appendChild(qContent[0]);
+        }
+
+        elPlate.content = docContent;
+    }
+})(document);
+
+(function(window, $) {
     var urlForm = {
         $el: $('#fkURLForm'),
         $inputEl: $('#productPageURL'),
@@ -52,48 +73,37 @@
             $(e.target).select();
         },
         handleURLInputPaste: function(evt) {
-            if (evt.type === 'submit') {
-                evt.preventDefault();
-            }
-
             var tmpl, clone;
-            setTimeout(function() {
+            function process() {
                 //setTimeout is necessary to ensure that the content actually gets pasted
                 var url = $.trim(urlForm.$inputEl.val());
                 var responseContainer = document.querySelector('#response-container');
 
                 if (!urlForm.isLegitSeller(url)) {
-                    if (supportsTemplate()) {
-                        tmpl = document.querySelector('#illegalSeller');
-                        clone = document.importNode(tmpl.content, true);
-                        responseContainer.innerHTML = '';
-                        responseContainer.appendChild(clone);
-                    }  else {
-                        //track non template supporting users
-                        _gaq.push(['_trackEvent', 'HTML5', 'browser does not support native template']);
-                    }
+                    tmpl = document.querySelector('#illegalSeller');
+                    clone = document.importNode(tmpl.content, true);
+                    responseContainer.innerHTML = '';
+                    responseContainer.appendChild(clone);
                 }
 
                 if (urlForm.isLegitSeller(url) && (url !== urlForm.oldURL)) {
                     //using oldURL as a previously entered whatever
                     urlForm.oldURL = url;
                     urlForm.$inputEl.attr('disabled', 'disabled');
-                    if (supportsTemplate()) {
-                        tmpl = document.querySelector('#loader');
-                        clone = document.importNode(tmpl.content, true);
-                        responseContainer.innerHTML = '';
-                        responseContainer.appendChild(clone);
-                    }
+                    tmpl = document.querySelector('#loader');
+                    clone = document.importNode(tmpl.content, true);
+                    responseContainer.innerHTML = '';
+                    responseContainer.appendChild(clone);
 
                     $.getJSON('/inputurl', {url: url}, function(res) {
                         if (!res.price) {
-                            if (supportsTemplate()) {
-                                tmpl = document.querySelector('#illegalProductPage');
-                                clone = document.importNode(tmpl.content, true);
-                                responseContainer.innerHTML = '';
-                                responseContainer.appendChild(clone);
-                                urlForm.$inputEl.removeAttr('disabled').click();
-                            }
+                            // if (supportsTemplate()) {
+                            tmpl = document.querySelector('#illegalProductPage');
+                            clone = document.importNode(tmpl.content, true);
+                            responseContainer.innerHTML = '';
+                            responseContainer.appendChild(clone);
+                            urlForm.$inputEl.removeAttr('disabled').click();
+                            // }
                             return;
                         }
 
@@ -102,55 +112,56 @@
                         nameVal = res.name,
                         imageVal = res.image;
 
-                        if (supportsTemplate()) {
-                            //only if the browser supports template tag natively
-                            tmpl = document.querySelector('#tmplNotifyMe');
-                            var tmplContent = tmpl.content;
-                            var titleDOM = tmplContent.querySelector('#product-title');
-                            var priceDOM = tmplContent.querySelector('#product-price');
-                            var imageDOM = tmplContent.querySelector('#product-image');
-                            var productURLDOM = tmplContent.querySelector('#productURL');
-                            var productPriceDOM = tmplContent.querySelector('#currentPrice');
-                            var productNameDOM = tmplContent.querySelector('#productName');
-                            var productImageDOM = tmplContent.querySelector('#productImage');
+                        tmpl = document.querySelector('#tmplNotifyMe');
+                        var tmplContent = tmpl.content;
+                        var titleDOM = tmplContent.querySelector('#product-title');
+                        var priceDOM = tmplContent.querySelector('#product-price');
+                        var imageDOM = tmplContent.querySelector('#product-image');
+                        var productURLDOM = tmplContent.querySelector('#productURL');
+                        var productPriceDOM = tmplContent.querySelector('#currentPrice');
+                        var productNameDOM = tmplContent.querySelector('#productName');
+                        var productImageDOM = tmplContent.querySelector('#productImage');
 
-                            titleDOM.textContent = nameVal;
-                            priceDOM.textContent = priceVal;
-                            imageDOM.src = imageVal;
-                            imageDOM.alt = nameVal;
+                        titleDOM.textContent = nameVal;
+                        priceDOM.textContent = priceVal;
+                        imageDOM.src = imageVal;
+                        imageDOM.alt = nameVal;
 
-                            //hidden input fields
-                            productURLDOM.value = url;
-                            productNameDOM.value = nameVal;
-                            productPriceDOM.value = priceVal;
-                            productImageDOM.value = imageVal;
+                        //hidden input fields
+                        productURLDOM.value = url;
+                        productNameDOM.value = nameVal;
+                        productPriceDOM.value = priceVal;
+                        productImageDOM.value = imageVal;
 
-                            //clone this new template and put it in response container
-                            clone = document.importNode(tmpl.content, true);
-                            responseContainer.innerHTML = '';
-                            responseContainer.appendChild(clone);
+                        //clone this new template and put it in response container
+                        clone = document.importNode(tmpl.content, true);
+                        responseContainer.innerHTML = '';
+                        responseContainer.appendChild(clone);
 
-                            var inputEmailClonedDOM = $('#inputEmail');
-                            if ('localStorage' in window) {
-                                var userEmail = localStorage.getItem('userEmail');
-                                if (userEmail) {
-                                    inputEmailClonedDOM.val(userEmail);
-                                }
+                        var inputEmailClonedDOM = $('#inputEmail');
+                        if ('localStorage' in window) {
+                            var userEmail = localStorage.getItem('userEmail');
+                            if (userEmail) {
+                                inputEmailClonedDOM.val(userEmail);
                             }
-
-                            inputEmailClonedDOM.focus();
-
-                            //bind the event here
-                            $(FinalSubmissionForm.el).on('submit', FinalSubmissionForm.handleFormSubmit);
-                            $(FinalSubmissionForm.reloadBtn).on('click', FinalSubmissionForm.resetState);
-
                         }
+
+                        inputEmailClonedDOM.focus();
+
+                        //bind the event here
+                        $(FinalSubmissionForm.el).on('submit', FinalSubmissionForm.handleFormSubmit);
+                        $(FinalSubmissionForm.reloadBtn).on('click', FinalSubmissionForm.resetState);
 
                     });
                 }
+            }
 
-
-            }.bind(this), 0);
+            if (evt.type === 'submit') {
+                evt.preventDefault();
+                process.call(this);
+            } else {
+                setTimeout(process.bind(this), 0);
+            }
         }
     };
 

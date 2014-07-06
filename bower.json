@@ -4,8 +4,7 @@
   "dependencies": {
     "bootstrap-sass-official": "~3.1.0",
     "jquery": "~1.11.0",
-    "underscore": "~1.6.0",
-    "modernizr": "~2.8.3"
+    "underscore": "~1.6.0"
   },
   "devDependencies": {
     "jquery-mockjax": "~1.5.3"
