@@ -22,7 +22,8 @@
     "underscore": "^1.6.0",
     "winston": "^0.7.3",
     "async": "^0.9.0",
-    "underscore.string": "^2.3.3"
+    "underscore.string": "^2.3.3",
+    "loggly": "^1.0.4"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

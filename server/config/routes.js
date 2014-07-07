@@ -30,5 +30,5 @@ module.exports = function(app){
 	app.get('/ping', api.ping);
 
 	//1 time migration scripts
-	app.get('/migrate', migrations.shardJobs);
+	// app.get('/migrate', migrations.shardJobs);
 };

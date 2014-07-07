@@ -1,33 +1,48 @@
+'use strict';
 var winston = require('winston');
+var loggly = require('loggly');
+var _ = require('underscore');
+
 winston.add(winston.transports.DailyRotateFile, {
     filename: './logs/log',
     datePattern: '.yyyy-MM-ddTHH',
     handleExceptions: true
 });
 
-function processLogs() {
-	//this z gotta be called from a cronjob and put in some kind of kue
-	var options = {
-	    from: new Date - 24 * 60 * 60 * 1000,
-	    until: new Date,
-	    limit: 10,
-	    start: 0,
-	    order: 'desc',
-	    fields: ['message']
-	  };
-  	winston.query(options, function(err, results) {
-  		if (err) {
-  			throw err;
-  		}
+var client = loggly.createClient({
+    token: '85955fea-ec95-440e-9e33-67e994fb2437',
+    subdomain: 'cheapass',
+    tags: ['NodeJS'],
+    json:true
+});
 
-  		console.log(results);
+exports.logger = {
+    log: function() {
+        var args = Array.prototype.slice.call(arguments, 0);
+        var logLevel = args[0];
+        var logMessage = args[1];
+        var logMeta = args[2];
 
-  		//TODO check this out
+        var logObject = {
+            level: logLevel,
+            message: logMessage,
+            meta: {}
+        };
 
-  		//write to a file this results json
-  		//send to self an email with attachment of this file
-  	})
-}
+        if (logMeta) {
+            if (_.isObject(logMeta)) {
+                _.extend(logObject.meta, logMeta);
 
-exports.logger = winston;
-exports.logsProcessor = processLogs;
+            } else {
+                logObject.meta = logMeta;
+            }
+        }
+
+        //loggly requires a single nested object unlike winston
+        client.log(logObject);
+        winston.log.apply(winston, arguments);
+    },
+    profile: function() {
+        winston.profile.apply(winston, arguments);
+    }
+};
