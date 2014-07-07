@@ -12,7 +12,6 @@ winston.add(winston.transports.DailyRotateFile, {
 var client = loggly.createClient({
     token: '85955fea-ec95-440e-9e33-67e994fb2437',
     subdomain: 'cheapass',
-    tags: ['NodeJS'],
     json:true
 });
 
@@ -39,7 +38,8 @@ exports.logger = {
         }
 
         //loggly requires a single nested object unlike winston
-        client.log(logObject);
+        //additionaly it can receive tags. send dev or prod mode as one
+        client.log(logObject, [process.env.NODE_ENV || 'development']);
         winston.log.apply(winston, arguments);
     },
     profile: function() {
