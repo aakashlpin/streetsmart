@@ -15,6 +15,7 @@ $icon-font-path: "/bower_components/bootstrap-sass-official/vendor/assets/fonts/
 body {
     padding-top: 20px;
     padding-bottom: 20px;
+    position: relative;
 }
 
 /* Everything but the jumbotron gets side spacing for mobile first views */
@@ -73,6 +74,10 @@ body {
     }
 }
 
+.bookmarklet-container {
+    display: none;
+}
+
 /* Responsive: Portrait tablets and up */
 @media screen and (min-width: 768px) {
     .container {
@@ -96,8 +101,16 @@ body {
     .jumbotron {
         border-bottom: 0;
     }
-}
 
+    .bookmarklet-container {
+        display: block;
+        position: absolute;
+        top: 40px;
+        right: 10px;
+        text-align: right;
+    }
+
+}
 
 .current-price {
     border-radius: $border-radius-small;
