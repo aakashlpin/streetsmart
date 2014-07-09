@@ -29,3 +29,21 @@ server {
     try_files /404.html =404;
   }
 }
+
+server {
+  root /home/aakash/projects/streetsmart/cdn;
+  try_files $uri $uri/ @notfound;
+  server_name cdn.cheapass.in;
+
+  keepalive_timeout 10;
+
+  location ~* \.(css|js|gif|jpe?g|png)$ {
+    add_header Access-Control-Allow-Origin *;
+    add_header Access-Control-Allow-Methods "GET, OPTIONS";
+    expires off;
+  }
+
+  location @notfound {
+    try_files /404.html =404;
+  }
+}
