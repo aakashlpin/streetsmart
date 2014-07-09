@@ -1,6 +1,6 @@
 'use strict';
 var home = require('../app/controllers/home');
-var migrations = require('../app/migrations/index');
+// var migrations = require('../app/migrations/index');
 
 module.exports = function(app){
 

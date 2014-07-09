@@ -1,0 +1,163 @@
+#caPopup {
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+    font-size: 14px;
+    padding: 10px;
+    position: fixed;
+    top: 50%;
+    right: 0;
+    width: 265px;
+    z-index: 9999999999;
+    min-height: 300px;
+    background: #fff;
+    margin-top: -150px;
+    webkit-box-shadow: -1px 2px 7px rgba(50, 50, 50, 0.20);
+    -moz-box-shadow: -1px 2px 7px rgba(50, 50, 50, 0.20);
+    box-shadow: -1px 2px 7px rgba(50, 50, 50, 0.20);
+}
+
+#caPopup, #caPopup * {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -ms-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+#caPopup .caProductName, #caPopup .caProductPrice {
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+#caPopup .caProductName {
+    color: #333;
+    font-weight: 500;
+}
+
+#caPopup .caProductPrice {
+    border-radius: 2px;
+    background: #1abc9c;
+    color: #fff;
+    padding: 6px;
+    font-weight: 700;
+    text-shadow: 0 1px 0 rgba(0,0,0,.4);
+}
+
+#caPopup .caQueueForm {
+    margin-bottom: 10px;
+}
+
+#caPopup .caQueueForm .caFormGroup {
+    margin-top: 10px;
+}
+
+#caPopup .caQueueForm label{
+    font-size: 14px;
+    color: #333;
+    font-weight: 500;
+    display: block;
+    margin-bottom: 3px;
+}
+
+#caPopup .caQueueForm input {
+    font-size: 1rem;
+    font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+}
+
+#caPopup .caPopupLogo {
+    width: 134px;
+    margin: 0 auto;
+    display: block;
+}
+
+#caPopup .caFinePrint {
+    color: #999;
+    font-size: 11px;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#caPopup input[type="email"][disabled], #caPopup input[type="submit"][disabled] {
+    cursor: not-allowed;
+    background-color: #eee;
+    opacity: 1;
+}
+
+#caPopup input[type="email"] {
+    display: block;
+    width: 100%;
+    height: 34px;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    color: #555;
+    background-color: #fff;
+    background-image: none;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075);
+    transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
+}
+
+#caPopup input[type="email"]:focus {
+    border-color: #1abc9c;
+    -webkit-box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 6px #67b168;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075),0 0 6px #67b168;
+    outline: 0;
+}
+
+#caPopup input[type="submit"] {
+    display: inline-block;
+    margin-bottom: 0;
+    font-weight: 400;
+    text-align: center;
+    vertical-align: middle;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    white-space: nowrap;
+    padding: 6px 12px;
+    font-size: 14px;
+    line-height: 1.42857;
+    border-radius: 4px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    color: #fff;
+    background-color: #5bc0de;
+    border-color: #46bada;
+    text-transform: initial;
+}
+
+#caPopup input[type="submit"][disabled] {
+    cursor: not-allowed;
+    pointer-events: none;
+    opacity: .65;
+    filter: alpha(opacity=65);
+    box-shadow: none;
+    background-color: #5bc0de;
+    border-color: #46bada;
+}
+
+#caPopup .caClose {
+    font-weight: 600;
+    color: #ffffff;
+    text-decoration: none;
+    cursor: pointer;
+}
+
+#caPopup .circle {
+    display: table;
+    line-height: 18px;
+    width: 18px;
+    height: 21px;
+    border: 2px solid #1b1719;
+    border-radius: 21px;
+    background: #1b1719;
+    font-size: 21px;
+    padding: 0px 1px 0 1px;
+}
+
+#caPopup .caTextSuccess {
+    font-weight: 500;
+    color: #3c763d;
+}

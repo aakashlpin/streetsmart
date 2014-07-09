@@ -31,22 +31,37 @@ function illegalRequest(res) {
     res.redirect('/500');
 }
 
+function isJSONPRequested(queryParams) {
+    return !!queryParams.jsonp;
+}
+
+function getResponseMethodAndManipulateHeaders(queryParams, res) {
+    var isJSONP = isJSONPRequested(queryParams);
+    if (isJSONP) {
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        return 'jsonp';
+    }
+    return 'json';
+}
+
 module.exports = {
     processInputURL: function(req, res) {
         var url = req.query.url;
+        var resMethod = getResponseMethodAndManipulateHeaders(req.query, res);
         jobs.processURL(url, function(err, crawledInfo) {
             if (err) {
                 logger.log('error', 'processing URL from UI failed', {error: err});
-                res.json({error: 'Oops. Our servers screwed up! Try again, please?'});
+                res[resMethod]({error: 'Oops. Our servers screwed up! Try again, please?'});
                 return;
             }
-            res.json(crawledInfo);
+            res[resMethod](crawledInfo);
         });
     },
     processQueue: function(req, res) {
         var productData = _.pick(req.query, ['currentPrice', 'productName',
         'productURL', 'productImage']);
         var user = _.pick(req.query, ['inputEmail']);
+        var resMethod = getResponseMethodAndManipulateHeaders(req.query, res);
 
         //Determine the seller here instead of UI
         productData.seller = sellerUtils.getSellerFromURL(productData.productURL);
@@ -69,7 +84,7 @@ module.exports = {
             if (!isEmailVerified) {
                 //1. send response back for the UI
                 logger.log('info', 'new user unverified', {email: userData.email});
-                res.json({
+                res[resMethod]({
                     status: 'Almost Done! Just verify your email, then sit back and relax!'
                 });
 
@@ -85,7 +100,7 @@ module.exports = {
 
             } else {
                 logger.log('info', 'returning user', {email: userQueryResult.email});
-                res.json({
+                res[resMethod]({
                     status: 'Sweet! We\'ll keep you posted as the price changes.'
                 });
             }
