@@ -1,20 +1,32 @@
 'use strict';
 var _ = require('underscore');
 module.exports = function($) {
-	var price = $('[itemprop="price"]').attr('content') || false;
-	if (price) {
-		price = parseInt(price.replace(',', ''), 10);
+	var nameDOM, imageDOM, priceDOM, name, image, price, response = {};
+	try {
+		priceDOM = $('[itemprop="price"]');
+		price = priceDOM.attr('content') || false;
+		if (price) {
+			price = parseInt(price.replace(',', ''), 10);
+		}
+
+		if (_.isNaN(price)) {
+			price = false;
+		}
+
+		nameDOM = $('[itemprop="name"]');
+		name = nameDOM.text().replace(/^\s+|\s+$/g, '');
+
+		imageDOM = $('#imgThumb_1 img');
+		image = imageDOM.attr('longdesc');
+
+		response = {
+			price: price,
+			name: name,
+			image: image
+		};
+	} catch(e) {
+
 	}
 
-	if (_.isNaN(price)) {
-		price = false;
-	}
-
-	var imageDOM = $('#imgThumb_1 img');
-
-    return {
-        price: price,
-        name: $('[itemprop="name"]').text().replace(/^\s+|\s+$/g, ''),
-        image: imageDOM.attr('longdesc')
-    };
+	return response;
 };

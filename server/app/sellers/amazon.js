@@ -9,43 +9,51 @@ function getActualDOM($, domOptions) {
 }
 
 module.exports = function($) {
-    var priceDOMs = ['#priceblock_ourprice', '#priceblock_saleprice',
-    '#priceblock_dealprice', '#buyingPriceValue', '#actualPriceValue',
-    '#priceBlock', '#price'];
-    var nameDOMs = ['#productTitle', '#btAsinTitle > span', '#btAsinTitle'];
-    var imageDOMs = ['#landingImage', '#prodImage', '#kib-ma-container-0 > img'];
+    var priceDOMs, nameDOMs, imageDOMs;
     var nameDOM, imageDOM, priceDOM, name, image, price, priceParent,
     priceUnformatted, priceFormatted;
+    var response;
 
-    nameDOM     = getActualDOM($, nameDOMs);
-    imageDOM    = getActualDOM($, imageDOMs);
-    priceDOM    = getActualDOM($, priceDOMs);
+    try {
+        priceDOMs = ['#priceblock_ourprice', '#priceblock_saleprice',
+        '#priceblock_dealprice', '#buyingPriceValue', '#actualPriceValue',
+        '#priceBlock', '#price'];
+        nameDOMs = ['#productTitle', '#btAsinTitle > span', '#btAsinTitle'];
+        imageDOMs = ['#landingImage', '#prodImage', '#kib-ma-container-0 > img'];
 
-    if (!nameDOM || !imageDOM || !priceDOM) {
-        logger.log('error', 'amazon scraping issue. DOM attached',
-        {nameDOM: nameDOM, imageDOM: imageDOM, priceDOM: priceDOM, dom: $});
-    }
+        nameDOM     = getActualDOM($, nameDOMs);
+        imageDOM    = getActualDOM($, imageDOMs);
+        priceDOM    = getActualDOM($, priceDOMs);
 
-    name = nameDOM ? $(nameDOM).text() : '';
-    name = name.replace(/<(?:.|\n)*?>/gm, '').replace(/^\s+|\s+$/g, '');
-    image = imageDOM ? $(imageDOM).attr('src') : '';
+        if (!nameDOM || !imageDOM || !priceDOM) {
+            logger.log('error', 'amazon scraping issue. DOM attached',
+            {nameDOM: nameDOM, imageDOM: imageDOM, priceDOM: priceDOM, dom: $});
+        }
 
-    if (priceDOM) {
-        priceParent = $(priceDOM).find('.currencyINR').parent();
-        priceParent.find('.currencyINR').remove();
-        priceParent.find('.currencyINRFallback').remove();
-        price = priceParent.html();
-        priceUnformatted = price.replace(/\s/g, '').replace(/,/gi, '');
-        priceFormatted = priceUnformatted.indexOf('.') > 0 ?
-        priceUnformatted.split('.')[0] : priceUnformatted;
+        name = nameDOM ? $(nameDOM).text() : '';
+        name = name.replace(/<(?:.|\n)*?>/gm, '').replace(/^\s+|\s+$/g, '');
+        image = imageDOM ? $(imageDOM).attr('src') : '';
 
-    } else {
-        priceFormatted = false;
-    }
+        if (priceDOM) {
+            priceParent = $(priceDOM).find('.currencyINR').parent();
+            priceParent.find('.currencyINR').remove();
+            priceParent.find('.currencyINRFallback').remove();
+            price = priceParent.html();
+            priceUnformatted = price.replace(/\s/g, '').replace(/,/gi, '');
+            priceFormatted = priceUnformatted.indexOf('.') > 0 ?
+            priceUnformatted.split('.')[0] : priceUnformatted;
 
-    return {
-        name: name,
-        price: priceFormatted,
-        image: image
-    };
+        } else {
+            priceFormatted = false;
+        }
+
+        response = {
+            name: name,
+            price: priceFormatted,
+            image: image
+        };
+
+    } catch(e) {}
+
+    return response;
 };

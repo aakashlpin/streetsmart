@@ -1,20 +1,31 @@
 'use strict';
 var _ = require('underscore');
 module.exports = function($) {
-	var price = $('.buyContainer [itemprop="price"]').text() || false;
-	if (price) {
-		price = parseInt(price.replace(',', ''), 10);
-	}
+	var priceDOM, imageDOM, nameDOM, price, name, image, response = {};
+	try {
+		priceDOM = $('.buyContainer [itemprop="price"]');
+		price = priceDOM.text() || false;
+		if (price) {
+			price = parseInt(price.replace(',', ''), 10);
+		}
 
-	if (_.isNaN(price)) {
-		price = false;
-	}
+		if (_.isNaN(price)) {
+			price = false;
+		}
 
-	var imageDOM = $('[itemprop="image"]');
+		imageDOM = $('[itemprop="image"]');
+		image = imageDOM.attr('src');
 
-    return {
-        price: price,
-        name: $('[itemprop="name"]').text().replace(/^\s+|\s+$/g, ''),
-        image: imageDOM.attr('src')
-    };
+		nameDOM = $('[itemprop="name"]');
+		name = nameDOM.text().replace(/^\s+|\s+$/g, '');
+
+		response = {
+			price: price,
+			name: name,
+			image: image
+		};
+
+	} catch(e) {}
+
+	return response;
 };
