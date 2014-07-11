@@ -145,11 +145,11 @@
                                 dataType: 'jsonp',
                                 success: queueSuccessHandler
                             });
+                            $('#caQueueForm input').attr('disabled', 'disabled');
                         }
 
                         function queueSuccessHandler(res) {
                             var message = res.status;
-                            $('#caQueueForm input').attr('disabled', 'disabled');
                             $('#caResponseNotification').find('p').addClass('caTextSuccess').text(message).end().fadeIn();
                         }
                     };
