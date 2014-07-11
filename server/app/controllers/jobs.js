@@ -180,16 +180,17 @@ function init() {
 
     //foreach seller, create a cron job
     async.each(_.keys(sellers), createWorkerForSeller);
-}
 
-jobsQ.process('scraper', function (job, done) {
-    if (job.data.url) {
-        processURL(job.data.url, done);
-    } else {
-        logger.log('error', 'jobQ scraper processing failed', {jobObject: job});
-        done('Couldn\'t find jobURL to scrape');
-    }
-});
+    //put scraping inside init
+    jobsQ.process('scraper', function (job, done) {
+        if (job.data.url) {
+            processURL(job.data.url, done);
+        } else {
+            logger.log('error', 'jobQ scraper processing failed', {jobObject: job});
+            done('Couldn\'t find jobURL to scrape');
+        }
+    });
+}
 
 exports.init = init;
 exports.processURL = processURL;
