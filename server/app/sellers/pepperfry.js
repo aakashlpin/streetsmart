@@ -14,7 +14,7 @@ module.exports = function($) {
 		}
 
 		name = nameDOM.text().replace(/^\s+|\s+$/g, '');
-		price = imageDOM.attr('src');
+		image = imageDOM.attr('src');
 
 		response = {
 			price: price,
