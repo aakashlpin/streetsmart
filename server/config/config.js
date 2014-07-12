@@ -23,6 +23,9 @@ var commonConfig = {
         },
         youporn: {
             url: 'youporn.com'
+        },
+        xhamster: {
+            url: 'xhamster.com'
         }
     },
     sellers: {
