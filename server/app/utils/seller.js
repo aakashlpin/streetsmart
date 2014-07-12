@@ -2,6 +2,7 @@
 var mongoose = require('mongoose');
 var config = require('../../config/config');
 var _ = require('underscore');
+var urlLib = require('url');
 
 function getSellerFromURL(url) {
     var sellers = _.keys(config.sellers);
@@ -14,11 +15,24 @@ function getSellerFromURL(url) {
 
 function getVideoSiteFromURL(url) {
     var videoSites = _.keys(config.videoSites);
-    return _.find(videoSites, function(site) {
+    var youtubeDLSites = config.youtubeDLSites;
+    var locallyProcessedSite = _.find(videoSites, function(site) {
         if (url.indexOf(config.videoSites[site].url) >=0 ) {
             return site;
         }
     });
+
+    if (locallyProcessedSite) {
+        return locallyProcessedSite;
+
+    } else {
+        var purlObject = urlLib.parse(url);
+        var host = purlObject.host;
+        return _.find(youtubeDLSites, function(youtubeDLSite) {
+            return host.indexOf(youtubeDLSite) >= 0;
+        });
+    }
+
 }
 
 module.exports = {

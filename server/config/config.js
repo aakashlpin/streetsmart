@@ -14,6 +14,14 @@ var commonConfig = {
     kuePort: 6001,
     server: 'http://cheapass.in',
     postmarkAPIKey: '72f0644f-1c98-492e-b8f7-a7cff8b1b908',
+    youtubeDLSites: ['8tracks.com', '9gag.com', '9gag.tv', 'bandcamp.com',
+     'blip.tv', 'collegehumor.com', 'cc.com', 'dailymotion.com',
+     'discovery.com', 'engadget.com', 'extremetube.com', 'funnyordie.com',
+     'imdb.com', 'justin.tv', 'twitch.tv', 'keezmovies.com', 'khanacademy.org',
+     'kickstarter.com', 'lynda.com', 'metacafe.com', 'mtv.com', 'pornhub.com',
+     'pornhd.com', 'pornotube.com', 'rottentomatoes.com', 'soundcloud.com',
+     'spankwire.com', 'ted.com', 'tube8.com', 'udemy.com', 'vh1.com',
+     'vimeo.com', 'vuclip.com', 'xtube.com', 'youtube.com'],
     videoSites: {
         hornbunny: {
             url: 'hornbunny.com'
