@@ -29,6 +29,9 @@ var commonConfig = {
         },
         xnxx: {
             url: 'xnxx.com'
+        },
+        redtube: {
+            url: 'redtube.com'
         }
     },
     sellers: {
