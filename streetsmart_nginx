@@ -2,45 +2,49 @@ upstream streetsmart {
   server 127.0.0.1:6000 max_fails=0 fail_timeout=10s;
   keepalive 512;
 }
-
 server {
-  server_name www.cheapass.in;
-  rewrite ^(.*) http://cheapass.in$1 permanent;
+  listen 80;
+  server_name cheapass.in;
+  return 301 https://$host$request_uri;
 }
 
 server {
-  root /home/aakash/projects/streetsmart/server/public;
+  server_name www.cheapass.in;
+  rewrite ^(.*) https://cheapass.in$1 permanent;
+}
+
+server {
+  listen 443;
+  set $rootDir /home/aakash/projects/streetsmart/server/public;
+  root $rootDir;
   try_files $uri $uri.html $uri/ @notfound;
+
+  ssl on;
+  ssl_certificate /etc/ssl/certs/ssl-bundle.crt;
+  ssl_certificate_key /etc/ssl/private/server.key;
+  #enables SSLv3/TLSv1, but not SSLv2 which is weak and should no longer be used.
+  ssl_protocols SSLv3 TLSv1;
+  #Disables all weak ciphers
+  ssl_ciphers ALL:!aNULL:!ADH:!eNULL:!LOW:!EXP:RC4+RSA:+HIGH:+MEDIUM;
+
   server_name cheapass.in;
 
   keepalive_timeout 10;
-
-  location ~* \.(css|js|gif|jpe?g|png)$ {
-    expires max;
-    add_header Pragma public;
-    add_header Cache-Control "public, must-revalidate, proxy-revalidate";
-  }
 
   location / {
     proxy_pass http://streetsmart;
   }
 
-  location @notfound {
-    try_files /404.html =404;
-  }
-}
-
-server {
-  root /home/aakash/projects/streetsmart/cdn;
-  try_files $uri $uri/ @notfound;
-  server_name cdn.cheapass.in;
-
-  keepalive_timeout 10;
-
-  location ~* \.(css|js|gif|jpe?g|png)$ {
+  location ~* /(cdn)/.*.(css|js|gif|jpe?g|png)$ {
+    expires off;
     add_header Access-Control-Allow-Origin *;
     add_header Access-Control-Allow-Methods "GET, OPTIONS";
-    expires off;
+  }
+
+  location ~* \.(css|js|gif|jpe?g|png)$ {
+    expires max;
+    add_header Pragma public;
+    add_header Cache-Control "public, must-revalidate, proxy-revalidate";
   }
 
   location @notfound {

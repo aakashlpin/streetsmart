@@ -172,3 +172,8 @@
     font-weight: 500;
     color: red;
 }
+
+#caPopup .caDownloadListWrapper {
+    max-height: 200px;
+    overflow-y: auto;
+}

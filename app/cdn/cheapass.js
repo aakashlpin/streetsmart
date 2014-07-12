@@ -45,7 +45,7 @@
 
         function initCheapass() {
             $.ajax({
-                url: 'http://cdn.cheapass.in/cheapass.css?ts=' + new Date().getTime(),
+                url: 'https://cheapass.in/cdn/cheapass.css?ts=' + new Date().getTime(),
                 type: 'get',
                 crossDomain: true,
                 success: function(cssRes) {
@@ -62,7 +62,7 @@
                         var domTop =
                         '<div id="caPopup">' +
                         '<a id="caClose" class="caClose" title="Close" style="position: absolute; left: -10px; top: -10px;"><div class="circle" style="font-size: 17px; border: 2px solid #444546; padding: 0 0 0 0; width: 26px; height: 26px; background-color:#444546; color: #fff; border-radius: 50px; text-align: center;"> x </div></a>' +
-                        '<a target="_blank" href="http://cheapass.in"><img class="caPopupLogo" src="http://cdn.cheapass.in/cheapass.png" /></a>' +
+                        '<a target="_blank" href="http://cheapass.in"><img class="caPopupLogo" src="https://cheapass.in/cdn/cheapass.png" /></a>' +
                         '<p class="caFinePrint">Track changes in price. Got notified by email.</p>';
                         var domBottom =
                         '</div>';
@@ -84,8 +84,8 @@
                         }
 
                         function inputURLResponseHandler(response) {
-                            if (response.downloadURL) {
-                                inputURLVideoDownloader(response.downloadURL);
+                            if (response.downloadURLs) {
+                                inputURLVideoDownloader(response.downloadURLs);
                             } else {
                                 if (response.price && response.name) {
                                     inputURLSuccessHandler(response);
@@ -95,10 +95,15 @@
                             }
                         }
 
-                        function inputURLVideoDownloader(url) {
-                            var dom = domTop +
-                            '<p><a href="' + url + '">Click to download</a></p>'+
-                            domBottom;
+                        function inputURLVideoDownloader(urls) {
+                            var domBody = '<p class="caProductName">Click below to download</p>'+
+                            '<div class="caDownloadListWrapper"><ul class="caDownloadList">';
+                            $.each(urls, function(index, url) {
+                                domBody += '<li><a target="_blank" href="' + url.downloadURL + '">' + url.name + '</a></li>';
+                            });
+                            domBody += '</ul></div>';
+
+                            var dom = domTop + domBody + domBottom;
                             $('body').append(dom);
                             $('#caClose').on('click', caClose);
                         }
