@@ -20,6 +20,9 @@ var commonConfig = {
         },
         xvideos: {
             url: 'xvideos.com'
+        },
+        youporn: {
+            url: 'youporn.com'
         }
     },
     sellers: {
