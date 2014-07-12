@@ -1,5 +1,6 @@
 'use strict';
 var jobs = require('./jobs');
+var sites = require('./sites');
 var Emails = require('./emails');
 var _ = require('underscore');
 _.str = require('underscore.string');
@@ -47,6 +48,13 @@ function getResponseMethodAndManipulateHeaders(queryParams, res) {
 module.exports = {
     processInputURL: function(req, res) {
         var url = req.query.url;
+        var processingMode = sellerUtils.getProcessingMode(url);
+        if (processingMode === 'site') {
+            //video downloader process. only via bookmarklet
+            sites.processSite(url, res);
+            return;
+        }
+
         var resMethod = getResponseMethodAndManipulateHeaders(req.query, res);
         jobs.processURL(url, function(err, crawledInfo) {
             if (err) {

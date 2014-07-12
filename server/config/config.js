@@ -14,6 +14,14 @@ var commonConfig = {
     kuePort: 6001,
     server: 'http://cheapass.in',
     postmarkAPIKey: '72f0644f-1c98-492e-b8f7-a7cff8b1b908',
+    videoSites: {
+        hornbunny: {
+            url: 'hornbunny.com'
+        },
+        xvideos: {
+            url: 'xvideos.com'
+        }
+    },
     sellers: {
         flipkart: {
             url: 'flipkart.com',
@@ -111,7 +119,7 @@ var commonConfig = {
 var config = {
     development: {
         db: 'mongodb://localhost/streetsmart-development',
-        isCronActive: true  //use this to control running of cron jobs
+        isCronActive: false  //use this to control running of cron jobs
     },
 
     production: {

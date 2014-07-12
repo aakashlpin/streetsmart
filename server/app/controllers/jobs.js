@@ -137,7 +137,7 @@ function processURL(url, callback) {
 
 function init() {
     if (!config.isCronActive) {
-        logger.log('error', '=========== Cron Jobs are disabled =============');
+        logger.log('info', '=========== Cron Jobs are disabled =============');
         return;
     }
 

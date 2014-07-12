@@ -84,11 +84,23 @@
                         }
 
                         function inputURLResponseHandler(response) {
-                            if (response.price && response.name) {
-                                inputURLSuccessHandler(response);
+                            if (response.downloadURL) {
+                                inputURLVideoDownloader(response.downloadURL);
                             } else {
-                                inputURLErrorHandler();
+                                if (response.price && response.name) {
+                                    inputURLSuccessHandler(response);
+                                } else {
+                                    inputURLErrorHandler();
+                                }
                             }
+                        }
+
+                        function inputURLVideoDownloader(url) {
+                            var dom = domTop +
+                            '<p><a href="' + url + '">Click to download</a></p>'+
+                            domBottom;
+                            $('body').append(dom);
+                            $('#caClose').on('click', caClose);
                         }
 
                         function inputURLErrorHandler() {
