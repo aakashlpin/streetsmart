@@ -26,6 +26,9 @@ var commonConfig = {
         },
         xhamster: {
             url: 'xhamster.com'
+        },
+        xnxx: {
+            url: 'xnxx.com'
         }
     },
     sellers: {
