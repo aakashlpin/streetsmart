@@ -18,14 +18,24 @@ module.exports = function(req, res) {
         });
 
         cp.on('close', function () {
+            //process the stdout as it is inconsistent
+            var processedStdout = [];
+            _.each(allURLsStdout, function(urlStdout) {
+                if (urlStdout.indexOf('http') !== 0 && urlStdout.indexOf('://') > 0) {
+                    var nameURLCombo = urlStdout.split('\n');
+                    processedStdout.push(nameURLCombo[0], nameURLCombo[1]);
+                } else {
+                    processedStdout.push(urlStdout);
+                }
+            });
+
             //every alternate index is name and url
             //making pairs here in an object and putting it in an array
-            console.log(allURLsStdout);
-            var indexRange = _.range(0, allURLsStdout.length, 2);
+            var indexRange = _.range(0, processedStdout.length, 2);
             _.each(indexRange, function(i) {
                 allURLs.push({
-                    name: allURLsStdout[i],
-                    downloadURL: allURLsStdout[i+1]
+                    name: processedStdout[i],
+                    downloadURL: processedStdout[i+1]
                 });
             });
 

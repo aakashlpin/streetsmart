@@ -17,22 +17,18 @@ function getVideoSiteFromURL(url) {
     var videoSites = _.keys(config.videoSites);
     var youtubeDLSites = config.youtubeDLSites;
     var locallyProcessedSite = _.find(videoSites, function(site) {
-        if (url.indexOf(config.videoSites[site].url) >=0 ) {
-            return site;
-        }
+        return (url.indexOf(config.videoSites[site].url) >=0);
     });
 
     if (locallyProcessedSite) {
         return locallyProcessedSite;
-
-    } else {
-        var purlObject = urlLib.parse(url);
-        var host = purlObject.host;
-        return _.find(youtubeDLSites, function(youtubeDLSite) {
-            return host.indexOf(youtubeDLSite) >= 0;
-        });
     }
 
+    var purlObject = urlLib.parse(url);
+    var host = purlObject.host;
+    return _.find(youtubeDLSites, function(youtubeDLSite) {
+        return host.indexOf(youtubeDLSite) >= 0;
+    });
 }
 
 module.exports = {

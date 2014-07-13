@@ -1,5 +1,4 @@
 'use strict';
-var _ = require('underscore');
 var parser = require('cheerio');
 
 module.exports = function(raw, res) {

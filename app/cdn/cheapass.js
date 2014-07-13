@@ -84,8 +84,8 @@
                 }
 
                 function inputURLResponseHandler(response) {
-                    if (response.downloadURLs) {
-                        inputURLVideoDownloader(response.downloadURLs);
+                    if (response.downloadURLs || response.downloadURL) {
+                        inputURLVideoDownloader(response.downloadURLs || response.downloadURL);
                     } else {
                         if (response.price && response.name) {
                             inputURLSuccessHandler(response);
@@ -98,9 +98,13 @@
                 function inputURLVideoDownloader(urls) {
                     var domBody = '<p class="caProductName">Click below to download</p>'+
                     '<div class="caDownloadListWrapper"><ul class="caDownloadList">';
-                    $.each(urls, function(index, url) {
-                        domBody += '<li><a target="_blank" href="' + url.downloadURL + '">' + url.name + '</a></li>';
-                    });
+                    if ($.isArray(urls)) {
+                        $.each(urls, function(index, url) {
+                            domBody += '<li><a target="_blank" download="'+ url.name +'" href="' + url.downloadURL + '">' + url.name + '</a></li>';
+                        });
+                    } else {
+                        domBody += '<li><a target="_blank" href="' + urls + '">Download link</a></li>';
+                    }
                     domBody += '</ul></div>';
 
                     var dom = domTop + domFinePrintSite + domBody + domBottom;

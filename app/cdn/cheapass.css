@@ -177,3 +177,19 @@
     max-height: 200px;
     overflow-y: auto;
 }
+
+#caPopup .caDownloadList {
+    padding: 0;
+    margin: 0 0 18px 25px;
+    list-style: disc;
+}
+
+#caPopup .caDownloadList a {
+    color: #38d;
+    text-decoration: underline;
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: normal;
+    font-variant: normal;
+    font-style: normal;
+}
