@@ -99,9 +99,13 @@
                     var domBody = '<p class="caProductName">Click below to download</p>'+
                     '<div class="caDownloadListWrapper"><ul class="caDownloadList">';
                     if ($.isArray(urls)) {
-                        $.each(urls, function(index, url) {
-                            domBody += '<li><a target="_blank" download="'+ url.name +'" href="' + url.downloadURL + '">' + url.name + '</a></li>';
-                        });
+                        if (urls.length) {
+                            $.each(urls, function(index, url) {
+                                domBody += '<li><a target="_blank" download="'+ url.name +'" href="' + url.downloadURL + '">' + url.name + '</a></li>';
+                            });
+                        } else {
+                            domBody += '<li>Nope. Sorry I could not find any download links for this page.</li>';
+                        }
                     } else {
                         domBody += '<li><a target="_blank" href="' + urls + '">Download link</a></li>';
                     }
