@@ -13,9 +13,12 @@ module.exports = function(req, res) {
             allURLsStdout.push(stringifiedBuff);
         });
 
-        cp.stderr.on('data', function (data) {
-            throw new Error('stderr: ' + data);
-        });
+        //putting this crashes the app. Uncomment by care
+        // cp.stderr.on('data', function (data) {
+        //     console.log('stderr');
+        //
+        //     throw new Error('stderr: ' + data);
+        // });
 
         cp.on('close', function () {
             //process the stdout as it is inconsistent
