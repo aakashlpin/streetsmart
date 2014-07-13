@@ -5,11 +5,18 @@ _.str = require('underscore.string');
 var config = require('../../config/config');
 var logger = require('../../logger').logger;
 var sellerUtils = require('../utils/seller');
+var mongoose = require('mongoose');
+var SiteModel = mongoose.model('Site');
 
 function processSite(url, res) {
     logger.log('info', 'scrape', {url: url});
-
     var site = sellerUtils.getVideoSiteFromURL(url);
+
+    setTimeout(function() {
+        //log the request in the db at the end of current event queue
+        SiteModel.post({site: site, url: url}, function() {});
+    }, 0);
+
     var requestOptions = {
         url: url
     };
