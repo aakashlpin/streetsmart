@@ -63,7 +63,7 @@
                 var domFinePrintSeller =
                 '<p class="caFinePrint">Track changes in price. Got notified by email.</p>';
                 var domFinePrintSite =
-                '<p class="caFinePrint">Cheapasses download stuff for free.</p>';
+                '<p class="caFinePrint">A Cheapass doesn\'t pay for stuff.</p>';
                 var domBottom =
                 '</div>';
 
