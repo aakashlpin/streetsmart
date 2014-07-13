@@ -59,8 +59,11 @@
                 var domTop =
                 '<div id="caPopup">' +
                 '<a id="caClose" class="caClose" title="Close" style="position: absolute; left: -10px; top: -10px;"><div class="circle" style="font-size: 17px; border: 2px solid #444546; padding: 0 0 0 0; width: 26px; height: 26px; background-color:#444546; color: #fff; border-radius: 50px; text-align: center;"> x </div></a>' +
-                '<a target="_blank" href="https://cheapass.in"><img class="caPopupLogo" src="https://cheapass.in/cdn/cheapass.png" /></a>' +
+                '<a target="_blank" href="https://cheapass.in"><img class="caPopupLogo" src="https://cheapass.in/cdn/cheapass.png" /></a>';
+                var domFinePrintSeller =
                 '<p class="caFinePrint">Track changes in price. Got notified by email.</p>';
+                var domFinePrintSite =
+                '<p class="caFinePrint">Cheapasses download stuff for free.</p>';
                 var domBottom =
                 '</div>';
 
@@ -100,13 +103,13 @@
                     });
                     domBody += '</ul></div>';
 
-                    var dom = domTop + domBody + domBottom;
+                    var dom = domTop + domFinePrintSite + domBody + domBottom;
                     $('body').append(dom);
                     $('#caClose').on('click', caClose);
                 }
 
                 function inputURLErrorHandler() {
-                    var dom = domTop +
+                    var dom = domTop + domFinePrintSeller +
                     '<div id="caResponseNotification" class="caResponseNotification">'+
                     '<p class="caTextError" style="margin-bottom: 15px;">Cheapass works only on product pages of <a href="https://cheapass.in" target="_blank">these sellers</a>.</p>'+
                     '<p>Is this a product page but I couldn\'t detect it? <a href="mailto:aakash@cheapass.in">Let me know</a>, please?</p>'+
@@ -122,7 +125,7 @@
                     price = response.price,
                     image = response.image;
 
-                    var dom = domTop +
+                    var dom = domTop + domFinePrintSeller +
                     '<h1 class="caProductName">'+ name +'</h1>' +
                     '<p class="caProductPrice">Price: Rs. '+ price +'/-</p>' +
                     '<form id="caQueueForm" class="caQueueForm">' +
