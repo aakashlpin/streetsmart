@@ -1,0 +1,84 @@
+{{!< default}}
+
+<header role='banner' class="site-head_digitus wrapper_digitus fade_digitus">
+    {{#if @blog.logo}}
+        <a class="logo_digitus" href="{{@blog.url}}"><img src="{{@blog.logo}}" alt="{{@blog.title}}" /></a>
+    {{/if}}
+    <h1 class="blogtitle_digitus">
+        <a title="{{@blog.title}}" href='{{@blog.url}}'>
+            {{{@blog.title}}}
+        </a>
+    </h1>
+</header>
+
+
+<main class="wrapper_digitus" role="main">
+
+{{#post}}
+
+    <article class="article_digitus" role="article" itemscope itemtype="http://schema.org/Article">
+
+		<header class="postheader_digitus">
+            <h1 class="posttitle_digitus" itemprop="headline">{{title}}</h1>
+            <span>by</span><h4 class="authorname_digitus"><a href="" itemprop="author">{{author.name}}</a></h4>
+            <hr class="pause" />
+			<ul>
+				<li><i class="fa fa-calendar"></i><time class="date_digitus" datetime="{{date format="YYYY-MM-DD"}}" itemprop="datePublished"> {{date format='dddd DD MMM YYYY'}}</time></li>
+                <li><i class="fa fa-comments"></i><a class="comments_digitus" href="{{url}}#disqus_thread" data-disqus-identifier="{{id}}">Comments</a></li>
+                	{{#if tags}}
+				<li><i class="fa fa-tag"></i><span class="posttags_digitus">{{tags  separator=", "}}</span></li>
+					{{/if}}
+			</ul>
+		</header>
+
+		<div class="postcontent_digitus" itemprop="articleBody">
+			{{content}}
+		</div>
+
+		<ol class="share_digitus">
+            <li>
+                <span>Share:</span>
+                <ul class="share-ikons_digitus">
+                    <li><a class="fa fa-twitter-square" target="_blank" href="http://twitter.com/share?text={{title}}&url={{url absolute="true"}}"><span class="hidden_digitus">Twitter</span></a></li>
+                    <li><a class="fa fa-facebook-square" target="_blank" href="http://www.facebook.com/sharer.php?u={{url absolute="true"}}"><span class="hidden_digitus">Facebook</span></a></li>
+                    <li><a class="fa fa-google-plus-square" target="_blank" href="https://plus.google.com/share?url={{url absolute="true"}}"><span class="hidden_digitus">Google+</span></a></li>
+                </ul>
+            </li>
+            <li class="back_digitus"><a href="{{post}}"><i class="fa fa-level-up"></i><span>Back to top</span></a></li>
+		</ol>
+
+     {{#if author}}
+
+     <footer class="postfooter_digitus">
+
+         {{#if tags}}
+            <span class="posttags_typesome"> {{tags separator=""}}</span>
+            <hr class="pause" />
+         {{/if}}
+
+         <address itemscope itemtype="http://schema.org/Person">
+				{{#if author.image}}
+				<div class="authorimage_digitus" style="background-image: url({{author.image}})" itemprop="image" ></div>
+				{{/if}}
+
+                <ul>
+				    <li><h4 class="authorname_digitus"><span itemprop="author">{{author.name}}</span></h4></li>
+                    <li><p class="authorbio_digitus">{{author.bio}}</p></li>
+				    <li>
+                        {{#if author.location}}
+				        <h5><span itemprop="address">{{author.location}}</span></h5>
+				        {{/if}}
+				        {{#if author.website}}
+				        <h5><a href="{{author.website}}" itemprop="url">{{author.website}}</a></h5>
+				        {{/if}}
+                    </li>
+				</ul>
+             </address>
+		</footer>
+        {{/if}}
+
+	</article>
+	
+{{/post}}
+</main>
+{{> footer}}

@@ -1,0 +1,33 @@
+{{!< default}}
+{{> header}}
+
+<main class="wrapper_digitus" role="main">
+    
+    <h3>Table of contents</h3>
+    
+	{{#foreach posts}}
+    
+		<article class="article_digitus" role="article" itemscope itemtype="http://schema.org/Article">
+            
+            <span class="posttitle_digitus">
+                <h2 itemprop="headline"><a href="{{{url}}}" rel="bookmark">
+				    {{title}}
+                    </a>
+                </h2>
+                <span class="tooltip_digitus">
+                    <p><i class="fa fa-calendar"></i>
+                    <time datetime="{{date published_at format="YYYY-MM-DD"}}" itemprop="datePublished">
+                        {{date published_at timeago="true"}}
+                    </time></p>
+                </span>
+           </span> 	
+		</article>
+	
+	{{/foreach}}
+
+	{{#if pagination}}
+        {{{pagination}}}
+	{{/if}}
+
+</main>
+{{> footer}}

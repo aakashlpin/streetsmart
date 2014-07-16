@@ -1,0 +1,9 @@
+<nav class="pagination_digitus" role="navigation">
+    <span class="page-number">Page {{page}} of {{pages}}</span>
+    {{#if prev}}
+        <i class="fa fa-caret-left"></i><a class="newer-posts" href="{{page_url prev}}">Newer</a>
+    {{/if}} 
+    {{#if next}}
+        <a class="older-posts" href="{{page_url next}}">Older</a><i class="fa fa-caret-right"></i>
+    {{/if}}
+</nav>

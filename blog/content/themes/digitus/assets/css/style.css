@@ -1,0 +1,915 @@
+   /* ==========================================================================
+   								Table of Contents
+   ========================================================================== */
+
+/*
+
+    0.  Includes
+    1.  General
+    2.  Utilities
+    3.  Header
+    4.  Article list
+    5.  Pagination
+    6.  Footer
+    7.  Article - Post.hbs
+    8.  Comments - Disgus
+    9.  Media Queries (Tablet)
+   10.  Media Queries (Phone)
+
+ */
+ 
+ /* ==========================================================================
+   					            0. Includes 
+   ========================================================================== */
+
+@import url(normalize.css);
+
+ /* ==========================================================================
+   					1.  General - Setting up some base styles
+   ========================================================================== */
+
+html {
+	height: 100%;
+    max-height: 100%;
+    font-size: 62.5%;
+    margin: 40px 1rem 0;
+	}
+
+body {
+	height: 100%;
+    max-height: 100%;
+    font-family: 'PT Sans', sans-serif;
+    font-size: 2.0rem;
+    line-height: 1.6em;
+    color: #4f4f4f;
+	background: #fff;
+    margin: 0 auto;
+	}
+
+.wrapper_digitus {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: left;
+}
+	
+h1, h2, h3, h4, h5, h6 {
+	font-family: 'PT Sans', sans-serif;
+	font-weight: 700;
+	text-rendering: optimizelegibility;
+	line-height: 1;
+	}	
+	
+::-moz-selection {
+    color: #222;
+    background: #D6EDFF;
+    text-shadow: none;
+	}
+
+::selection {
+    color: #222;
+    background: #D6EDFF;
+    text-shadow: none;
+	}
+
+h1 { font-size: 4.8rem; }
+
+h2 { font-size: 3.8rem; }
+
+h3 { font-size: 3.2rem; }
+
+h4 { font-size: 2.8rem; }
+
+h5 { font-size: 2.2rem; }
+
+h6 { font-size: 1.8rem; }
+
+a {
+    color: #5ba4e5;
+    transition: all ease 0.3s;
+    text-decoration: none;
+	}
+	
+a:visited { outline: none; }
+
+a:hover {
+    color: #57A3E8;
+    text-decoration: underline;
+	}	
+		
+a:active { outline: none; }	
+	
+a:focus { outline: none; }
+
+h1 a, h2 a, h3 a,
+h4 a, h5 a, h6 a {
+    color: #4f4f4f;
+	}
+
+p, ul, ol, dl {
+    margin: 1.6em 0;
+	}
+
+ol ol, ul ul,
+ul ol, ol ul {
+    margin: 0.4em 0;
+	}
+
+dl dt {
+    float: left;
+    width: 180px;
+    overflow: hidden;
+    clear: left;
+    text-align: right;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-weight: bold;
+    margin-bottom: 1em
+	}
+
+dl dd {
+    margin-left: 200px;
+    margin-bottom: 1em
+	}
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 2rem 0;
+    padding: 0;
+	}
+
+img {
+    border: 0;
+}	
+
+.postcontent_digitus img {
+	display: block;
+	max-width: 100%;
+	height: auto;
+	margin: 0 auto;
+    padding: 0.6em 0;
+	} 
+	
+blockquote {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 1.6em 0 1.6em 0;
+    padding: 0 0 0 1.6em;
+    border-left: #eb531e 5px solid;
+	}
+
+blockquote p {
+    margin: 0.8em 0;
+    font-style: italic;
+	}
+
+blockquote small {
+    display: inline-block;
+    margin: 0.8em 0 0.8em 1.5em;
+    font-size:0.9em;
+    color: #ccc;
+	}
+
+blockquote small:before { content: '\2014 \00A0'; }
+
+blockquote cite {
+    font-weight:bold;
+	}
+
+blockquote cite a { font-weight: normal; }
+
+mark {
+    background-color: #ffc336;
+	}
+
+code, tt {
+    padding: 1px 3px;
+    font-family: Inconsolata, monospace, sans-serif;
+    font-size: 0.85em;
+    white-space: pre-wrap;
+    background: #f4f4f4;
+    -webkit-box-shadow:inset 0 0 1px 0 #e6e6e6;
+    box-shadow:inset 0 0 1px 0 #e6e6e6;
+	}
+
+pre {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 1.6em 0;
+    width: 100%;
+    padding: 10px;
+    font-family: Inconsolata, monospace, sans-serif;
+    font-size: 0.9em;
+    white-space: pre;
+    overflow: auto;
+    background: #f4f4f4;
+    -webkit-box-shadow:inset 0 0 1px 0 #e6e6e6;
+    box-shadow:inset 0 0 1px 0 #e6e6e6;
+	}
+
+pre code, tt {
+    font-size: inherit;
+    white-space: -moz-pre-wrap;
+    white-space: pre-wrap;
+    background: transparent;
+    border: none;
+    padding: 0;
+	}
+
+kbd {
+    display: inline-block;
+    margin-bottom: 0.4em;
+    padding: 1px 8px;
+    border: #ccc 1px solid;
+    color: #666;
+    text-shadow: #fff 0 1px 0;
+    font-size: 0.9em;
+    font-weight: bold;
+    background: #f4f4f4;
+    border-radius: 4px;
+    box-shadow: 
+        0 1px 0 rgba(0, 0, 0, 0.2), 
+        0 1px 0 0 #fff inset;
+	}
+
+table {
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    margin: 1.6em 0;
+    width:100%;
+    max-width: 100%;
+    background-color: transparent;
+	}
+
+table th,
+table td {
+    padding: 8px;
+    line-height: 20px;
+    text-align: left;
+    vertical-align: top;
+    border-top: 1px solid #efefef;
+	}
+
+table th { color: #000; }
+
+table caption + thead tr:first-child th,
+table caption + thead tr:first-child td,
+table colgroup + thead tr:first-child th,
+table colgroup + thead tr:first-child td,
+table thead:first-child tr:first-child th,
+table thead:first-child tr:first-child td {
+    border-top: 0;
+	}
+
+table tbody + tbody { border-top: 2px solid #efefef; }
+
+table table table { background-color: #fff; }
+
+table tbody > tr:nth-child(odd) > td,
+table tbody > tr:nth-child(odd) > th {
+    background-color: #f6f6f6;
+	}
+
+table.plain tbody > tr:nth-child(odd) > td,
+table.plain tbody > tr:nth-child(odd) > th {
+   background: transparent;
+	}
+
+iframe, .fluid-width-video-wrapper {
+    display: block;
+    margin: 1.6em 0;
+	}
+
+/* When a video is inside the fitvids wrapper, drop the
+margin on the iframe, cause it breaks stuff. */
+.fluid-width-video-wrapper iframe {
+    margin: 0;
+	}
+
+ /* ==========================================================================
+   					        2. Utilities
+   ========================================================================== */
+
+.hidden_digitus {
+	text-indent: -99999px;
+    visibility: hidden;
+    display: none;
+	}
+
+ /* ==========================================================================
+   					        3. Header 
+   ========================================================================== */
+
+.site-head_digitus {
+    height: auto;
+    margin-bottom: 5rem;
+    padding-bottom: 2rem;
+    border-bottom: 1px solid #ddd;
+}
+
+.logo_digitus img {
+    height: 64px;
+    width: 64px;
+    margin: 0;
+}
+
+.blogtitle_digitus a {
+    font-size: 6rem;
+    margin: 3rem 0;
+}
+
+.blogtitle_digitus a:hover {
+    text-decoration: none;
+}
+
+.blogdescription_digitus {
+    color: #7f7f7f;
+    font-size: 2rem;
+    width: 60%;
+    margin: 3rem 0;
+    line-height: 1.2;
+}
+
+ /* ==========================================================================
+   					        4. Article list
+   ========================================================================== */
+
+.article_digitus {
+    position: relative;
+    padding: 0;
+}
+
+.article_digitus > span {
+    margin: 1.5rem 0 0 2rem;
+    padding: 0;
+    display: inline-block;
+    line-height: 1.1;
+}
+
+.article_digitus .posttitle_digitus > h2 {
+    display: inline;
+    margin: 0;
+    line-height: 1.2;
+    font-size: 2.2rem;
+}
+
+.article_digitus h2 a {
+    display: inline;
+    margin: 0 0 0 0.5rem;
+    padding: 0;
+    font-size: 2.2rem;
+    font-weight: 400;   
+}
+
+.article_digitus > span:before {
+    content:"•";
+	font-weight: 700;
+    font-family: 'PT Sans', sans-serif;
+    font-size: 2.2rem;
+    padding: 0;
+    margin-left: -2rem;
+    display: inline;
+}
+
+.article_digitus h2 a:link {
+    color: #5ba4e5;
+}
+
+.article_digitus h2 a:visited {
+    color: #7f7f7f;
+}
+
+.article_digitus h2 a:hover {
+    text-decoration: underline;
+}
+
+/* Date tooltip */
+
+.tooltip_digitus time {
+    font-size: 1.6rem;
+}
+
+.article_digitus .tooltip_digitus {
+    position: absolute;
+    top: 1.5rem;
+    left: -20rem;
+    opacity: 0;
+    display: none;
+    transition: opacity ease 0.3s;
+    text-align: right;
+}
+
+.article_digitus .tooltip_digitus p {
+    display: inline-block;
+    width: auto;
+    min-width: 180px;
+    margin: 0;
+}
+
+.article_digitus .tooltip_digitus p i {
+    color: #eb531e;
+    font-size: 90%;
+}
+
+/* tooltip animation */
+
+.article_digitus > span:hover .tooltip_digitus {
+    -o-animation-name: fadeInLeftBig;
+    -o-animation-duration: 0.7s;
+    -ms-animation-name: fadeInLeftBig;
+    -ms-animation-duration: 0.7s;
+    -webkit-animation-name: fadeInLeftBig;
+    -webkit-animation-duration: 0.7s;
+    -moz-animation-name: fadeInLeftBig;
+    -moz-animation-duration: 0.7s;
+    animation-name: fadeInLeftBig;
+    animation-duration: 0.7s;
+    opacity: 1;
+    display: inline-block;
+}
+
+
+ /* ==========================================================================
+   					            5. Pagination 
+   ========================================================================== */
+
+.pagination_digitus {
+    margin-top: 7rem;
+    font-size: 2.2rem;
+}
+
+.page-number {
+    margin-bottom: 3rem;
+    display: block;
+    font-weight: 700;
+}
+
+.pagination_digitus a {
+    margin: 0 0 0 1.5rem;
+}
+
+.pagination_digitus a:hover {
+    text-decoration: underline;
+}
+
+.pagination_digitus i {
+    padding: 0 0 0 3rem;
+    font-size: 1.1rem;
+    color: #5ba4e5;
+    vertical-align: 40%;
+}
+
+.pagination_digitus i:last-child {
+    padding: 0 0 0 1.5rem;
+}
+
+ /* ==========================================================================
+   					            6. Footer
+   ========================================================================== */
+
+.footer_digitus {
+    width: 100%;
+    max-width: 700px;
+    height: auto;
+    margin: 7rem auto 0;
+    padding: 2rem 0;
+    border-top: 1px solid #ddd;
+    text-align: center;
+    color: #7f7f7f; 
+}
+
+.footer_digitus ul {
+    margin: 5rem 0;
+    position: relative;
+    padding: 0;
+}
+
+.footer_digitus ul li {
+    display: inline-block; 
+}
+
+.footer_digitus a {
+    color: #7f7f7f; 
+    font-weight: 700;
+}
+.footer_digitus ul li a {
+    font-size: 1.6rem;
+    color: #4f4f4f;
+}
+
+.footer_digitus a:hover {
+    color: #5ba4e5;
+}   
+
+/* Footer tooltip */
+
+.footer_digitus .tooltip_digitus {
+ 	border-spacing: 0;
+    opacity: 0;
+	display: none;
+    padding: 4px 6px 4px 6px;
+    position: absolute;
+	width: 5rem;
+	margin-left: -15px;
+    top: -20px;
+    color: #fff; 
+    font-size: 1.1rem;
+    font-weight: 700;
+    line-height: 1em;
+    text-align: center;
+    background: #5ba4e5;
+	}
+	
+.footer_digitus .tooltip_digitus:after {
+    content: "";
+    border-width: 5px 5px 0 5px;
+    border-style: solid;
+    border-color: #5ba4e5 transparent;
+    display: block;
+    position: absolute;
+    bottom: -4px;
+    left: 41%;
+    z-index: 220;
+    width: 0;
+	opacity: 0;
+	}
+
+.footer_digitus ul li:hover .tooltip_digitus {
+    opacity: 1;
+    top: -33px;
+    display: inline-block;
+	}
+
+ .footer_digitus ul li:hover .tooltip_digitus:after {
+	 opacity: 1;
+	 }
+	 
+ /* ==========================================================================
+   					        7. Article - post.hbs
+   ========================================================================== */
+
+.fade_digitus img, .fade_digitus .blogtitle_digitus {
+    opacity: 0.7; 
+    transition: all ease 0.3s;
+}
+
+.fade_digitus img:hover, .fade_digitus .blogtitle_digitus:hover {
+    opacity: 1;
+}
+
+.postheader_digitus, .postfooter_digitus {
+    height: auto;
+    padding: 2rem;
+    background-color: #f8f8f8;
+    -webkit-box-shadow: 0 0 4px 0 #ddd, inset 0 0 4px 0 #fff;
+    box-shadow: 0 0 4px 0 #ddd, inset 0 0 4px 0 #fff;
+}
+
+.postheader_digitus .posttitle_digitus {
+    margin: 0 0 1.5rem 0;
+}
+
+.postheader_digitus > span {
+    color: #7f7f7f;
+    font-size: 2.2rem;
+}
+
+.postheader_digitus h4 {
+    font-size: 2.2rem;
+    display: inline-block;
+    padding: 0 0.5rem;
+    margin: 0;
+}
+
+.postheader_digitus h4 a {
+    color: #5ba4e5;
+}
+
+.postheader_digitus .pause {
+    border-bottom: 1px solid #eee;
+    border-top: 1px solid #fff;
+}
+
+.postheader_digitus ul {
+    padding: 0;
+    margin: 0;
+}
+
+.postheader_digitus ul li {
+    color: #7f7f7f;
+    display: inline;
+    font-size: 1.6rem;
+    padding: 0 3rem 0 0; 
+}
+
+.postheader_digitus ul li i {
+    color: #eb531e;
+    margin: 0 0.5rem 0 0;
+}
+
+.postheader_digitus ul li a:hover {
+    text-decoration: underline;
+}
+
+.share_digitus {
+    text-align: right;
+    margin: 2rem 0;
+    padding: 0
+}
+.share_digitus li {
+    display: inline;
+    font-size: 1.6rem;
+    color: #7f7f7f;
+}
+
+.share_digitus > li {
+    padding: 0 0 0 3rem;
+}
+
+.share_digitus li ul {
+    display: inline;
+    padding: 0;
+    margin: 0;
+}
+
+.share-ikons_digitus a {
+    margin: 0 0 0 0.5rem;
+    font-size: 2rem;
+    vertical-align: middle;
+}
+
+.share-ikons_digitus a:hover {
+    text-decoration: none;
+}
+
+.back_digitus span {
+    margin: 0 0 0 0.5rem;
+    color: #7f7f7f;
+    text-decoration: underline;
+}
+
+.back_digitus a {
+    color: #7f7f7f;
+}
+
+.back_digitus span:hover {
+    color: #5ba4e5;
+}
+
+.posttags_typesome {
+    display: inline-block;
+    margin: 1.5rem 0;
+    font-size: 1.6rem;
+}
+
+.posttags_typesome a {
+    display: inline-block;
+    color: #fff;
+    padding: 0px 6px;
+    background: #5ba4e5;
+    margin: 0.5rem 1rem 0.5rem 0;
+}
+
+.posttags_typesome a:hover {
+    text-decoration: none;
+    background: #4f4f4f;
+}
+
+address {
+    display: -webkit-flex;
+    display: flex;
+    margin: 0;
+    padding: 2rem 0;
+}
+
+.authorimage_digitus {
+    display: block;
+    width: 64px;
+    height: 64px;
+    background-size: cover;
+    background-position: center;
+    margin-right: 2rem;
+}
+
+.postfooter_digitus ul {
+    -webkit-flex: 2;
+    flex: 2;
+    margin: 0;
+    list-style-type: none;
+    font-style: normal;
+    padding: 0;
+}
+
+.authorname_digitus {
+    font-size: 2.2rem;
+    padding: 0;
+    margin:  0;
+}
+
+.authorbio_digitus {
+    font-size: 1.6rem;
+    margin: 1rem 0 0.5rem;
+    line-height: 1.4;
+}
+
+address h5 {
+    display: inline;
+    font-size: 1.6rem;
+    padding: 0 1rem 0 0;
+    font-style: italic;
+    font-weight: 400;
+    color: #7f7f7f;
+}
+
+address h5 a {
+    color: #5ba4e5;
+}
+
+ /* ==========================================================================
+   					8.  Comments - Digitus
+   ========================================================================== */
+
+.disqusbox_digitus {
+    margin: 0 auto;
+    text-align: center;
+    padding: 7rem 0 0;
+}
+.cmd_digitus {
+	text-align: center;
+	font-size: 1.8rem;	
+    color: #7f7f7f;
+    font-weight: 700;
+	transition: border ease 0.3s;
+	margin: 0 auto;
+	padding: 0;
+	background: none;
+    border: none;
+	}		
+	
+.cmd_digitus:hover {
+    color: #5ba4e5;
+}
+	
+ /* ==========================================================================
+   					9.  Media Queries (Tablet)
+   ========================================================================== */
+
+ @media all and (max-width: 980px) { 
+     
+        /* General */
+    h1 {
+        font-size: 3.5rem;
+        text-indent: -2px;
+    }
+
+    h2 {
+        font-size: 3rem;
+    }
+
+    h3 {
+        font-size: 2.8rem;
+    }
+
+    h4 {
+        font-size: 2.4rem;
+    }
+     
+     .postcontent_digitus {
+		font-size: 1.8rem;
+	}
+        /* Header */
+     .blogtitle_digitus a {
+        font-size: 4.2rem;
+     }
+     
+     .blogdescription_digitus {
+        font-size: 1.7rem;
+     }
+
+     .article_digitus > span:hover .tooltip_digitus {
+        display: none;
+     }
+
+     .article_digitus h2 a {
+        line-height: 1;
+        font-size: 2.2rem;
+     }
+
+     .pagination_digitus {
+        margin-top: 6rem;
+        font-size: 2rem;
+     }
+
+     .page-number {
+        font-size: 2.4rem;
+        margin-bottom: 2rem; 
+     }
+     
+     .footer_digitus p {
+        font-size: 1.6rem;
+        line-height: 1.4;
+     }
+    
+     .footer_digitus ul {
+        margin: 2rem 0;
+        padding: 0;
+     }
+
+    .footer_digitus ul li:hover .tooltip_digitus {
+        display: none;
+        }
+
+    .footer_digitus ul li:hover .tooltip_digitus:after {
+         opacity: 0;
+         }
+ }
+
+/* ==========================================================================
+  							Media Queries (Phone)
+   ==========================================================================  */
+ 
+   @media all and (max-width: 600px) { 
+       
+       html {
+            margin: 40px 0.5rem 0;
+            }
+       
+       h1, h2 {
+			font-size: 3rem;
+			line-height: 1.1em;
+		}
+
+		h3 {
+			font-size: 2.6rem;
+		}
+	
+		h4 {
+			font-size: 2.3rem;
+		}
+
+       .site-head_digitus {
+           margin-bottom:  4rem;
+       }
+       .blogtitle_digitus {
+           margin: 2rem 0;
+       }
+   
+       .blogtitle_digitus a {
+            font-size: 3rem;
+            margin: 0;
+        }
+       
+       .blogdescription_digitus {
+            font-size: 1.8rem;
+            margin: 2rem 0;
+            width: 70%;
+       }
+
+        .article_digitus h2 a {
+            line-height: 1;
+            font-size: 2rem;
+       }
+
+       .pagination_digitus {
+            margin-top: 5rem;
+            font-size: 2rem;
+        }
+
+        .page-number {
+            margin-bottom: 2.2rem;
+        }
+
+        .pagination_digitus i {
+            padding: 0 0 0 0.5rem;
+        }
+
+       .postheader_digitus, .postfooter_digitus {
+            padding: 1rem;
+       }
+       
+       .postheader_digitus ul li {
+            color: #7f7f7f;
+            display: inline-block;
+            font-size: 1.6rem;
+            padding: 0 3rem 0 0; 
+       }
+
+       .share-ikons_digitus a {
+            margin: 0 0 0 1rem;
+            font-size: 2.5rem;
+       }
+       
+       address {
+            display: block;
+       }
+       
+       .postfooter_digitus ul {
+           flex: none;
+           display: block;
+           padding: 0;
+           margin: 2rem 0 0;
+       }
+   }
