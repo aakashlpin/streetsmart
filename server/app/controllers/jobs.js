@@ -32,7 +32,7 @@ function newJob (jobData) {
         var newPrice = parseInt(result.price, 10);
 
         if (_.isNaN(newPrice)) {
-            logger.log('error', 'price parseInt resulted as NaN. original data attached', {price: result.price});
+            logger.log('warning', 'price parseInt resulted as NaN. original data attached', {price: result.price});
             return;
         }
 
@@ -123,7 +123,7 @@ function processURL(url, callback) {
             }
 
         } else {
-            logger.log('error', 'request module', {error: error, response: response});
+            logger.log('error', 'request module', {error: error, responseCode: response.statusCode});
             if (callback) {
                 callback('error in scraping');
             }
