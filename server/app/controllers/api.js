@@ -15,17 +15,27 @@ function getURLWithAffiliateId(url) {
     var urlSymbol = url.indexOf('?') > 0 ? '&': '?';
     var seller = sellerUtils.getSellerFromURL(url);
     var sellerKey = config.sellers[seller].key,
-    sellerValue = config.sellers[seller].value;
+    sellerValue = config.sellers[seller].value,
+    sellerExtraParams = config.sellers[seller].extraParams;
     if (sellerKey && sellerValue) {
         var stringToMatch = sellerKey + '=' + sellerValue;
+        var urlWithAffiliate;
         if (url.indexOf(stringToMatch) > 0) {
-            return url;
+            urlWithAffiliate = url;
         } else {
-            return url + urlSymbol + stringToMatch;
+            urlWithAffiliate = url + urlSymbol + stringToMatch;
         }
-    } else {
-        return url;
+
+        //for snapdeal, they have a offer id param as well
+        //in the config file, I've put it as a query string
+        //so simply appending it here would work
+        if (sellerExtraParams) {
+            return urlWithAffiliate + sellerExtraParams;
+        } else {
+            return urlWithAffiliate;
+        }
     }
+    return url;
 }
 
 function illegalRequest(res) {

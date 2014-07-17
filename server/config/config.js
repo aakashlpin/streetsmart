@@ -125,8 +125,9 @@ var commonConfig = {
         },
         snapdeal: {
             url: 'snapdeal.com',
-            key: null,
-            value: null,
+            key: 'aff_id',
+            value: '12129',
+            extraParams: '&utm_source=aff_prog&utm_campaign=afts&offer_id=17',
             requiresUserAgent: false,
             cronPattern: {
                 'development': '9-59/5 * * * *',
