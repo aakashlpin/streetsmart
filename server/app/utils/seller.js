@@ -44,5 +44,12 @@ module.exports = {
             return 'site';
         }
         return 'seller';
+    },
+    isLegitSeller: function(seller) {
+        var sellers = _.keys(config.sellers);
+        return !!_.find(sellers, function(legitSeller) {
+            return seller.trim().toLowerCase() === legitSeller;
+        });
+
     }
 };

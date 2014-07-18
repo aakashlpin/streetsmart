@@ -269,6 +269,29 @@ module.exports = {
             logger.log('info', 'unsubscribed user', dbQuery);
         });
     },
+    getTracking: function(req, res) {
+        var seller = req.params.seller,
+        id = req.params.id;
+
+        //if not a legit seller, send error page
+        if (!sellerUtils.isLegitSeller(seller)) {
+            res.redirect('/500');
+            return;
+        }
+
+        var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
+        SellerJobModel.findById(id, function(err, doc) {
+            if (err || !doc) {
+                res.redirect('/500');
+                return;
+            }
+
+            var tmplData = _.pick(doc, ['productName', 'productURL',
+            'productPriceHistory', 'currentPrice', 'productImage']);
+
+            res.render('track.ejs', tmplData);
+        });
+    },
     ping: function(req, res) {
         //to test if server is up
         res.json({status: 'ok'});

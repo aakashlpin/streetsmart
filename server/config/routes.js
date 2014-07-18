@@ -26,6 +26,9 @@ module.exports = function(app){
 	//Unsubscribe
 	app.get('/unsubscribe', api.unsubscribe);
 
+	//User email+product page link
+	app.get('/track/:seller/:id', api.getTracking);
+
 	//new relic ping
 	app.get('/ping', api.ping);
 

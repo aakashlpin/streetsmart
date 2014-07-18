@@ -231,7 +231,7 @@ module.exports = function (grunt) {
             options: {
                 assetsDirs: ['<%= config.dist %>', '<%= config.dist %>/images']
             },
-            html: ['<%= config.dist %>/{,*/}*.html'],
+            html: ['<%= config.dist %>/{,*/}*.{html,ejs}'],
             css: ['<%= config.dist %>/styles/{,*/}*.css']
         },
 
@@ -273,7 +273,7 @@ module.exports = function (grunt) {
                 files: [{
                     expand: true,
                     cwd: '<%= config.dist %>',
-                    src: '{,*/}*.html',
+                    src: '{,*/}*.{html,ejs}',
                     dest: '<%= config.dist %>'
                 }]
             }
@@ -319,7 +319,7 @@ module.exports = function (grunt) {
                         'images/{,*/}*.webp',
                         'img/*.*',
                         'cdn/*.*',
-                        '{,*/}*.html',
+                        '{,*/}*.{html,ejs}',
                         'styles/fonts/{,*/}*.*'
                     ]
                 }, {
