@@ -35,10 +35,13 @@ module.exports = function (grunt) {
             },
             js: {
                 files: ['<%= config.app %>/scripts/{,*/}*.js'],
-                tasks: ['jshint'],
                 options: {
                     livereload: true
                 }
+            },
+            serverJs: {
+                files: ['<%= config.app %>/scripts/{,*/}*.js'],
+                tasks: ['copy:js']
             },
             jstest: {
                 files: ['test/spec/{,*/}*.js'],
@@ -136,16 +139,6 @@ module.exports = function (grunt) {
                 '!<%= config.app %>/scripts/vendor/*',
                 'test/spec/{,*/}*.js'
             ]
-        },
-
-        // Mocha testing framework configuration options
-        mocha: {
-            all: {
-                options: {
-                    run: true,
-                    urls: ['http://<%= connect.test.options.hostname %>:<%= connect.test.options.port %>/index.html']
-                }
-            }
         },
 
         // Compiles Sass to CSS and generates necessary files if requested
@@ -247,17 +240,6 @@ module.exports = function (grunt) {
             }
         },
 
-        svgmin: {
-            dist: {
-                files: [{
-                    expand: true,
-                    cwd: '<%= config.app %>/images',
-                    src: '{,*/}*.svg',
-                    dest: '<%= config.dist %>/images'
-                }]
-            }
-        },
-
         htmlmin: {
             dist: {
                 options: {
@@ -336,6 +318,13 @@ module.exports = function (grunt) {
                 cwd: '<%= config.app %>/styles',
                 dest: '.tmp/styles/',
                 src: '{,*/}*.css'
+            },
+            js: {
+                expand: true,
+                dot: true,
+                cwd: '<%= config.app %>',
+                dest: '<%= config.dist %>',
+                src: 'scripts/{,*/}*.js'
             }
         },
 
@@ -351,8 +340,7 @@ module.exports = function (grunt) {
             dist: [
                 'sass',
                 'copy:styles',
-                'imagemin',
-                'svgmin'
+                'imagemin'
             ]
         }
     });
@@ -403,12 +391,15 @@ module.exports = function (grunt) {
         'copy:dist',
         'rev',
         'usemin',
-        'htmlmin'
+        'htmlmin',
+        'copy:js'
     ]);
 
     grunt.registerTask('default', [
-        // 'newer:jshint',
-        // 'test',
         'build'
+    ]);
+
+    grunt.registerTask('js', [
+        'watch:serverJs'
     ]);
 };

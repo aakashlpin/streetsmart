@@ -18,6 +18,21 @@
     <!-- build:css(.tmp) styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
+    <style media="screen">
+    path {
+        stroke: steelblue;
+        stroke-width: 2;
+        fill: none;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: grey;
+        stroke-width: 1;
+        shape-rendering: crispEdges;
+    }
+    </style>
 </head>
 <body>
     <!--[if lt IE 10]>
@@ -40,6 +55,13 @@
                 <br>
                 <a href="https://cheapass.in/blog/using-the-cheapass-bookmarklet/" target="_blank">(How does it work?)</a>
             </p>
+        </div>
+
+        <div>
+            <h4><a href="<%= productURL%>"><%= productName %></a></h4>
+            <div id="prettyGraphContainer">
+
+            </div>
         </div>
 
     </div>
@@ -65,24 +87,20 @@
     <!-- build:js scripts/plugins.js -->
     <!-- endbuild -->
 
+    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+
     <script>
-        var formattedPriceHistory = [
-        <% for(var i=0; i<productPriceHistory.length; i++) { %>
-           {
-               date: "<%= productPriceHistory[i].date %>",
-               price: <%= productPriceHistory[i].price %>
-           },
-        <% } %>
-        ];
-        var caObj = {
-            productName: "<%= productName %>",
-            productURL: "<%= productURL %>",
-            productImage: "<%= productImage %>",
-            currentPrice: <%= currentPrice %>
-        };
+    var formattedPriceHistory = [
+    <% for(var i=0; i<productPriceHistory.length; i++) { %>
+        {
+            date: "<%= productPriceHistory[i].date %>",
+            price: <%= productPriceHistory[i].price %>
+        },
+    <% } %>
+    ];
     </script>
 
-    <!-- build:js({app,.tmp}) scripts/main.js -->
+    <!-- build:js({app,.tmp}) scripts/track.js -->
     <script src="scripts/track.js"></script>
     <!-- endbuild -->
 </body>
