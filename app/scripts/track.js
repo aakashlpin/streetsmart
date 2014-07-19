@@ -1,6 +1,9 @@
-/* globals d3, formattedPriceHistory */
+'use strict';
+/* globals _ */
+/* globals Highcharts */
 
 var hcPriceData = [];
+var caObj = caObj || {};
 _.each(caObj.priceHistory, function(priceHistoryItem) {
 	var index0 = +new Date(priceHistoryItem.date);
 	var index1 = priceHistoryItem.price;
