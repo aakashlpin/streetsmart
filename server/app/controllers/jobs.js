@@ -40,11 +40,13 @@ function newJob (jobData) {
             //send out an email
             //modify the DB's currentPrice field and productPriceHistory array
             var emailUser = {email: jobData.email};
+            var seller = sellerUtils.getSellerFromURL(jobData.productURL);
             var emailProduct = _.extend(jobData, {
                 currentPrice: newPrice,
                 oldPrice: previousPrice,
-                seller: _.str.capitalize(sellerUtils.getSellerFromURL(jobData.productURL)),
-                measure: previousPrice > newPrice ? 'dropped': 'increased'
+                seller: _.str.capitalize(seller),
+                measure: previousPrice > newPrice ? 'dropped': 'increased',
+                trackURL: config.server + '/track/' + seller + '/' + jobData._id
             });
 
             //send notification email for price change

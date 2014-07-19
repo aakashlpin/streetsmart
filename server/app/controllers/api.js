@@ -289,6 +289,8 @@ module.exports = {
             var tmplData = _.pick(doc, ['productName', 'productURL',
             'productPriceHistory', 'currentPrice', 'productImage']);
 
+            tmplData.productSeller = _.str.capitalize(seller);
+
             res.render('track.ejs', tmplData);
         });
     },

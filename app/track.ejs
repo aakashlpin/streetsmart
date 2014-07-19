@@ -2,14 +2,12 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Track changes in product price. Get notifications by email.</title>
-    <meta name="description" content="Track price changes to Flipkart, Amazon, PepperFry, Snapdeal, Infibeam, FabFurnish, Jabong, Bajaao, Myntra products and get notified by email when the price changes.">
+    <title>Price changes for <%= productName %>&nbsp;on&nbsp;<%= productSeller %></title>
+    <meta name="description" content="Tracking price changes for <%= productName %> on <%= productSeller %>. Saved money #FTW">
     <meta name="viewport" content="width=device-width">
     <meta name="google-site-verification" content="Wu9IL2WJLd4pQoZSQdDKhvMqVJZkje_p1FYRIFU94J0" />
     <link rel="shortcut icon" href="http://faviconist.com/icons/d924a197b16ce0732340f3dd6987c1ef/favicon.ico" />
-    <meta name="og_title" property="og:title" content="Price Tracker for products on leading e-commerce companies in India. Get notified by email when the price of your favourite product changes."/>
-    <meta name="og_site_name" property="og:site_name" content="Cheapass.in"/>
-    <meta name="og_url" property="og:url" content="http://cheapass.in" />
+    <meta name="og_title" property="og:title" content="I tracked price changes for <%= productName %> on <%= productSeller %>. Saved money #FTW"/>
     <base href="https://cheapass.in/">
     <!-- build:css styles/vendor.css -->
     <!-- bower:css -->
@@ -18,31 +16,17 @@
     <!-- build:css(.tmp) styles/main.css -->
     <link rel="stylesheet" href="styles/main.css">
     <!-- endbuild -->
-    <style media="screen">
-    path {
-        stroke: steelblue;
-        stroke-width: 2;
-        fill: none;
-    }
-
-    .axis path,
-    .axis line {
-        fill: none;
-        stroke: grey;
-        stroke-width: 1;
-        shape-rendering: crispEdges;
-    }
-    </style>
 </head>
 <body>
     <!--[if lt IE 10]>
     <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
     <![endif]-->
-
     <div class="container">
         <div class="header">
             <h1 class="hide">cheapass</h1>
-            <img class="logo" src="images/cheapass.png" alt="Cheapass India" />
+            <a href="/">
+                <img class="logo" src="images/cheapass.png" alt="Cheapass India" />
+            </a>
             <p class="text-muted">Track changes in product price. Get notifications by email.</p>
         </div>
 
@@ -58,9 +42,13 @@
         </div>
 
         <div>
-            <h4><a href="<%= productURL%>"><%= productName %></a></h4>
-            <div id="prettyGraphContainer">
-
+            <h4 class="text-center">
+                <a href="<%= productURL%>"><%= productName %></a>&nbsp;
+                <a href="https://twitter.com/share" class="twitter-share-button" data-text="Tracking price changes to <%= productName %> on Cheapass." data-via="cheapass_in" data-related="aakashlpin" data-count="none">Tweet</a>
+                <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
+            </h4>
+            <div id="prettyGraphContainer" style="min-height: 400px;">
+                <!-- Graph comes here -->
             </div>
         </div>
 
@@ -84,20 +72,22 @@
     ga('send', 'pageview');
 
     </script>
-    <!-- build:js scripts/plugins.js -->
-    <!-- endbuild -->
 
-    <script src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.11/d3.min.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highcharts/4.0.3/highcharts.js"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highcharts/4.0.3/modules/exporting.js"></script>
 
     <script>
-    var formattedPriceHistory = [
-    <% for(var i=0; i<productPriceHistory.length; i++) { %>
-        {
-            date: "<%= productPriceHistory[i].date %>",
-            price: <%= productPriceHistory[i].price %>
-        },
-    <% } %>
-    ];
+        caObj = {};
+        caObj.priceHistory = [
+        <% for(var i=0; i<productPriceHistory.length; i++) { %>
+            {
+                date: "<%= productPriceHistory[i].date %>",
+                price: <%= productPriceHistory[i].price %>
+            },
+        <% } %>
+        ];
+        caObj.productName = "<%= productName %>";
+        caObj.productImage = "<%= productImage %>";
     </script>
 
     <!-- build:js({app,.tmp}) scripts/track.js -->

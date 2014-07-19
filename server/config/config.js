@@ -12,7 +12,7 @@ var commonConfig = {
     },
     port: 6000,
     kuePort: 6001,
-    server: 'http://cheapass.in',
+    server: 'https://cheapass.in',
     postmarkAPIKey: '72f0644f-1c98-492e-b8f7-a7cff8b1b908',
     youtubeDLSites: ['8tracks.com', '9gag.com', '9gag.tv', 'bandcamp.com',
      'blip.tv', 'collegehumor.com', 'cc.com', 'dailymotion.com',
@@ -140,7 +140,7 @@ var commonConfig = {
 var config = {
     development: {
         db: 'mongodb://localhost/streetsmart-development',
-        isCronActive: false  //use this to control running of cron jobs
+        isCronActive: true  //use this to control running of cron jobs
     },
 
     production: {
