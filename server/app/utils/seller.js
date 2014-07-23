@@ -46,6 +46,9 @@ module.exports = {
         return 'seller';
     },
     isLegitSeller: function(seller) {
+        if (!seller) {
+            return false;
+        }
         var sellers = _.keys(config.sellers);
         return !!_.find(sellers, function(legitSeller) {
             return seller.trim().toLowerCase() === legitSeller;

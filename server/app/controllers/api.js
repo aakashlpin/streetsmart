@@ -82,7 +82,17 @@ module.exports = {
         var resMethod = getResponseMethodAndManipulateHeaders(req.query, res);
 
         //Determine the seller here instead of UI
-        productData.seller = sellerUtils.getSellerFromURL(productData.productURL);
+        var seller = sellerUtils.getSellerFromURL(productData.productURL);
+        //check if legitimate seller
+        if (!sellerUtils.isLegitSeller(seller)) {
+            res[resMethod]({
+                status: 'Sorry. We don\'t support this seller currently.'
+            });
+            return;
+        }
+
+        productData.seller = seller;
+        productData.productURL = getURLWithAffiliateId(productData.productURL);
 
         var userData = {
             email: user.inputEmail
@@ -99,6 +109,10 @@ module.exports = {
             }
 
             var isEmailVerified = userQueryResult ? ( userQueryResult.email ? true : false) : false;
+            var emailProductData = _.extend({}, productData, {
+                seller: _.str.capitalize(productData.seller)
+            });
+
             if (!isEmailVerified) {
                 //1. send response back for the UI
                 logger.log('info', 'new user unverified', {email: userData.email});
@@ -107,7 +121,6 @@ module.exports = {
                 });
 
                 //2. send verification email
-                var emailProductData = _.extend({}, productData, {seller: _.str.capitalize(productData.seller)});
                 Emails.sendVerifier(userData, emailProductData, function(err, status) {
                     if (err) {
                         logger.log('error', 'error sending verification email', {error: err});
@@ -121,6 +134,16 @@ module.exports = {
                 res[resMethod]({
                     status: 'Sweet! We\'ll keep you posted as the price changes.'
                 });
+
+                //2. send acceptance email
+                Emails.sendHandshake(userData, emailProductData, function(err, status) {
+                    if (err) {
+                        logger.log('error', 'error sending acceptance email', {error: err});
+                        return;
+                    }
+                    logger.log('info', 'acceptance email triggered', {status: status});
+                });
+
             }
 
             //add job to the db
@@ -128,7 +151,7 @@ module.exports = {
                 email: userData.email,
                 currentPrice: productData.currentPrice,
                 productName: productData.productName,
-                productURL: getURLWithAffiliateId(productData.productURL),
+                productURL: productData.productURL,
                 productImage: productData.productImage,
                 seller: productData.seller,
                 isEmailVerified: isEmailVerified    //this is needed for some checks while creating a new job

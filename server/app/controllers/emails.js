@@ -89,5 +89,39 @@ module.exports = {
                 });
             }
         });
+    },
+    sendHandshake: function(user, product, callback) {
+        emailTemplates(templatesDir, function(err, template) {
+            if (err) {
+                callback(err);
+
+            } else {
+                var locals = {
+                    user: user,
+                    product: product
+                };
+
+                template('handshake', locals, function(err, html) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        postmark.send({
+                            'From': 'Cheapass India <notifications@cheapass.in>',
+                            'To': locals.user.email,
+                            'Bcc': 'aakash@cheapass.in',
+                            'ReplyTo' : 'aakash@cheapass.in',
+                            'HtmlBody': html,
+                            'Subject': 'Price Track added for ' + locals.product.productName
+                        }, function(err, responseStatus) {
+                            if (err) {
+                                callback(err);
+                            } else {
+                                callback(null, responseStatus);
+                            }
+                        });
+                    }
+                });
+            }
+        });
     }
 };
