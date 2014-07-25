@@ -20,7 +20,8 @@ var SellerJobSchema = new Schema({
 });
 
 SellerJobSchema.statics.removeJob = function(query, callback) {
-    this.findOne(query).remove(callback);
+    //it'll pass back the found docs back to the callback
+    this.findOneAndRemove(query, callback);
 };
 
 SellerJobSchema.statics.updateNewPrice = function(query, updateWith, callback) {

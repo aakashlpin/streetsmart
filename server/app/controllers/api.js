@@ -280,15 +280,15 @@ module.exports = {
             return;
         }
 
-        res.redirect('/unsubscribed');
-
         var seller = sellerUtils.getSellerFromURL(dbQuery.productURL);
         var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
-        SellerJobModel.removeJob(dbQuery, function(err) {
-            if (err) {
+        SellerJobModel.removeJob(dbQuery, function(err, doc) {
+            if (err || !doc) {
+                res.redirect('/500');
                 logger.log('error', 'error unsubscribing for data', dbQuery);
                 return;
             }
+            res.redirect('/unsubscribed');
             logger.log('info', 'unsubscribed user', dbQuery);
         });
     },
