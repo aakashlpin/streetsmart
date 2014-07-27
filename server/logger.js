@@ -10,7 +10,7 @@ winston.add(winston.transports.DailyRotateFile, {
 });
 
 var client = loggly.createClient({
-    token: '85955fea-ec95-440e-9e33-67e994fb2437',
+    token: '62dfdf72-ecb5-409e-98f8-4c4b164b4714',
     subdomain: 'cheapass',
     json:true
 });
