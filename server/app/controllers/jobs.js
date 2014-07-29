@@ -36,8 +36,8 @@ function newJob (jobData) {
             return;
         }
 
-        if (previousPrice !== newPrice) {
-            //send out an email
+        if (jobData.isActive && (previousPrice !== newPrice)) {
+            //send out an email only if user is still tracking this product
             //modify the DB's currentPrice field and productPriceHistory array
             var emailUser = {email: jobData.email};
             var seller = sellerUtils.getSellerFromURL(jobData.productURL);

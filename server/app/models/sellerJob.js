@@ -16,12 +16,15 @@ var SellerJobSchema = new Schema({
     productName: String,
     productImage: String,
     currentPrice: Number,
+    isActive: {type: Boolean, default: true},  //This field identifies if email has to be sent if price changes. We'll continue processing each URL forever. Will build some admin panel someday to remove tracking URLs.
     productPriceHistory: [ProductPriceHistorySchema]
 });
 
 SellerJobSchema.statics.removeJob = function(query, callback) {
     //it'll pass back the found docs back to the callback
-    this.findOneAndRemove(query, callback);
+    var updateParams = {isActive: false};
+    var updateOptions = {multi: true};
+    this.update(query, updateParams, updateOptions, callback);
 };
 
 SellerJobSchema.statics.updateNewPrice = function(query, updateWith, callback) {
@@ -63,6 +66,17 @@ SellerJobSchema.statics.addJob = function(jobData, callback) {
     'productImage', 'productName', 'productPriceHistory']);
 
     (new this(data)).save(callback);
+};
+
+SellerJobSchema.statics.markActive = function(done) {
+    this.update({}, {isActive: true}, {multi: true}, function(err, doc) {
+        if (err) {
+            console.log('error while marking active at db level', err);
+            done(err);
+            return;
+        }
+        done(null, doc);
+    });
 };
 
 var sellers = _.keys(config.sellers);

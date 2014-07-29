@@ -5,6 +5,9 @@ var _ = require('underscore');
 var urlLib = require('url');
 
 function getSellerFromURL(url) {
+    if (!url) {
+        return null;
+    }
     var sellers = _.keys(config.sellers);
     return _.find(sellers, function(seller) {
         if (url.indexOf(config.sellers[seller].url) >=0 ) {

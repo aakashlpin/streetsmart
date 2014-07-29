@@ -10,6 +10,7 @@ var Job = mongoose.model('Job');
 var config = require('../../config/config');
 var logger = require('../../logger').logger;
 var sellerUtils = require('../utils/seller');
+var async = require('async');
 
 function getURLWithAffiliateId(url) {
     var urlSymbol = url.indexOf('?') > 0 ? '&': '?';
@@ -269,28 +270,45 @@ module.exports = {
                 productURL: decodeURIComponent(queryParams.productURL)
             };
 
+            var seller = sellerUtils.getSellerFromURL(dbQuery.productURL);
+            var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
+            SellerJobModel.removeJob(dbQuery, function(err, doc) {
+                if (err || !doc) {
+                    res.redirect('/500');
+                    logger.log('error', 'error unsubscribing for data', dbQuery);
+                    return;
+                }
+                res.redirect('/unsubscribed');
+                logger.log('info', 'unsubscribed user', dbQuery);
+            });
+
         } else if (queryParams.email) {
             //unsubscribe all products for this email
             dbQuery = {
                 email: decodeURIComponent(queryParams.email)
             };
 
+            var sellers = _.keys(config.sellers);
+            async.each(sellers, function(seller, asyncCb) {
+                var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
+                SellerJobModel.removeJob(dbQuery, function(err, items) {
+                    logger.log('info', 'unsubscribed user for seller', {seller: seller, items: items});
+                    asyncCb(err);
+                });
+            }, function(err) {
+                if (err) {
+                    res.redirect('/500');
+                    logger.log('error', 'error unsubscribing for data', dbQuery);
+                    return;
+                }
+                res.redirect('/unsubscribed');
+            });
+
         } else {
             res.redirect('/500');
             return;
         }
 
-        var seller = sellerUtils.getSellerFromURL(dbQuery.productURL);
-        var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
-        SellerJobModel.removeJob(dbQuery, function(err, doc) {
-            if (err || !doc) {
-                res.redirect('/500');
-                logger.log('error', 'error unsubscribing for data', dbQuery);
-                return;
-            }
-            res.redirect('/unsubscribed');
-            logger.log('info', 'unsubscribed user', dbQuery);
-        });
     },
     getTracking: function(req, res) {
         var seller = req.params.seller,

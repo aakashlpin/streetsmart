@@ -1,6 +1,6 @@
 'use strict';
 var home = require('../app/controllers/home');
-// var migrations = require('../app/migrations/index');
+var migrations = require('../app/migrations/index');
 
 module.exports = function(app){
 
@@ -33,5 +33,5 @@ module.exports = function(app){
 	app.get('/ping', api.ping);
 
 	//1 time migration scripts
-	// app.get('/migrate', migrations.shardJobs);
+	app.get('/migrate', migrations.markAllJobsAsActive);
 };
