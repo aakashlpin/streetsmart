@@ -193,3 +193,11 @@
     font-variant: normal;
     font-style: normal;
 }
+
+#caPopup .fc-offer-link {
+    color: #2980b9;
+    font-weight: bold;
+    font-style: italic;
+    margin-top: 5px;
+    display: block;
+}

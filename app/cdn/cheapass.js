@@ -65,6 +65,7 @@
                 var domFinePrintSite =
                 '<p class="caFinePrint">A Cheapass doesn\'t pay for stuff.</p>';
                 var domBottom =
+                '<a class="fc-offer-link" target="_blank" href="https://cheapass.in">Get PAID for tracking before buying! Click to know more.</a>'+
                 '</div>';
 
                 var url = document.location.href;
