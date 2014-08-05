@@ -123,5 +123,43 @@ module.exports = {
                 });
             }
         });
+    },
+    sendFeatureMail: function(users, callback) {
+        //pass to this method an array of user emails
+        emailTemplates(templatesDir, function(err, template) {
+            if (err) {
+                callback(err);
+
+            } else {
+                var locals = {
+                    users: users
+                };
+
+                forEach(users, function(user) {
+                    template('freecharge', user, function(err, html) {
+                        if (err) {
+                            callback(err);
+                        } else {
+                            postmark.send({
+                                'From': 'Cheapass India <notifications@cheapass.in>',
+                                'To': user.email,
+                                'Bcc': 'aakash@cheapass.in',
+                                'ReplyTo' : 'aakash@cheapass.in',
+                                'HtmlBody': html,
+                                'Subject': 'Win Rs. 25/- FreeCharge Coupon every time you track before buying'
+                            }, function(err, responseStatus) {
+                                if (err) {
+                                    console.log('error', err);
+                                } else {
+                                    console.log('sent', responseStatus);
+                                }
+                            });
+                        }
+                    });
+                });
+
+                callback(null, 'emails queued');
+            }
+        });
     }
 };
