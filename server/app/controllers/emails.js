@@ -131,22 +131,18 @@ module.exports = {
                 callback(err);
 
             } else {
-                var locals = {
-                    users: users
-                };
-
-                forEach(users, function(user) {
-                    template('freecharge', user, function(err, html) {
-                        if (err) {
-                            callback(err);
-                        } else {
+                template('freecharge', users, function(err, html) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        users.forEach(function(user) {
                             postmark.send({
                                 'From': 'Cheapass India <notifications@cheapass.in>',
                                 'To': user.email,
                                 'Bcc': 'aakash@cheapass.in',
                                 'ReplyTo' : 'aakash@cheapass.in',
                                 'HtmlBody': html,
-                                'Subject': 'Win Rs. 25/- FreeCharge Coupon every time you track before buying'
+                                'Subject': 'Track and earn!'
                             }, function(err, responseStatus) {
                                 if (err) {
                                     console.log('error', err);
@@ -154,8 +150,8 @@ module.exports = {
                                     console.log('sent', responseStatus);
                                 }
                             });
-                        }
-                    });
+                        });
+                    }
                 });
 
                 callback(null, 'emails queued');

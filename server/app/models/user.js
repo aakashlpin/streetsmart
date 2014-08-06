@@ -35,4 +35,8 @@ UserSchema.statics.get = function(req, callback) {
     this.findOne({email: data.email}).lean().exec(callback);
 };
 
+UserSchema.statics.getAll = function(callback) {
+    this.find().lean().exec(callback);
+};
+
 mongoose.model('User', UserSchema);
