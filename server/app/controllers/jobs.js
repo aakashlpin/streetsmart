@@ -122,11 +122,15 @@ function processURL(url, callback) {
 
             var scrapedData = require('../sellers/' + seller)($);
             if (callback) {
-                callback(null, {
-                    price: scrapedData.price,
-                    name: scrapedData.name,
-                    image: scrapedData.image
-                });
+                if (scrapedData.price && (parseInt(scrapedData.price) >= 0)) {
+                    callback(null, {
+                        price: scrapedData.price,
+                        name: scrapedData.name,
+                        image: scrapedData.image
+                    });
+                } else {
+                    callback('Could not determine price information from page');
+                }
             }
 
         } else {
