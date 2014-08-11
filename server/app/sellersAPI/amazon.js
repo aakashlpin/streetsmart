@@ -36,7 +36,24 @@ module.exports = function(url, callback) {
 			logger.log('error', 'error making apac request', err);
 			return callback('error making apac request');
 		}
-	    console.log(util.inspect(results, { showHidden: true, depth: null, colors: true }));
-	    callback('err');
+
+		var price, name, image;
+		try {
+			var itemAttrs = results.ItemLookupResponse.Items[0].Item[0].ItemAttributes[0];
+			var imageParent = results.ItemLookupResponse.Items[0].Item[0].MediumImage[0];
+			name = itemAttrs.Title[0];
+			price = itemAttrs.ListPrice[0].Amount[0];	//Options =>Amount[0], CurrencyCode[0], FormattedPrice[0]
+			image = imageParent.URL[0];
+		    // console.log(util.inspect(results, { showHidden: true, depth: null, colors: true }));
+		    var response = {
+		    	name: name,
+		    	price: price,
+		    	image: image
+		    };
+
+		    callback(null, response);
+		} catch(e) {
+			console.log(e);
+		}
 	});
 };
