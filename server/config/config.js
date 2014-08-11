@@ -140,7 +140,7 @@ var commonConfig = {
 var config = {
     development: {
         db: 'mongodb://localhost/streetsmart-development',
-        isCronActive: true  //use this to control running of cron jobs
+        isCronActive: false  //use this to control running of cron jobs
     },
 
     production: {
