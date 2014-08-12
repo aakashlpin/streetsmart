@@ -58,7 +58,7 @@ var commonConfig = {
             key: 'tag',
             value: 'cheapass0a-21',
             requiresUserAgent: false,
-            hasProductAPI: true,
+            hasProductAPI: false,
             cronPattern: {
                 'development': '1-59/5 * * * *',
                 'production': '0 0-23/1 * * *'
