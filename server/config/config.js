@@ -129,7 +129,7 @@ var commonConfig = {
             key: 'aff_id',
             value: '12129',
             extraParams: '&utm_source=aff_prog&utm_campaign=afts&offer_id=17',
-            requiresUserAgent: false,
+            requiresUserAgent: true,
             cronPattern: {
                 'development': '9-59/5 * * * *',
                 'production': '30 1-23/3 * * *'
