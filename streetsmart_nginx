@@ -56,6 +56,10 @@ server {
     add_header Access-Control-Allow-Methods "GET, OPTIONS";
   }
 
+  location ~* /dashboard/scripts/* {
+    root /home/aakash/projects/streetsmart;
+  }
+
   location ~* \.(css|js|gif|jpe?g|png)$ {
     expires max;
     add_header Pragma public;
