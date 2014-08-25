@@ -34,8 +34,24 @@ function getVideoSiteFromURL(url) {
     });
 }
 
+function getDeepLinkURL(seller, url) {
+    if (seller === 'amazon') {
+        // extract ASIN from the url
+        // http://stackoverflow.com/questions/1764605/scrape-asin-from-amazon-url-using-javascript
+        // need to &cor=US to prevent 3g delivery price from showing up on Kindle books
+        var asin = url.match('/([a-zA-Z0-9]{10})(?:[/?]|$)');
+        if (asin && asin[1]) {
+            return ('http://www.amazon.in/dp/'+ asin[1]);
+        }
+        return url;
+    }
+    return url;
+}
+
+
 module.exports = {
     getSellerFromURL: getSellerFromURL,
+    getDeepLinkURL: getDeepLinkURL,
     getVideoSiteFromURL: getVideoSiteFromURL,
     getSellerJobModelInstance: function(seller) {
         var jobSellerModelName = seller + '_job';

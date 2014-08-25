@@ -97,14 +97,18 @@ function processURL(url, callback) {
     logger.log('info', 'scrape', {url: url});
 
     var seller = sellerUtils.getSellerFromURL(url);
-    var requestOptions = {
-        url: url
-    };
-
     if (!config.sellers[seller]) {
         callback('seller not supported');
         return;
     }
+
+    if (config.sellers[seller].hasDeepLinking) {
+        url = sellerUtils.getDeepLinkURL(seller, url);
+    }
+
+    var requestOptions = {
+        url: url
+    };
 
     if (config.sellers[seller].hasProductAPI) {
         require('../sellersAPI/' + seller)(url, callback);

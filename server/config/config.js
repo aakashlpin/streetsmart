@@ -59,6 +59,7 @@ var commonConfig = {
             value: 'cheapass0a-21',
             requiresUserAgent: false,
             hasProductAPI: false,
+            hasDeepLinking: true,
             cronPattern: {
                 'development': '1-59/5 * * * *',
                 'production': '0 0-23/1 * * *'

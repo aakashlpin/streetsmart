@@ -92,6 +92,10 @@ module.exports = {
             return;
         }
 
+        if (config.sellers[seller].hasDeepLinking) {
+            productData.productURL = sellerUtils.getDeepLinkURL(seller, productData.productURL);
+        }
+
         productData.seller = seller;
         productData.productURL = getURLWithAffiliateId(productData.productURL);
 
