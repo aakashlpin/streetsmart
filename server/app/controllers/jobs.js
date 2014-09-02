@@ -143,7 +143,7 @@ function processURL(url, callback) {
             }
 
         } else {
-            logger.log('error', 'request module', {error: error, responseCode: response.statusCode});
+            logger.log('error', 'request module', {error: error, response: response});
             if (callback) {
                 callback('error in scraping');
             }
