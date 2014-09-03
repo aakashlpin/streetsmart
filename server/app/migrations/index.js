@@ -41,5 +41,15 @@ module.exports = {
                 res.json({status: 'ok'});
             }
         });
+    },
+    normalizeFlipkartURLs: function(req, res) {
+        var seller = 'flipkart';
+        var mongooseModelForFlipkart = sellerUtils.getSellerJobModelInstance('flipkart');
+        mongooseModelForFlipkart.normalizeURL(function(err){
+            if (err) {
+                console.log(err);
+            }
+        });
+        res.json({status: 'ok'});
     }
 };

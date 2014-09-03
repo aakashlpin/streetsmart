@@ -44,7 +44,15 @@ function getDeepLinkURL(seller, url) {
             return ('http://www.amazon.in/dp/'+ asin[1]);
         }
         return url;
+
+    } else if (seller === 'flipkart') {
+        // http://nodejs.org/api/url.html
+        // signature: url.parse(urlStr, [parseQueryString], [slashesDenoteHost])
+        var parsedURL = urlLib.parse(url, true);
+        var normalizedURL = parsedURL.protocol + '//' + parsedURL.host + parsedURL.pathname + '?pid=' + parsedURL.query.pid + '&' +config.sellers['flipkart'].key + '=' + config.sellers['flipkart'].value;
+        return normalizedURL;
     }
+
     return url;
 }
 
