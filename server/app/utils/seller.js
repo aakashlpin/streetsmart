@@ -49,7 +49,8 @@ function getDeepLinkURL(seller, url) {
         // http://nodejs.org/api/url.html
         // signature: url.parse(urlStr, [parseQueryString], [slashesDenoteHost])
         var parsedURL = urlLib.parse(url, true);
-        var normalizedURL = parsedURL.protocol + '//' + parsedURL.host + parsedURL.pathname + '?pid=' + parsedURL.query.pid + '&' +config.sellers['flipkart'].key + '=' + config.sellers['flipkart'].value;
+        var pidQueryString = parsedURL.query.pid ? ('?pid=' + parsedURL.query.pid + '&') + '?';
+        var normalizedURL = parsedURL.protocol + '//' + parsedURL.host + parsedURL.pathname + pidQueryString + config.sellers['flipkart'].key + '=' + config.sellers['flipkart'].value;
         return normalizedURL;
     }
 
