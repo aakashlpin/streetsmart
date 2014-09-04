@@ -60,6 +60,10 @@
                 '<div id="caPopup">' +
                 '<a id="caClose" class="caClose" title="Close" style="position: absolute; left: -10px; top: -10px;"><div class="circle" style="font-size: 17px; border: 2px solid #444546; padding: 0 0 0 0; width: 26px; height: 26px; background-color:#444546; color: #fff; border-radius: 50px; text-align: center;"> x </div></a>' +
                 '<a target="_blank" href="https://cheapass.in"><img class="caPopupLogo" src="https://cheapass.in/cdn/cheapass.png" /></a>';
+                var domLoader =
+                '<div class="caPopupLoader">'+
+                '<img src="https://cheapass.in/cdn/loader.gif" height="45px" width="45px">'+
+                '</div>';
                 var domFinePrintSeller =
                 '<p class="caFinePrint">Track changes in price. Got notified by email.</p>';
                 var domFinePrintSite =
@@ -69,9 +73,10 @@
                 '</div>';
 
                 var url = document.location.href;
-                if ($(caPopup).length) {
-                    $(caPopup).remove();
-                }
+                //remove the popup if exists
+                removePopup();
+
+                preRequestHandler();
 
                 $.ajax({
                     url: 'https://cheapass.in/inputurl',
@@ -84,7 +89,19 @@
                     $(caPopup).remove();
                 }
 
+                function removePopup() {
+                    if ($(caPopup).length) {
+                        $(caPopup).remove();
+                    }
+                }
+
+                function preRequestHandler() {
+                    var dom = domTop + domFinePrintSeller + domLoader + domBottom;
+                    $('body').append(dom);
+                }
+
                 function inputURLResponseHandler(response) {
+                    removePopup();
                     if (response.downloadURLs || response.downloadURL) {
                         inputURLVideoDownloader(response.downloadURLs || response.downloadURL);
                     } else {
