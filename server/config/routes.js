@@ -37,5 +37,5 @@ module.exports = function(app){
 	app.get('/emails/freecharge', tasks.sendMail);
 
 	//1 time migration scripts
-	app.get('/migrate', migrations.normalizeFlipkartURLs);
+	app.get('/migrate', migrations.initializeCounters);
 };

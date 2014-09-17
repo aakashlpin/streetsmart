@@ -55,6 +55,8 @@ function newJob (jobData) {
                     logger.log('error', 'while sending notifier email', {err: err});
                 } else {
                     logger.log('silly', 'successfully sent notifier email', {message: message});
+                    //update the emails counter
+                    sellerUtils.increaseCounter('emailsSent');
                 }
             });
         }

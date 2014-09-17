@@ -168,7 +168,8 @@ module.exports = {
                     return;
                 }
                 if (createdJob) {
-                    //good job
+                    //increase the products counter in the db
+                    sellerUtils.increaseCounter('itemsTracked');
                 }
             });
         });
@@ -240,6 +241,8 @@ module.exports = {
                     }
                     if (userQueryResponse) {
                         // logger.log('info', 'user with email ', email, ' put in the verified email collection');
+                        //update the users counter
+                        sellerUtils.increaseCounter('totalUsers');
                     }
                 });
 
