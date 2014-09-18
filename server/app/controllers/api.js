@@ -342,6 +342,13 @@ module.exports = {
             res.render('track.ejs', tmplData);
         });
     },
+    getStats: function(req, res) {
+        var CountersModel = mongoose.model('Counter');
+        CountersModel.findOne().lean().exec(function(err, doc) {
+            var resObj = _.pick(doc, ['totalUsers', 'emailsSent', 'itemsTracked']);
+            res.json(resObj);
+        });
+    },
     ping: function(req, res) {
         //to test if server is up
         res.json({status: 'ok'});

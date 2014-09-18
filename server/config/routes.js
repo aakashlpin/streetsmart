@@ -36,6 +36,8 @@ module.exports = function(app){
 	var tasks = require('../app/tasks/freecharge');
 	app.get('/emails/freecharge', tasks.sendMail);
 
+	app.get('/stats', api.getStats);
+
 	//1 time migration scripts
-	app.get('/migrate', migrations.initializeCounters);
+	// app.get('/migrate', migrations.initializeCounters);
 };
