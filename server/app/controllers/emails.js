@@ -60,10 +60,13 @@ module.exports = {
 
                 var encodedEmail = encodeURIComponent(product.email);
                 var encodedURL = encodeURIComponent(product.productURL);
-                var baseUnsubscribeLink = config.server + '/unsubscribe?email=' + encodedEmail;
+                // var baseUnsubscribeLink = config.server + '/unsubscribe?email=' + encodedEmail;
+
+                _.extend(locals.user, {
+                    dashboardURL: (config.server + '/dashboard?email=' + encodeURIComponent(user.email))
+                });
+
                 _.extend(locals.product, {
-                    productUnsubscribeLink: baseUnsubscribeLink + '&productURL=' + encodedURL,
-                    allUnsubscribeLink: baseUnsubscribeLink,
                     selfProductRedirectURL: config.server + '/redirect?url=' + encodedURL
                 });
 
@@ -101,6 +104,10 @@ module.exports = {
                     product: product
                 };
 
+                _.extend(locals.user, {
+                    dashboardURL: (config.server + '/dashboard?email=' + encodeURIComponent(user.email))
+                });
+
                 template('handshake', locals, function(err, html) {
                     if (err) {
                         callback(err);
@@ -108,7 +115,7 @@ module.exports = {
                         postmark.send({
                             'From': 'Cheapass India <notifications@cheapass.in>',
                             'To': locals.user.email,
-                            'Bcc': 'aakash@cheapass.in',
+                            // 'Bcc': 'aakash@cheapass.in',
                             'ReplyTo' : 'aakash@cheapass.in',
                             'HtmlBody': html,
                             'Subject': 'Price Track added for ' + locals.product.productName
