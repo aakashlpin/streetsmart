@@ -4,6 +4,7 @@ var mongoose = require('mongoose'),
 Schema = mongoose.Schema,
 _ = require('underscore'),
 config = require('../../config/config');
+var sellerUtils = require('../utils/seller.js');
 
 var ProductPriceHistorySchema = new Schema({
     date: Date,
@@ -77,6 +78,27 @@ SellerJobSchema.statics.markActive = function(done) {
         }
         done(null, doc);
     });
+};
+
+SellerJobSchema.statics.normalizeURL = function(callback) {
+    this.find({}, {productURL: 1}, function(err, records) {
+        if (err) {
+            console.log('error', 'error getting records', err);
+            return callback('error');
+        }
+        records.forEach(function(record) {
+            var currentURL = record.productURL;
+            var normalizedURL = sellerUtils.getDeepLinkURL('flipkart', currentURL);
+            this.update({_id: record._id}, {productURL: normalizedURL}, {}, function(err, updatedDoc) {
+                if (err) {
+                    console.log('error', 'error updating record', err);
+                } else {
+                    console.log('info', 'productURL changed to ', normalizedURL);
+                }
+            });
+        }.bind(this));
+        callback(null);
+    }.bind(this));
 };
 
 var sellers = _.keys(config.sellers);

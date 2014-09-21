@@ -41,5 +41,46 @@ module.exports = {
                 res.json({status: 'ok'});
             }
         });
+    },
+    normalizeFlipkartURLs: function(req, res) {
+        var seller = 'flipkart';
+        var mongooseModelForFlipkart = sellerUtils.getSellerJobModelInstance('flipkart');
+        mongooseModelForFlipkart.normalizeURL(function(err){
+            if (err) {
+                console.log(err);
+            }
+        });
+        res.json({status: 'ok'});
+    },
+    initializeCounters: function(req, res) {
+        async.parallel([
+            function(callback) {
+                var mongooseUsersModel = mongoose.model('User');
+                mongooseUsersModel.find().lean().exec(function(err, users) {
+                    callback(null, users.length);
+                });
+            },
+            function(callback) {
+                var mongooseJobsModel = mongoose.model('Job');
+                mongooseJobsModel.find().lean().exec(function(err, jobs) {
+                    callback(null, jobs.length);
+                });
+            }],
+            function(err, results) {
+                var mongooseCounterModel = mongoose.model('Counter');
+                mongooseCounterModel.initialize({
+                    totalUsers: results[0],
+                    itemsTracked: results[1],
+                    emailsSent: 9524   //from Postmark since 2nd July 2014
+                }, function(err, doc) {
+                    if (err) {
+                        console.log('error in initializing counters');
+                    } else {
+                        console.log('counters initialized');
+                    }
+                });
+                res.json({status: 'ok'});
+            }
+        );
     }
 };

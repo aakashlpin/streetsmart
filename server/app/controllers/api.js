@@ -168,7 +168,8 @@ module.exports = {
                     return;
                 }
                 if (createdJob) {
-                    //good job
+                    //increase the products counter in the db
+                    sellerUtils.increaseCounter('itemsTracked');
                 }
             });
         });
@@ -240,6 +241,8 @@ module.exports = {
                     }
                     if (userQueryResponse) {
                         // logger.log('info', 'user with email ', email, ' put in the verified email collection');
+                        //update the users counter
+                        sellerUtils.increaseCounter('totalUsers');
                     }
                 });
 
@@ -337,6 +340,13 @@ module.exports = {
             tmplData.productSeller = _.str.capitalize(seller);
 
             res.render('track.ejs', tmplData);
+        });
+    },
+    getStats: function(req, res) {
+        var CountersModel = mongoose.model('Counter');
+        CountersModel.findOne().lean().exec(function(err, doc) {
+            var resObj = _.pick(doc, ['totalUsers', 'emailsSent', 'itemsTracked']);
+            res.json(resObj);
         });
     },
     ping: function(req, res) {

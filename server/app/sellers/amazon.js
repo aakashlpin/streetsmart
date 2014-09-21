@@ -17,9 +17,9 @@ module.exports = function($) {
     try {
         priceDOMs = ['#priceblock_ourprice', '#priceblock_saleprice',
         '#priceblock_dealprice', '#buyingPriceValue', '#actualPriceValue',
-        '#priceBlock', '#price'];
+        '#priceBlock', '#price', '#buyNewSection .offer-price'];
         nameDOMs = ['#productTitle', '#btAsinTitle > span', '#btAsinTitle'];
-        imageDOMs = ['#landingImage', '#prodImage', '#kib-ma-container-0 > img'];
+        imageDOMs = ['#landingImage', '#prodImage', '#kib-ma-container-0 > img', '#imgBlkFront'];
 
         nameDOM     = getActualDOM($, nameDOMs);
         imageDOM    = getActualDOM($, imageDOMs);

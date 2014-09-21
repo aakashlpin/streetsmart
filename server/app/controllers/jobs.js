@@ -55,6 +55,8 @@ function newJob (jobData) {
                     logger.log('error', 'while sending notifier email', {err: err});
                 } else {
                     logger.log('silly', 'successfully sent notifier email', {message: message});
+                    //update the emails counter
+                    sellerUtils.increaseCounter('emailsSent');
                 }
             });
         }
@@ -143,7 +145,7 @@ function processURL(url, callback) {
             }
 
         } else {
-            logger.log('error', 'request module', {error: error, responseCode: response.statusCode});
+            logger.log('error', 'request module', {error: error, response: response});
             if (callback) {
                 callback('error in scraping');
             }

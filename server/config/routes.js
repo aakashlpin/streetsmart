@@ -1,6 +1,6 @@
 'use strict';
 var home = require('../app/controllers/home');
-// var migrations = require('../app/migrations/index');
+var migrations = require('../app/migrations/index');
 
 module.exports = function(app){
 
@@ -36,6 +36,8 @@ module.exports = function(app){
 	var tasks = require('../app/tasks/freecharge');
 	app.get('/emails/freecharge', tasks.sendMail);
 
+	app.get('/stats', api.getStats);
+
 	//1 time migration scripts
-	// app.get('/migrate', migrations.markAllJobsAsActive);
+	// app.get('/migrate', migrations.initializeCounters);
 };

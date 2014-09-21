@@ -44,15 +44,35 @@ function getDeepLinkURL(seller, url) {
             return ('http://www.amazon.in/dp/'+ asin[1]);
         }
         return url;
+
+    } else if (seller === 'flipkart') {
+        // http://nodejs.org/api/url.html
+        // signature: url.parse(urlStr, [parseQueryString], [slashesDenoteHost])
+        var parsedURL = urlLib.parse(url, true);
+        var pidQueryString = (parsedURL.query.pid && (parsedURL.query.pid !== undefined)) ? ('?pid=' + parsedURL.query.pid + '&') : '?';
+        var normalizedURL = parsedURL.protocol + '//' + parsedURL.host + parsedURL.pathname + pidQueryString + config.sellers.flipkart.key + '=' + config.sellers.flipkart.value;
+        return normalizedURL;
     }
+
     return url;
 }
 
+function increaseCounter(counterName) {
+    var counterModel = mongoose.model('Counter');
+    counterModel.findOne().lean().exec(function(err, doc) {
+        var updateQuery = {_id: doc._id};
+        var updateObject = {};
+        var updateOptions = {};
+        updateObject[counterName] = doc[counterName] + 1;
+        counterModel.update(updateQuery, updateObject, updateOptions, function() {});
+    });
+}
 
 module.exports = {
     getSellerFromURL: getSellerFromURL,
     getDeepLinkURL: getDeepLinkURL,
     getVideoSiteFromURL: getVideoSiteFromURL,
+    increaseCounter: increaseCounter,
     getSellerJobModelInstance: function(seller) {
         var jobSellerModelName = seller + '_job';
         return mongoose.model(jobSellerModelName);

@@ -197,8 +197,26 @@
         }
     };
 
+    var Counters = {
+        $usersCount: $('#ca-counters-users'),
+        $itemsCount: $('#ca-counters-products'),
+        $emailsCount: $('#ca-counters-emails'),
+        init: function() {
+            $.getJSON('/stats', function(res) {
+                Counters.$usersCount.html(res.totalUsers);
+                Counters.$itemsCount.html(res.itemsTracked);
+                Counters.$emailsCount.html(res.emailsSent);
+            });
+        }
+    }
+
     urlForm.$el.on('submit', urlForm.handleURLInputPaste);
     urlForm.$inputEl.on('paste', urlForm.handleURLInputPaste);
     urlForm.$inputEl.on('click', urlForm.handleURLInputClick);
 
+    setInterval(function() {
+        Counters.init();
+    }, 5000);
+
+    Counters.init();
 })(window, jQuery);
