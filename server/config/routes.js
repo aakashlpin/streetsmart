@@ -52,4 +52,8 @@ module.exports = function(app){
 
 	//1 time migration scripts
 	// app.get('/migrate', migrations.initializeCounters);
+
+	//Mobile APIs
+	var mobile = require('../app/controllers/mobile');
+	app.get('/mobile/register', mobile.registerDevice);
 };
