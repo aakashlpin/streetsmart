@@ -349,6 +349,35 @@ module.exports = {
             res.json(resObj);
         });
     },
+    getDashboard: function(req, res) {
+        var id = req.params.id;
+
+        User.findById(id, function(err, doc) {
+            if (err || !doc) {
+                res.redirect('/500');
+                return;
+            }
+
+            var tmplData = _.pick(doc, ['email', 'dropOnlyAlerts']);
+            tmplData._id = id;
+            res.render('dashboard.ejs', tmplData);
+        });
+    },
+    getDashboardByEmail: function(req, res) {
+        var email = req.query.email;
+        if (!email) {
+            res.json({err: 'expected email'});
+            return;
+        }
+        email = decodeURIComponent(email);
+        User.findOne({email: email}).lean().exec(function(err, user) {
+            if (err) {
+                res.json({err: 'email not found'});
+                return;
+            }
+            res.redirect('/dashboard/' + user._id);
+        });
+    },
     ping: function(req, res) {
         //to test if server is up
         res.json({status: 'ok'});

@@ -38,6 +38,18 @@ module.exports = function(app){
 
 	app.get('/stats', api.getStats);
 
+	//user dashboard by email
+	app.get('/dashboard', api.getDashboardByEmail);
+
+	//user dashboard
+	app.get('/dashboard/:id', api.getDashboard);
+
+	//Dashboard APIs
+	var dashboard = require('../app/controllers/dashboard');
+	app.get('/api/dashboard/tracks/:userEmail', dashboard.getTracks);
+	app.get('/api/dashboard/preferences/:userEmail', dashboard.setPreferences);
+	app.get('/api/dashboard/sendDashboardLink', dashboard.sendDashboardLink);
+
 	//1 time migration scripts
 	// app.get('/migrate', migrations.initializeCounters);
 };
