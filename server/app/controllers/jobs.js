@@ -18,22 +18,41 @@ Jobs = mongoose.model('Job');
 kue.app.listen(config.kuePort);
 
 function newJob (jobData) {
-    var job = jobsQ.create('scraper', {
-        url: jobData.productURL,
-        name: jobData.productName,
-        title: 'Processing ' + jobData.productName + ' for ' + jobData.email
-    });
+    //title is a field necessary for the kue lib
+    jobData.title = 'Processing ' + jobData.productName;
+    delete jobData.productPriceHistory;
 
-    job
-    .on('complete', function (result) {
-        logger.log('info', 'scraping job completed', {result: result});
+    var job = jobsQ.create('scraper', jobData);
+    job.save();
+}
+
+function removeJob(job) {
+    job.remove(function(err) {
+        if (err) {
+            logger.log('warn', 'failed to remove completed job #%d', job.id);
+            return;
+        }
+        logger.log('info', 'removed completed job #%d', job.id);
+    });
+}
+
+jobsQ.on('job complete', function(id) {
+    kue.Job.get(id, function(err, job) {
+        if (err) {
+            return;
+        }
+
+        var jobData = job.data;
+        var jobResult = job.result;
+
         var jobQuery = {email: jobData.email, productURL: jobData.productURL};
+
         var previousPrice = parseInt(jobData.currentPrice, 10);
-        var newPrice = parseInt(result.price, 10);
+        var newPrice = parseInt(jobResult.productPrice, 10);
 
         if (_.isNaN(newPrice)) {
-            logger.log('warning', 'price parseInt resulted as NaN. original data attached', {price: result.price});
-            return;
+            logger.log('warning', 'price parseInt resulted as NaN. original data attached', {price: jobResult.productPrice});
+            return removeJob(job);
         }
 
         if (jobData.isActive && (previousPrice !== newPrice)) {
@@ -54,7 +73,7 @@ function newJob (jobData) {
                 if (err) {
                     logger.log('error', 'while sending notifier email', {err: err});
                 } else {
-                    logger.log('silly', 'successfully sent notifier email', {message: message});
+                    logger.log('info', 'successfully sent notifier email', {message: message});
                     //update the emails counter
                     sellerUtils.increaseCounter('emailsSent');
                 }
@@ -63,42 +82,20 @@ function newJob (jobData) {
 
         Jobs.updateNewPrice(jobQuery, {price: newPrice}, function(err, updatedJob) {
             if (err) {
-                logger.log('error', 'updating price after scraping failed', {err: err});
+                logger.log('error', 'job completed db update fails', {err: err});
             }
             if (updatedJob) {
-                logger.log('silly', 'documents updated after scraping', {count: updatedJob});
+                logger.log('info', 'job completed db update succeeds', updatedJob);
             }
-        });
-    })
-    .attempts(3)
-    .backoff({type:'exponential'})
-    .save();
-}
 
-jobsQ.on('job complete', function(id) {
-    //free up the memory
-    kue.Job.get(id, function(err, job) {
-        if (err) {
-            return;
-        }
-        job.remove(function(err) {
-            if (err) {
-                logger.log('warn', 'failed to remove completed job #%d', job.id);
-                return;
-            }
-            logger.log('info', 'removed completed job #%d', job.id);
+            removeJob(job);
         });
     });
 });
 
 function processURL(url, callback) {
-    if (process.env.NODE_ENV !== 'production') {
-        logger.profile('scrape');
-    }
-
-    logger.log('info', 'scrape', {url: url});
-
     var seller = sellerUtils.getSellerFromURL(url);
+
     if (!config.sellers[seller]) {
         callback('seller not supported');
         return;
@@ -135,9 +132,9 @@ function processURL(url, callback) {
             if (callback) {
                 if (scrapedData.price && (parseInt(scrapedData.price) >= 0)) {
                     callback(null, {
-                        price: scrapedData.price,
-                        name: scrapedData.name,
-                        image: scrapedData.image
+                        productPrice: scrapedData.price,
+                        productTitle: scrapedData.name,
+                        productImage: scrapedData.image
                     });
                 } else {
                     callback('Could not determine price information from page');
@@ -145,14 +142,16 @@ function processURL(url, callback) {
             }
 
         } else {
-            logger.log('error', 'request module', {error: error, response: response});
+            if (response && response.statusCode) {
+                logger.log('error', 'request module', {error: error, responseCode: response.statusCode});
+
+            } else {
+                logger.log('error', 'request module', {error: error, body: body});
+            }
+
             if (callback) {
                 callback('error in scraping');
             }
-        }
-
-        if (process.env.NODE_ENV !== 'production') {
-            logger.profile('scrape');
         }
     });
 }
@@ -205,12 +204,7 @@ function init() {
 
     //put scraping inside init
     jobsQ.process('scraper', function (job, done) {
-        if (job.data.url) {
-            processURL(job.data.url, done);
-        } else {
-            logger.log('error', 'jobQ scraper processing failed', {jobObject: job});
-            done('Couldn\'t find jobURL to scrape');
-        }
+        processURL(job.data.productURL, done);
     });
 }
 

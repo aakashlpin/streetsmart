@@ -96,7 +96,7 @@
                     responseContainer.appendChild(clone);
 
                     $.getJSON('/inputurl', {url: url}, function(res) {
-                        if (!res.price) {
+                        if (!res.productPrice) {
                             // if (supportsTemplate()) {
                             tmpl = document.querySelector('#illegalProductPage');
                             clone = document.importNode(tmpl.content, true);
@@ -108,9 +108,9 @@
                         }
 
                         urlForm.$inputEl.removeAttr('disabled');
-                        var priceVal = res.price,
-                        nameVal = res.name,
-                        imageVal = res.image;
+                        var priceVal = res.productPrice,
+                        nameVal = res.productTitle,
+                        imageVal = res.productImage;
 
                         tmpl = document.querySelector('#tmplNotifyMe');
                         var tmplContent = tmpl.content;
@@ -216,7 +216,7 @@
 
     setInterval(function() {
         Counters.init();
-    }, 5000);
+    }, 10000);
 
     Counters.init();
 })(window, jQuery);
