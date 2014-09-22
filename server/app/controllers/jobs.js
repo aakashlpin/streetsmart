@@ -94,6 +94,8 @@ jobsQ.on('job complete', function(id) {
 });
 
 function processURL(url, callback) {
+    logger.log('info', 'scrape url', {url: url});
+
     var seller = sellerUtils.getSellerFromURL(url);
 
     if (!config.sellers[seller]) {
@@ -143,10 +145,10 @@ function processURL(url, callback) {
 
         } else {
             if (response && response.statusCode) {
-                logger.log('error', 'request module', {error: error, responseCode: response.statusCode});
+                logger.log('error', 'request module', {error: error, responseCode: response.statusCode, requestOptions: requestOptions});
 
             } else {
-                logger.log('error', 'request module', {error: error, body: body});
+                logger.log('error', 'request module', {error: error, body: body, requestOptions: requestOptions});
             }
 
             if (callback) {

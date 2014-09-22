@@ -82,5 +82,21 @@ module.exports = {
                 res.json({status: 'ok'});
             }
         );
+    },
+    removeAllInActiveJobs: function(req, res) {
+        var sellers = _.keys(config.sellers);
+        async.each(sellers, function(seller, asyncCb) {
+            var sellerModel = sellerUtils.getSellerJobModelInstance(seller);
+            sellerModel.find({isActive: false}).remove(function(err, done) {
+                console.log(done);
+                asyncCb(err);
+            });
+        }, function(err) {
+            if (err) {
+                res.json({error: err});
+            } else {
+                res.json({status: 'ok'});
+            }
+        });
     }
 };
