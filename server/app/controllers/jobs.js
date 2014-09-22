@@ -55,7 +55,7 @@ jobsQ.on('job complete', function(id) {
             return removeJob(job);
         }
 
-        if (jobData.isActive && (previousPrice !== newPrice)) {
+        if (previousPrice !== newPrice) {
             //send out an email only if user is still tracking this product
             //modify the DB's currentPrice field and productPriceHistory array
             var emailUser = {email: jobData.email};
@@ -139,6 +139,7 @@ function processURL(url, callback) {
                         productImage: scrapedData.image
                     });
                 } else {
+                    logger.log('error', 'page scraping failed', {requestOptions: requestOptions, scrapedData: scrapedData});
                     callback('Could not determine price information from page');
                 }
             }

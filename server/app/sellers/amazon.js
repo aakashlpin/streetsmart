@@ -25,11 +25,6 @@ module.exports = function($) {
         imageDOM    = getActualDOM($, imageDOMs);
         priceDOM    = getActualDOM($, priceDOMs);
 
-        if (!nameDOM || !imageDOM || !priceDOM) {
-            logger.log('error', 'amazon scraping issue. DOM attached',
-            {nameDOM: nameDOM, imageDOM: imageDOM, priceDOM: priceDOM, dom: $});
-        }
-
         name = nameDOM ? $(nameDOM).text() : '';
         name = name.replace(/<(?:.|\n)*?>/gm, '').replace(/^\s+|\s+$/g, '');
         image = imageDOM ? $(imageDOM).attr('src') : '';

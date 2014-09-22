@@ -17,15 +17,12 @@ var SellerJobSchema = new Schema({
     productName: String,
     productImage: String,
     currentPrice: Number,
-    isActive: {type: Boolean, default: true},  //This field identifies if email has to be sent if price changes. We'll continue processing each URL forever. Will build some admin panel someday to remove tracking URLs.
+    // isActive: {type: Boolean, default: true},  //This field identifies if email has to be sent if price changes. We'll continue processing each URL forever. Will build some admin panel someday to remove tracking URLs.
     productPriceHistory: [ProductPriceHistorySchema]
 });
 
 SellerJobSchema.statics.removeJob = function(query, callback) {
-    //it'll pass back the found docs back to the callback
-    var updateParams = {isActive: false};
-    var updateOptions = {multi: true};
-    this.update(query, updateParams, updateOptions, callback);
+    this.find(query).remove(callback);
 };
 
 SellerJobSchema.statics.updateNewPrice = function(query, updateWith, callback) {

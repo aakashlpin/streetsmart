@@ -22,7 +22,7 @@ module.exports = {
                 seller: seller,
                 tracks: []
             };
-            SellerJobModel.find({email: userEmail, isActive: true}, {productPriceHistory: 0}).lean().exec(function(err, items) {
+            SellerJobModel.find({email: userEmail}, {productPriceHistory: 0}).lean().exec(function(err, items) {
                 if (err) {
                     asyncCb(err);
                 } else {
