@@ -131,6 +131,37 @@ module.exports = {
             }
         });
     },
+    sendDeviceVerificationCode: function(registrationData, callback) {
+        emailTemplates(templatesDir, function(err, template) {
+            if (err) {
+                callback(err);
+
+            } else {
+                var locals = {};
+
+                template('deviceregistration', locals, function(err, html) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        postmark.send({
+                            'From': 'Cheapass India <notifications@cheapass.in>',
+                            'To': registrationData.email,
+                            'Bcc': 'aakash.lpin@gmail.com',
+                            'ReplyTo' : 'aakash@cheapass.in',
+                            'HtmlBody': html,
+                            'Subject': 'Passcode for device registration'
+                        }, function(err, responseStatus) {
+                            if (err) {
+                                callback(err);
+                            } else {
+                                callback(null, responseStatus);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    },
     sendFeatureMail: function(users, callback) {
         //pass to this method an array of user emails
         emailTemplates(templatesDir, function(err, template) {

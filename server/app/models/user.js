@@ -1,16 +1,13 @@
 'use strict';
-// Email model
-// used to quicky check if email exists
-// if it does, we can proceed without sending a verification email
-
 var mongoose = require('mongoose'),
 Schema = mongoose.Schema,
 _ = require('underscore');
 
 var UserSchema = new Schema({
-    email: String
+    email: String,
+    verification_codes: [String],
+    device_ids: [String]
 });
-
 
 UserSchema.statics.post = function(req, callback) {
     var data = _.pick(req.query, ['email']),

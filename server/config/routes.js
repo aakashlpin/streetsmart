@@ -55,5 +55,7 @@ module.exports = function(app){
 
 	//Mobile APIs
 	var mobile = require('../app/controllers/mobile');
-	app.post('/mobile/register', mobile.registerDevice);
+	app.post('/mobile/initiate', mobile.initiateDeviceRegistration);
+	app.post('/mobile/verify', mobile.verifyDeviceRegistration);
+	app.post('/mobile/register', mobile.finalizeDeviceRegistration);
 };
