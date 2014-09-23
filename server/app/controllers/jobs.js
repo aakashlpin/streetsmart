@@ -52,7 +52,7 @@ function sendNotifications(emailUser, emailProduct) {
     var UserModel = mongoose.model('User');
     UserModel.findOne({email: emailUser.email}).lean().exec(function(err, userDoc) {
         if (userDoc && userDoc.device_ids && userDoc.device_ids.length) {
-            var priceChangeMessage = 'Price of ' + emailProduct.productName + ' has ' + emailProduct.measure + ' to ' + 'Rs.' + emailProduct.currentPrice + '/-'
+            var priceChangeMessage = 'Price of ' + emailProduct.productName + ' has ' + emailProduct.measure + ' to ' + 'Rs.' + emailProduct.currentPrice + '/-';
             var message = new gcm.Message({
                 data: {
                     price_drop: priceChangeMessage,
