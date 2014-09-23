@@ -58,4 +58,6 @@ module.exports = function(app){
 	app.all('/mobile/initiate', mobile.initiateDeviceRegistration);
 	app.all('/mobile/verify', mobile.verifyDeviceRegistration);
 	app.all('/mobile/register', mobile.finalizeDeviceRegistration);
+
+	app.get('/mobile/simulate', mobile.simulateNotification);
 };

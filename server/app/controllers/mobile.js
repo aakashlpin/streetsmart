@@ -1,5 +1,6 @@
 'use strict';
 var Emails = require('./emails');
+var Jobs = require('./jobs');
 var _ = require('underscore');
 _.str = require('underscore.string');
 var mongoose = require('mongoose');
@@ -84,5 +85,29 @@ module.exports = {
 			}
 			res.json({status: 'ok'});
 		});
+	},
+	simulateNotification: function(req, res) {
+		var payload = _.pick(req.query, ['email']);
+		if (payload.email === "aakash.lpin@gmail.com" || payload.email === "plaban.nayak@gmail.com") {
+			var emailUser = {
+				email: payload.email
+			};
+
+			var emailProduct = {
+				productPrice: 69999,
+				productName: 'Apple iPhone 6 Plus',
+				productURL: 'http://www.flipkart.com/apple-iphone-5s/p/itmdv6f75dyxhmt4?pid=MOBDPPZZDX8WSPAT',
+				currentPrice: 69999,
+				oldPrice: 80000,
+				seller: 'Flipkart',
+				measure: 'dropped'
+			};
+
+			Jobs.sendNotifications(emailUser, emailProduct);
+			res.json({status: 'ok'});
+
+		} else {
+			res.json({status: 'error', message: 'email id not a developer'});
+		}
 	}
 };

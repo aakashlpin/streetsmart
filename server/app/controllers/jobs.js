@@ -244,3 +244,4 @@ function init() {
 
 exports.init = init;
 exports.processURL = processURL;
+exports.sendNotifications = sendNotifications;
