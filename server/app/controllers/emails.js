@@ -137,7 +137,7 @@ module.exports = {
                 callback(err);
 
             } else {
-                var locals = {};
+                var locals = registrationData;
 
                 template('deviceregistration', locals, function(err, html) {
                     if (err) {
@@ -145,11 +145,11 @@ module.exports = {
                     } else {
                         postmark.send({
                             'From': 'Cheapass India <notifications@cheapass.in>',
-                            'To': registrationData.email,
-                            'Bcc': 'aakash.lpin@gmail.com',
+                            'To': locals.email,
+                            // 'Bcc': 'aakash.lpin@gmail.com',
                             'ReplyTo' : 'aakash@cheapass.in',
                             'HtmlBody': html,
-                            'Subject': 'Passcode for device registration'
+                            'Subject': 'Cheapass | Device verification code'
                         }, function(err, responseStatus) {
                             if (err) {
                                 callback(err);

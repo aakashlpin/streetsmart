@@ -10,7 +10,8 @@ var logger = require('../../logger').logger;
 
 module.exports = {
 	initiateDeviceRegistration: function(req, res) {
-		var registrationData = _.pick(req.body, ['email']);
+		var payload = req.body.email ? req.body : req.query;
+		var registrationData = _.pick(payload, ['email']);
 
 		if (!registrationData.email) {
 			res.json({status: 'error', message: 'Please enter an email id'});
@@ -23,12 +24,14 @@ module.exports = {
 				return;
 			}
 
-			//TODO generate a 6 digit number and store it in the db corresponding to the email id
+			//generate a 6 digit number and store it in the db corresponding to the email id
+			var verificationCode = Math.floor(Math.random()*999999+1);
 
-			// User.update({email: registrationData.email}, {})
-
-			Emails.sendDeviceVerificationCode(registrationData, function() {
-				res.json({status: 'ok'});
+			User.update({email: registrationData.email}, {$push: {verification_codes: verificationCode}}, {}, function(err, updatedDoc) {
+				registrationData.verificationCode = verificationCode;
+				Emails.sendDeviceVerificationCode(registrationData, function() {
+					res.json({status: 'ok'});
+				});
 			});
 		});
 	},
