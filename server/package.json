@@ -13,7 +13,7 @@
     "email-templates": "^1.0.0",
     "express": "~3.3.4",
     "jade": "~0.34.0",
-    "kue": "^0.8.1",
+    "kue": "^0.8.8",
     "mongoose": "~3.8.13",
     "newrelic": "^1.7.3",
     "postmark": "^0.2.5",
