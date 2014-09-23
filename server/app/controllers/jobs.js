@@ -11,6 +11,7 @@ var Emails = require('./emails');
 var logger = require('../../logger').logger;
 var sellerUtils = require('../utils/seller');
 var async = require('async');
+var gcm = require('node-gcm');
 
 var jobsQ = kue.createQueue(),
 Jobs = mongoose.model('Job');
@@ -36,6 +37,46 @@ function removeJob(job) {
     });
 }
 
+function sendNotifications(emailUser, emailProduct) {
+    //send notification email for price change
+    Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
+        if (err) {
+            logger.log('error', 'while sending notifier email', {err: err});
+        } else {
+            logger.log('info', 'successfully sent notifier email', {message: message});
+            //update the emails counter
+            sellerUtils.increaseCounter('emailsSent');
+        }
+    });
+
+    var UserModel = mongoose.model('User');
+    UserModel.findOne({email: emailUser.email}).lean().exec(function(err, userDoc) {
+        if (userDoc && userDoc.device_ids && userDoc.device_ids.length) {
+            var priceChangeMessage = 'Price of ' + emailProduct.productName + ' has ' + emailProduct.measure + ' to ' + 'Rs.' + emailProduct.currentPrice + '/-'
+            var message = new gcm.Message({
+                data: {
+                    price_drop: priceChangeMessage,
+                    product_url: emailProduct.productURL
+                }
+            });
+
+            var sender = new gcm.Sender(config.googleServerAPIKey);
+            var registrationIds = userDoc.device_ids;
+
+            /**
+             * Params: message-literal, registrationIds-array, No. of retries, callback-function
+             **/
+            sender.send(message, registrationIds, 4, function (err, result) {
+                if (err) {
+                    logger.log('error', 'error sending push notification', err);
+                } else {
+                    logger.log('info', 'mobile notification sent', result);
+                }
+            });
+        }
+    });
+}
+
 jobsQ.on('job complete', function(id) {
     kue.Job.get(id, function(err, job) {
         if (err) {
@@ -56,8 +97,6 @@ jobsQ.on('job complete', function(id) {
         }
 
         if (previousPrice !== newPrice) {
-            //send out an email only if user is still tracking this product
-            //modify the DB's currentPrice field and productPriceHistory array
             var emailUser = {email: jobData.email};
             var seller = sellerUtils.getSellerFromURL(jobData.productURL);
             var emailProduct = _.extend(jobData, {
@@ -68,18 +107,10 @@ jobsQ.on('job complete', function(id) {
                 trackURL: config.server + '/track/' + seller + '/' + jobData._id
             });
 
-            //send notification email for price change
-            Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
-                if (err) {
-                    logger.log('error', 'while sending notifier email', {err: err});
-                } else {
-                    logger.log('info', 'successfully sent notifier email', {message: message});
-                    //update the emails counter
-                    sellerUtils.increaseCounter('emailsSent');
-                }
-            });
+            sendNotifications(emailUser, emailProduct);
         }
 
+        //modify the DB's currentPrice field and productPriceHistory array
         Jobs.updateNewPrice(jobQuery, {price: newPrice}, function(err, updatedJob) {
             if (err) {
                 logger.log('error', 'job completed db update fails', {err: err});

@@ -14,6 +14,8 @@ var commonConfig = {
     kuePort: 6001,
     server: 'https://cheapass.in',
     postmarkAPIKey: '158085c4-5a95-4c9f-a9b7-f600e218c017',
+    googleServerAPIKey: 'AIzaSyBLmBJdysKJY7RWqsh_3Ku4YChcqLB7u6I',
+    googleProjectNumber: '596203593464',
     youtubeDLSites: ['8tracks.com', '9gag.com', '9gag.tv', 'bandcamp.com',
      'blip.tv', 'collegehumor.com', 'cc.com', 'dailymotion.com',
      'discovery.com', 'engadget.com', 'extremetube.com', 'funnyordie.com',
