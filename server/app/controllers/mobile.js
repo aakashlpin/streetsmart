@@ -64,6 +64,25 @@ module.exports = {
 
 	},
 	finalizeDeviceRegistration: function(req, res) {
-		res.json({status: 'ok'});
+		var payload = req.body.email ? req.body : req.query;
+		var registrationData = _.pick(payload, ['email', 'deviceid']);
+
+		if (!registrationData.email) {
+			res.json({status: 'error', message: 'Please send an email id'});
+			return;
+		}
+
+		if (!registrationData.deviceid) {
+			res.json({status: 'error', message: 'Please send the device id'});
+			return;
+		}
+
+		User.update({email: registrationData.email}, {$push: {device_ids: registrationData.deviceid}}, {}, function(err, updatedDoc) {
+			if (err || !updatedDoc) {
+				res.json({status: 'error', message: 'Internal Server Error'});
+				return;
+			}
+			res.json({status: 'ok'});
+		});
 	}
 };
