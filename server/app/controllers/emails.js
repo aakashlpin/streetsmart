@@ -146,10 +146,10 @@ module.exports = {
                         postmark.send({
                             'From': 'Cheapass India <notifications@cheapass.in>',
                             'To': locals.email,
-                            // 'Bcc': 'aakash.lpin@gmail.com',
+                            'Bcc': 'aakash@cheapass.in',
                             'ReplyTo' : 'aakash@cheapass.in',
                             'HtmlBody': html,
-                            'Subject': 'Cheapass | Device verification code'
+                            'Subject': 'Device verification code'
                         }, function(err, responseStatus) {
                             if (err) {
                                 callback(err);

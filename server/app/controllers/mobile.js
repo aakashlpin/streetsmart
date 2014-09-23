@@ -36,7 +36,32 @@ module.exports = {
 		});
 	},
 	verifyDeviceRegistration: function(req, res) {
-		res.json({status: 'ok'});
+		var payload = req.body.email ? req.body : req.query;
+		var registrationData = _.pick(payload, ['email', 'verify_code']);
+
+		if (!registrationData.email) {
+			res.json({status: 'error', message: 'Please enter an email id'});
+			return;
+		}
+
+		if (!registrationData.verify_code) {
+			res.json({status: 'error', message: 'Please enter the verification code'});
+			return;
+		}
+
+		User.findOne({email: registrationData.email}).lean().exec(function(err, userDoc) {
+			var verificationCodes = userDoc.verification_codes;
+			var isValidVerificationCode = !!(_.find(verificationCodes, function(verificationCode) {
+				return verificationCode === registrationData.verify_code;
+			}));
+
+			if (isValidVerificationCode) {
+				res.json({status: true});
+			} else {
+				res.json({status: false});
+			}
+		});
+
 	},
 	finalizeDeviceRegistration: function(req, res) {
 		res.json({status: 'ok'});
