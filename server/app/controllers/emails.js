@@ -1,6 +1,7 @@
 'use strict';
 
 var path       = require('path'),
+async          = require('async'),
 templatesDir   = path.resolve(__dirname, '..', 'templates'),
 emailTemplates = require('email-templates'),
 _              = require('underscore'),
@@ -58,7 +59,7 @@ module.exports = {
                     server: config.server
                 };
 
-                var encodedEmail = encodeURIComponent(product.email);
+                // var encodedEmail = encodeURIComponent(product.email);
                 var encodedURL = encodeURIComponent(product.productURL);
                 // var baseUnsubscribeLink = config.server + '/unsubscribe?email=' + encodedEmail;
 
@@ -177,7 +178,6 @@ module.exports = {
                             postmark.send({
                                 'From': 'Cheapass India <notifications@cheapass.in>',
                                 'To': user.email,
-                                'Bcc': 'aakash@cheapass.in',
                                 'ReplyTo' : 'aakash@cheapass.in',
                                 'HtmlBody': html,
                                 'Subject': 'Track and earn!'
@@ -193,6 +193,42 @@ module.exports = {
                 });
 
                 callback(null, 'emails queued');
+            }
+        });
+    },
+    sendMailer: function(users, callback) {
+        //pass to this method an array of user emails
+        emailTemplates(templatesDir, function(err, template) {
+            if (err) {
+                callback(err);
+
+            } else {
+                async.each(users, function(user, asyncEachCb){
+                    template('dashboard', user, function(err, html) {
+                        if (err) {
+                            asyncEachCb(err);
+
+                        } else {
+                            postmark.send({
+                                'From': 'Cheapass India <notifications@cheapass.in>',
+                                'To': user.email,
+                                'ReplyTo' : 'aakash@cheapass.in',
+                                'HtmlBody': html,
+                                'Subject': 'Introducing Your Personal Dashboard!'
+                            }, function(err, responseStatus) {
+                                if (err) {
+                                    console.log('error', err);
+                                } else {
+                                    console.log('sent', responseStatus);
+                                }
+                                asyncEachCb();
+                            });
+                        }
+                    });
+
+                }, function() {
+                    callback(null, 'emails sent');
+                });
             }
         });
     }

@@ -34,7 +34,8 @@ module.exports = function(app){
 
 	//Tasks
 	var tasks = require('../app/tasks/freecharge');
-	app.get('/emails/freecharge', tasks.sendMail);
+	// app.get('/emails/freecharge', tasks.sendMail);
+	app.get('/emails/mailer', tasks.sendMailer);
 
 	app.get('/stats', api.getStats);
 
