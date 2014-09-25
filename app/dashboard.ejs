@@ -33,9 +33,22 @@
         </div>
 
         <div class="row">
-            <p class="text-right">Dashboard for <strong><%= email %></strong></p>
+            <div class="col-sm-12">
+                <div class="cleafix">
+                    <div class="pull-left">
+                        <p class="text-right" style="margin-top: 5px;">Dashboard for <strong><%= email %></strong></p>
+                    </div>
+                    <div class="pull-right">
+                        <label class="checkbox">
+                            <input type="checkbox" id="toggleDropAlerts"> Don't send me alerts when prices go up
+                        </label>
+                    </div>
+                </div>
+            </div>
+
             <div class="col-sm-12" id="track-table">
             </div>
+
         </div>
 
         <!-- build:js scripts/vendor.js -->
@@ -57,9 +70,10 @@
         </script>
 
         <script>
-        cheapassObj = {};
-        cheapassObj.userId = "<%= _id %>";
-        cheapassObj.userEmailId = "<%= email %>";
+            cheapassObj = {};
+            cheapassObj.userId = "<%= _id %>";
+            cheapassObj.userEmailId = "<%= email %>";
+            cheapassObj.dropOnlyAlerts = "<%= dropOnlyAlerts %>";
         </script>
 
         <script src="dashboard/scripts/core.js"></script>

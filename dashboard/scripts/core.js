@@ -22,14 +22,31 @@ cheapassApp.Helpers.capitalize = function(string) {
 cheapassApp.User = (function(userObj) {
     return function() {
         var userId = userObj.userId,
-        userEmailId = userObj.userEmailId;
+        userEmailId = userObj.userEmailId,
+        userDropOnlyAlerts = userObj.dropOnlyAlerts === "true";
 
         return {
             id: userId,
-            email: userEmailId
+            email: userEmailId,
+            dropOnlyAlerts: userDropOnlyAlerts
         };
     };
 })(cheapassObj);
+
+cheapassApp.initializeDOM = function() {
+    var user = cheapassApp.User();
+
+    var toggleDropAlertsDOM = $('#toggleDropAlerts');
+    toggleDropAlertsDOM.attr('checked', user.dropOnlyAlerts);
+    toggleDropAlertsDOM.on('change', function() {
+        var dropOnlyAlerts = $(this).is(':checked');
+        var remoteURL = '/api/dashboard/preferences/' + user.email;
+        var remotePayload = {dropOnlyAlerts: dropOnlyAlerts};
+        cheapassApp.Helpers.remote(remoteURL, remotePayload, function(res) {
+            console.log(res);
+        });
+    });
+};
 
 cheapassApp.Tracks = function() {
     this.user = cheapassApp.User();

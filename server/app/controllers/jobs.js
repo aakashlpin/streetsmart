@@ -12,6 +12,7 @@ var logger = require('../../logger').logger;
 var sellerUtils = require('../utils/seller');
 var async = require('async');
 var gcm = require('node-gcm');
+var UserModel = mongoose.model('User');
 
 var jobsQ = kue.createQueue(),
 Jobs = mongoose.model('Job');
@@ -38,19 +39,32 @@ function removeJob(job) {
 }
 
 function sendNotifications(emailUser, emailProduct) {
-    //send notification email for price change
-    Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
-        if (err) {
-            logger.log('error', 'while sending notifier email', {err: err});
-        } else {
-            logger.log('info', 'successfully sent notifier email', {message: message});
-            //update the emails counter
-            sellerUtils.increaseCounter('emailsSent');
-        }
-    });
-
-    var UserModel = mongoose.model('User');
     UserModel.findOne({email: emailUser.email}).lean().exec(function(err, userDoc) {
+        var sendOutNotification = true;
+        emailUser._id = userDoc._id;
+        //if we are about to send a price increase alert
+        if (!_.isUndefined(userDoc.dropOnlyAlerts)) {
+            if (emailProduct.measure === 'increased' && userDoc.dropOnlyAlerts) {
+                sendOutNotification = false;
+            }
+        }
+
+        if (!sendOutNotification) {
+            logger.log('info', 'price increase alert not going out for ', emailUser);
+            return;
+        }
+
+        //send notification email for price change
+        Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
+            if (err) {
+                logger.log('error', 'while sending notifier email', {err: err});
+            } else {
+                logger.log('info', 'successfully sent notifier email', {message: message});
+                //update the emails counter
+                sellerUtils.increaseCounter('emailsSent');
+            }
+        });
+
         if (userDoc && userDoc.device_ids && userDoc.device_ids.length) {
             var priceChangeMessage = 'Price of ' + emailProduct.productName + ' has ' + emailProduct.measure + ' to ' + 'Rs.' + emailProduct.currentPrice + '/-';
             var message = new gcm.Message({

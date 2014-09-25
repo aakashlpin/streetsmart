@@ -29,4 +29,6 @@
         UserTracks.bindAllEvents();
     });
 
+    cheapassApp.initializeDOM();
+
 })(cheapassApp);
