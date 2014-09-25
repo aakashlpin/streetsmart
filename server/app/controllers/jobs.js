@@ -50,7 +50,7 @@ function sendNotifications(emailUser, emailProduct) {
         }
 
         if (!sendOutNotification) {
-            logger.log('info', 'price increase alert not going out for ', emailUser);
+            logger.log('info', 'price increase alert not going out for ', userDoc);
             return;
         }
 
