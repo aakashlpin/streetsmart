@@ -50,6 +50,9 @@ function getDeepLinkURL(seller, url) {
         // signature: url.parse(urlStr, [parseQueryString], [slashesDenoteHost])
         var parsedURL = urlLib.parse(url, true);
         var pidQueryString = (parsedURL.query.pid && (parsedURL.query.pid !== undefined)) ? ('?pid=' + parsedURL.query.pid + '&') : '?';
+        if (parsedURL.pathname.indexOf('/dl') !== 0) {
+            parsedURL.pathname = '/dl' + parsedURL.pathname;
+        }
         var normalizedURL = parsedURL.protocol + '//' + parsedURL.host + parsedURL.pathname + pidQueryString + config.sellers.flipkart.key + '=' + config.sellers.flipkart.value;
         return normalizedURL;
     }

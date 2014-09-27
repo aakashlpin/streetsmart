@@ -98,5 +98,21 @@ module.exports = {
                 res.json({status: 'ok'});
             }
         });
+    },
+    smartFlipkartURLs: function(req, res) {
+        var seller = 'flipkart';
+        var mongooseModelForFlipkart = sellerUtils.getSellerJobModelInstance('flipkart');
+        mongooseModelForFlipkart.find({}).lean().exec(function(err, docs) {
+            docs.forEach(function(doc) {
+                var existingURL = doc.productURL;
+                var newURL = existingURL.replace('flipkart.com/', 'flipkart.com/dl/');
+                mongooseModelForFlipkart.update({_id: doc._id}, {productURL: newURL}, {}, function(err, updatedDoc) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+            });
+        })
+        res.json({status: 'ok'});
     }
 };
