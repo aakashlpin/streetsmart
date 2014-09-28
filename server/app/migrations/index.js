@@ -105,12 +105,14 @@ module.exports = {
         mongooseModelForFlipkart.find({}).lean().exec(function(err, docs) {
             docs.forEach(function(doc) {
                 var existingURL = doc.productURL;
-                var newURL = existingURL.replace('flipkart.com/dl/dl/', 'flipkart.com/dl/');
-                mongooseModelForFlipkart.update({_id: doc._id}, {productURL: newURL}, {}, function(err, updatedDoc) {
-                    if (err) {
-                        console.log(err);
-                    }
-                });
+                if (existingURL.indexOf('flipkart.com/dl/dl/') >= 0) {
+                    var newURL = existingURL.replace('flipkart.com/dl/dl/', 'flipkart.com/dl/');
+                    mongooseModelForFlipkart.update({_id: doc._id}, {productURL: newURL}, {}, function(err, updatedDoc) {
+                        if (err) {
+                            console.log(err);
+                        }
+                    });
+                }
             });
         })
         res.json({status: 'ok'});
