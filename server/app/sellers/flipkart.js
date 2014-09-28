@@ -1,5 +1,6 @@
 'use strict';
 var _ = require('underscore');
+
 module.exports = function($) {
     var nameDOM, imageDOM, priceDOM, name, image, price, response = {};
     try {
@@ -11,6 +12,7 @@ module.exports = function($) {
 
         priceDOM = $('meta[itemprop="price"]');
         price = priceDOM.attr('content') || false;
+
 		if (price) {
 			price = parseInt(price.replace(',', ''), 10);
 		}
@@ -19,8 +21,12 @@ module.exports = function($) {
 			price = false;
 		}
 
-        imageDOM = $('.product-image');
-        image = imageDOM.attr('src');
+        imageDOM = $('.productImages .productImage');
+        if (imageDOM.length > 1) {
+            imageDOM = $(imageDOM[0]);
+        }
+
+        image = imageDOM.data('src');
 		response = {
 			price: price,
 			name: name,

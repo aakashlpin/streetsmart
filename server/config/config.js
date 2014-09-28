@@ -49,7 +49,7 @@ var commonConfig = {
             url: 'flipkart.com',
             key: 'affid',
             value: 'aakashlpi',
-            requiresUserAgent: false,
+            requiresUserAgent: true,
             hasDeepLinking: true,
             cronPattern: {
                 'development': '0-59/5 * * * *',

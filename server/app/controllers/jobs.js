@@ -13,6 +13,7 @@ var sellerUtils = require('../utils/seller');
 var async = require('async');
 var gcm = require('node-gcm');
 var UserModel = mongoose.model('User');
+// var fs = require('fs');
 
 var jobsQ = kue.createQueue(),
 Jobs = mongoose.model('Job');
@@ -184,6 +185,7 @@ function processURL(url, callback) {
                         productImage: scrapedData.image
                     });
                 } else {
+                    // fs.writeFileSync('dom.txt', body);
                     logger.log('error', 'page scraping failed', {requestOptions: requestOptions, scrapedData: scrapedData});
                     callback('Could not determine price information from page');
                 }
