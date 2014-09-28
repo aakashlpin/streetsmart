@@ -192,7 +192,8 @@
                 localStorage.setItem('userEmail', email);
             }
         },
-        resetState: function() {
+        resetState: function(e) {
+            e.preventDefault();
             location.reload();
         }
     };
