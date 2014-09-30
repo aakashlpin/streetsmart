@@ -8,6 +8,10 @@ exports.serverError = function(req, res) {
     res.render('500.html');
 };
 
+exports.pageNotFound = function(req, res) {
+    res.render('404.html');
+};
+
 exports.gameOn = function(req, res) {
     res.render('emailVerified.html');
 };

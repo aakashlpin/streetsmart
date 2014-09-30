@@ -371,8 +371,8 @@ module.exports = {
         }
         email = decodeURIComponent(email);
         User.findOne({email: email}).lean().exec(function(err, user) {
-            if (err) {
-                res.json({err: 'email not found'});
+            if (err || !user) {
+                res.redirect('/404');
                 return;
             }
             res.redirect('/dashboard/' + user._id);

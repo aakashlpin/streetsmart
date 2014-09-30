@@ -7,6 +7,7 @@ module.exports = function(app){
 	//home route
 	app.get('/', home.index);
 	app.get('/500', home.serverError);
+	app.get('/404', home.pageNotFound);
 	app.get('/gameon', home.gameOn);
 	app.get('/unsubscribed', home.unsubscribed);
 
