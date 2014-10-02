@@ -8,6 +8,81 @@ _              = require('underscore'),
 config         = require('../../config/config');
 
 var postmark = require('postmark')(config.postmarkAPIKey);
+var mandrill = require('mandrill-api/mandrill');
+var mandrillClient = new mandrill.Mandrill(config.mandrillAPIKey);
+
+var emailService = config.emailService;
+
+var defaultMandrillOptions = {
+    'from_email': 'notifications@cheapass.in',
+    'from_name': 'Cheapass India',
+    'headers': {
+        'Reply-To': 'aakash@cheapass.in'
+    },
+    'important': true,
+    'track_opens': true,
+    'track_clicks': true,
+    'auto_text': true,
+    'auto_html': false,
+    'inline_css': true,
+    'url_strip_qs': true,
+    'preserve_recipients': true,
+    'view_content_link': false,
+    'merge': false
+};
+
+function sendEmail(service, payload, callback) {
+    var message;
+    if (service === 'postmark') {
+        message = {
+            'From': 'Cheapass India <notifications@cheapass.in>',
+            'To': payload.to,
+            'HtmlBody': payload.html,
+            'Subject': payload.subject,
+            'ReplyTo' : 'aakash@cheapass.in'
+        };
+
+        if (payload.bcc) {
+            _.extend(message, {
+                'Bcc': payload.bcc
+            });
+        }
+
+        postmark.send(message, function(err, responseStatus) {
+            if (err) {
+                callback(err);
+            } else {
+                callback(null, responseStatus);
+            }
+        });
+
+    } else if (service === 'mandrill') {
+        message = _.extend({
+            'html': payload.html,
+            'subject': payload.subject,
+            'to': [
+                {
+                    'email': payload.to,
+                    'type': 'to'
+                }
+            ]
+        }, defaultMandrillOptions);
+
+        if (payload.bcc) {
+            _.extend(message, {
+                'bcc_address': payload.bcc
+            });
+        }
+
+        mandrillClient.messages.send({
+            'message': message
+        }, function(result) {
+            callback(null, result);
+        }, function(e) {
+            callback(e);
+        });
+    }
+}
 
 module.exports = {
     sendVerifier: function(user, product, callback) {
@@ -27,20 +102,12 @@ module.exports = {
                     if (err) {
                         callback(err);
                     } else {
-                        postmark.send({
-                            'From': 'Cheapass India <notifications@cheapass.in>',
-                            'To': locals.user.email,
-                            'Bcc': 'aakash@cheapass.in',
-                            'ReplyTo' : 'aakash@cheapass.in',
-                            'HtmlBody': html,
-                            'Subject': 'Confirm email to receive price change notifications'
-                        }, function(err, responseStatus) {
-                            if (err) {
-                                callback(err);
-                            } else {
-                                callback(null, responseStatus);
-                            }
-                        });
+                        sendEmail(emailService, {
+                            'subject': 'Confirm email to receive price change notifications',
+                            'html': html,
+                            'bcc': 'aakash@cheapass.in',
+                            'to': locals.user.email
+                        }, callback);
                     }
                 });
             }
@@ -76,19 +143,11 @@ module.exports = {
                     if (err) {
                         callback(err);
                     } else {
-                        postmark.send({
-                            'From': 'Cheapass India <notifications@cheapass.in>',
-                            'To': locals.user.email,
-                            'ReplyTo' : 'aakash@cheapass.in',
-                            'HtmlBody': html,
-                            'Subject': 'Price change notification for ' + locals.product.productName,
-                        }, function(err, responseStatus) {
-                            if (err) {
-                                callback(err);
-                            } else {
-                                callback(null, responseStatus);
-                            }
-                        });
+                        sendEmail(emailService, {
+                            'subject': 'Price change notification for ' + locals.product.productName,
+                            'html': html,
+                            'to': locals.user.email
+                        }, callback);
                     }
                 });
             }
@@ -113,20 +172,11 @@ module.exports = {
                     if (err) {
                         callback(err);
                     } else {
-                        postmark.send({
-                            'From': 'Cheapass India <notifications@cheapass.in>',
-                            'To': locals.user.email,
-                            // 'Bcc': 'aakash@cheapass.in',
-                            'ReplyTo' : 'aakash@cheapass.in',
-                            'HtmlBody': html,
-                            'Subject': 'Price Track added for ' + locals.product.productName
-                        }, function(err, responseStatus) {
-                            if (err) {
-                                callback(err);
-                            } else {
-                                callback(null, responseStatus);
-                            }
-                        });
+                        sendEmail(emailService, {
+                            'subject': 'Price Track added for ' + locals.product.productName,
+                            'html': html,
+                            'to': locals.user.email
+                        }, callback);
                     }
                 });
             }
@@ -144,55 +194,14 @@ module.exports = {
                     if (err) {
                         callback(err);
                     } else {
-                        postmark.send({
-                            'From': 'Cheapass India <notifications@cheapass.in>',
-                            'To': locals.email,
-                            'Bcc': 'aakash@cheapass.in',
-                            'ReplyTo' : 'aakash@cheapass.in',
-                            'HtmlBody': html,
-                            'Subject': 'Device verification code'
-                        }, function(err, responseStatus) {
-                            if (err) {
-                                callback(err);
-                            } else {
-                                callback(null, responseStatus);
-                            }
-                        });
+                        sendEmail(emailService, {
+                            'subject': 'Cheapass | Device verification code',
+                            'html': html,
+                            'to': locals.email,
+                            'bcc': 'aakash@cheapass.in'
+                        }, callback);
                     }
                 });
-            }
-        });
-    },
-    sendFeatureMail: function(users, callback) {
-        //pass to this method an array of user emails
-        emailTemplates(templatesDir, function(err, template) {
-            if (err) {
-                callback(err);
-
-            } else {
-                template('freecharge', users, function(err, html) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        users.forEach(function(user) {
-                            postmark.send({
-                                'From': 'Cheapass India <notifications@cheapass.in>',
-                                'To': user.email,
-                                'ReplyTo' : 'aakash@cheapass.in',
-                                'HtmlBody': html,
-                                'Subject': 'Track and earn!'
-                            }, function(err, responseStatus) {
-                                if (err) {
-                                    console.log('error', err);
-                                } else {
-                                    console.log('sent', responseStatus);
-                                }
-                            });
-                        });
-                    }
-                });
-
-                callback(null, 'emails queued');
             }
         });
     },
@@ -209,20 +218,11 @@ module.exports = {
                             asyncEachCb(err);
 
                         } else {
-                            postmark.send({
-                                'From': 'Cheapass India <notifications@cheapass.in>',
-                                'To': user.email,
-                                'ReplyTo' : 'aakash@cheapass.in',
-                                'HtmlBody': html,
-                                'Subject': 'Introducing Your Personal Dashboard!'
-                            }, function(err, responseStatus) {
-                                if (err) {
-                                    console.log('error', err);
-                                } else {
-                                    console.log('sent', responseStatus);
-                                }
-                                asyncEachCb();
-                            });
+                            sendEmail(emailService, {
+                                'subject': 'Introducing Your Personal Dashboard!',
+                                'html': html,
+                                'to': user.email
+                            }, asyncEachCb);
                         }
                     });
 

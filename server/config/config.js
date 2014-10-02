@@ -14,8 +14,10 @@ var commonConfig = {
     kuePort: 6001,
     server: 'https://cheapass.in',
     postmarkAPIKey: '158085c4-5a95-4c9f-a9b7-f600e218c017',
+    mandrillAPIKey: 'HLv4dCzPFJy7mA8Xw8j25A',
     googleServerAPIKey: 'AIzaSyBLmBJdysKJY7RWqsh_3Ku4YChcqLB7u6I',
     googleProjectNumber: '596203593464',
+    emailService: 'postmark',   //postmark or mandrill
     youtubeDLSites: ['8tracks.com', '9gag.com', '9gag.tv', 'bandcamp.com',
      'blip.tv', 'collegehumor.com', 'cc.com', 'dailymotion.com',
      'discovery.com', 'engadget.com', 'extremetube.com', 'funnyordie.com',
@@ -52,7 +54,7 @@ var commonConfig = {
             requiresUserAgent: true,
             hasDeepLinking: true,
             cronPattern: {
-                'development': '0-59/5 * * * *',
+                'development': '0-59/3 * * * *',
                 'production': '0-59/30 * * * *'
             }
         },
