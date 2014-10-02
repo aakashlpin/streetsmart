@@ -28,12 +28,12 @@ SellerJobSchema.statics.removeJob = function(query, callback) {
 SellerJobSchema.statics.updateNewPrice = function(query, updateWith, callback) {
     var newPrice = updateWith.price;
     this.findOne(query, function(err, doc) {
-        var updateParams = {
-            productPriceHistory: doc.productPriceHistory
-        };
-        var updateOptions = {};
+        if (!err && doc) {
+            var updateParams = {
+                productPriceHistory: doc.productPriceHistory
+            };
+            var updateOptions = {};
 
-        if (doc) {
             updateParams.productPriceHistory.push({
                 date: new Date(),
                 price: newPrice
