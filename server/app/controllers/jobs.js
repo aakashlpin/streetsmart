@@ -39,19 +39,43 @@ function removeJob(job) {
     });
 }
 
+function shouldSendNotification(itemDetails) {
+    if (itemDetails.measure === 'increased') {
+        return false;
+    }
+
+    var priceRange = itemDetails.oldPrice;
+    var minDiff = 0;
+
+    if (priceRange <= 100) {
+        minDiff = 10;
+    } else if (priceRange > 100 && priceRange <= 500) {
+        minDiff = 25;
+    } else if (priceRange > 500 && priceRange <= 1000) {
+        minDiff = 50;
+    } else if (priceRange > 1000 && priceRange <= 2500) {
+        minDiff = 75;
+    } else if (priceRange > 2500) {
+        minDiff = 100;
+    }
+
+    return (itemDetails.oldPrice - itemDetails.currentPrice >= minDiff);
+}
+
 function sendNotifications(emailUser, emailProduct) {
     UserModel.findOne({email: emailUser.email}).lean().exec(function(err, userDoc) {
-        var sendOutNotification = true;
+        // var sendOutNotification = true;
         emailUser._id = userDoc._id;
         //if we are about to send a price increase alert
-        if (!_.isUndefined(userDoc.dropOnlyAlerts)) {
-            if (emailProduct.measure === 'increased' && userDoc.dropOnlyAlerts) {
-                sendOutNotification = false;
-            }
-        }
+        // if (!_.isUndefined(userDoc.dropOnlyAlerts)) {
+        //     if (emailProduct.measure === 'increased' && userDoc.dropOnlyAlerts) {
+        //         sendOutNotification = false;
+        //     }
+        // }
 
-        if (!sendOutNotification) {
-            logger.log('info', 'price increase alert not going out for ', userDoc);
+        if (!shouldSendNotification(emailProduct)) {
+            delete userDoc._id;
+            logger.log('info', 'price change alert not going out for ', userDoc);
             return;
         }
 
