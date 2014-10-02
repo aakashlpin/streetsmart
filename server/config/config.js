@@ -66,7 +66,7 @@ var commonConfig = {
             hasProductAPI: false,
             hasDeepLinking: true,
             cronPattern: {
-                'development': '1-59/5 * * * *',
+                'development': '1-59/1 * * * *',
                 'production': '0 0-23/1 * * *'
             }
         },

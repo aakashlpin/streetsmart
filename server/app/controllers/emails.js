@@ -103,7 +103,7 @@ module.exports = {
                         callback(err);
                     } else {
                         sendEmail(emailService, {
-                            'subject': 'Confirm email to receive price change notifications',
+                            'subject': 'Cheapass | Verify your email id',
                             'html': html,
                             'bcc': 'aakash@cheapass.in',
                             'to': locals.user.email
@@ -144,7 +144,7 @@ module.exports = {
                         callback(err);
                     } else {
                         sendEmail(emailService, {
-                            'subject': 'Price change notification for ' + locals.product.productName,
+                            'subject': 'Price change alert for ' + locals.product.productName,
                             'html': html,
                             'to': locals.user.email
                         }, callback);
@@ -173,7 +173,7 @@ module.exports = {
                         callback(err);
                     } else {
                         sendEmail(emailService, {
-                            'subject': 'Price Track added for ' + locals.product.productName,
+                            'subject': 'Price tracker added for ' + locals.product.productName,
                             'html': html,
                             'to': locals.user.email
                         }, callback);
