@@ -144,7 +144,7 @@ module.exports = {
                         callback(err);
                     } else {
                         sendEmail(emailService, {
-                            'subject': 'Price change alert for ' + locals.product.productName,
+                            'subject': 'Price drop alert for ' + locals.product.productName,
                             'html': html,
                             'to': locals.user.email
                         }, callback);
