@@ -15,7 +15,7 @@ var gcm = require('node-gcm');
 var UserModel = mongoose.model('User');
 // var fs = require('fs');
 
-var jobsQ = kue.createQueue(),
+var queue = kue.createQueue(),
 Jobs = mongoose.model('Job');
 
 kue.app.listen(config.kuePort);
@@ -25,7 +25,7 @@ function newJob (jobData) {
     jobData.title = 'Processing ' + jobData.productName;
     delete jobData.productPriceHistory;
 
-    var job = jobsQ.create('scraper', jobData);
+    var job = queue.create('scraper', jobData);
     job.save();
 }
 
@@ -116,7 +116,7 @@ function sendNotifications(emailUser, emailProduct) {
     });
 }
 
-jobsQ.on('job complete', function(id) {
+queue.on('job complete', function(id) {
     kue.Job.get(id, function(err, job) {
         if (err) {
             return;
@@ -160,6 +160,20 @@ jobsQ.on('job complete', function(id) {
 
             removeJob(job);
         });
+    });
+});
+
+queue.on('job error', function(id) {
+    //its important to listen on this
+    logger.log('info', 'job error event received for id', {id: id});
+});
+
+queue.on('job failed', function(id) {
+    kue.Job.get(id, function(err, job) {
+        if (err) {
+            return;
+        }
+        removeJob(job);
     });
 });
 
@@ -277,7 +291,7 @@ function init() {
     async.each(_.keys(sellers), createWorkerForSeller);
 
     //put scraping inside init
-    jobsQ.process('scraper', function (job, done) {
+    queue.process('scraper', function (job, done) {
         processURL(job.data.productURL, done);
     });
 }
