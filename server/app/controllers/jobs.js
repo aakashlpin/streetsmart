@@ -177,6 +177,16 @@ queue.on('job failed', function(id) {
     });
 });
 
+function handleURL404 (url, seller, callback) {
+    logger.log('info', 'removing url due to 404', {url: url});
+    if (!callback) {
+        callback = function() {};
+    }
+
+    var sellerModel = sellerUtils.getSellerJobModelInstance(seller);
+    sellerModel.find({productURL: url}).remove(callback);
+}
+
 function processURL(url, callback) {
     logger.log('info', 'scrape url', {url: url});
 
@@ -232,6 +242,11 @@ function processURL(url, callback) {
         } else {
             if (response && response.statusCode) {
                 logger.log('error', 'request module', {error: error, responseCode: response.statusCode, requestOptions: requestOptions});
+                if (parseInt(response.statusCode) === 404) {
+                    //if page 404s out when running scheduled jobs
+                    //remove the link from the queue and unsubscribe user of this product
+                    handleURL404(url, seller);
+                }
 
             } else {
                 logger.log('error', 'request module', {error: error, body: body, requestOptions: requestOptions});
