@@ -48,17 +48,19 @@ var commonConfig = {
     },
     sellers: {
         flipkart: {
+            name: 'Flipkart',
             url: 'flipkart.com',
             key: 'affid',
             value: 'aakashlpi',
             requiresUserAgent: true,
             hasDeepLinking: true,
             cronPattern: {
-                'development': '0-59/3 * * * *',
+                'development': '0-59/1 * * * *',
                 'production': '0-59/30 * * * *'
             }
         },
         amazon: {
+            name: 'Amazon India',
             url: 'amazon.in',
             key: 'tag',
             value: 'cheapass0a-21',
@@ -71,6 +73,7 @@ var commonConfig = {
             }
         },
         myntra: {
+            name: 'Myntra',
             url: 'myntra.com',
             key: null,
             value: null,
@@ -81,6 +84,7 @@ var commonConfig = {
             }
         },
         jabong: {
+            name: 'Jabong',
             url: 'jabong.com',
             key: null,
             value: null,
@@ -91,6 +95,7 @@ var commonConfig = {
             }
         },
         fabfurnish: {
+            name: 'FabFurnish',
             url: 'fabfurnish.com',
             key: null,
             value: null,
@@ -101,43 +106,47 @@ var commonConfig = {
             }
         },
         infibeam: {
+            name: 'Infibeam',
             url: 'infibeam.com',
             key: 'trackId',
             value: 'aaka',
             requiresUserAgent: false,
             cronPattern: {
-                'development': '6-59/5 * * * *',
+                'development': '1-59/5 * * * *',
                 'production': '45 0-23/3 * * *'
             }
         },
         bajaao: {
+            name: 'Bajaao',
             url: 'bajaao.com',
             key: null,
             value: null,
             requiresUserAgent: false,
             cronPattern: {
-                'development': '7-59/5 * * * *',
+                'development': '2-59/5 * * * *',
                 'production': '0 1-23/3 * * *'
             }
         },
         pepperfry: {
+            name: 'Pepperfry',
             url: 'pepperfry.com',
             key: null,
             value: null,
             requiresUserAgent: false,
             cronPattern: {
-                'development': '8-59/5 * * * *',
+                'development': '3-59/5 * * * *',
                 'production': '15 1-23/3 * * *'
             }
         },
         snapdeal: {
+            name: 'Snapdeal',
             url: 'snapdeal.com',
             key: 'aff_id',
             value: '12129',
             extraParams: '&utm_source=aff_prog&utm_campaign=afts&offer_id=17',
             requiresUserAgent: true,
             cronPattern: {
-                'development': '9-59/5 * * * *',
+                'development': '4-59/5 * * * *',
                 'production': '30 1-23/3 * * *'
             }
         }

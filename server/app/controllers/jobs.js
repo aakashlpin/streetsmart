@@ -13,14 +13,13 @@ var sellerUtils = require('../utils/seller');
 var async = require('async');
 var gcm = require('node-gcm');
 var UserModel = mongoose.model('User');
-// var fs = require('fs');
+var fs = require('fs');
 
-var queue = kue.createQueue(),
-Jobs = mongoose.model('Job');
+var queue = kue.createQueue();
+// Jobs = mongoose.model('Job');
+// kue.app.listen(config.kuePort);
 
-kue.app.listen(config.kuePort);
-
-function newJob (jobData) {
+function queueJob (jobData) {
     //title is a field necessary for the kue lib
     jobData.title = 'Processing ' + jobData.productName;
     delete jobData.productPriceHistory;
@@ -39,45 +38,12 @@ function removeJob(job) {
     });
 }
 
-function shouldSendNotification(itemDetails) {
-    if (itemDetails.measure === 'increased') {
-        return false;
-    }
-
-    var priceRange = itemDetails.oldPrice;
-    var minDiff = 0;
-
-    if (priceRange <= 100) {
-        minDiff = 10;
-    } else if (priceRange > 100 && priceRange <= 500) {
-        minDiff = 25;
-    } else if (priceRange > 500 && priceRange <= 1000) {
-        minDiff = 50;
-    } else if (priceRange > 1000 && priceRange <= 2500) {
-        minDiff = 75;
-    } else if (priceRange > 2500) {
-        minDiff = 100;
-    }
-
-    return (itemDetails.oldPrice - itemDetails.currentPrice >= minDiff);
-}
-
 function sendNotifications(emailUser, emailProduct) {
     UserModel.findOne({email: emailUser.email}).lean().exec(function(err, userDoc) {
-        // var sendOutNotification = true;
         emailUser._id = userDoc._id;
-        //if we are about to send a price increase alert
-        // if (!_.isUndefined(userDoc.dropOnlyAlerts)) {
-        //     if (emailProduct.measure === 'increased' && userDoc.dropOnlyAlerts) {
-        //         sendOutNotification = false;
-        //     }
-        // }
 
-        if (!shouldSendNotification(emailProduct)) {
-            delete userDoc._id;
-            logger.log('info', 'price change alert not going out for ', userDoc);
-            return;
-        }
+        //human readable seller name
+        emailProduct.seller = config.sellers[seller].name;
 
         //send notification email for price change
         Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
@@ -90,17 +56,17 @@ function sendNotifications(emailUser, emailProduct) {
             }
         });
 
-        if (userDoc && userDoc.device_ids && userDoc.device_ids.length) {
+        if (userDoc && userDoc.deviceIds && userDoc.deviceIds.length) {
             var priceChangeMessage = 'Price of ' + emailProduct.productName + ' has ' + emailProduct.measure + ' to ' + 'Rs.' + emailProduct.currentPrice + '/-';
             var message = new gcm.Message({
                 data: {
-                    price_drop: priceChangeMessage,
-                    product_url: emailProduct.productURL
+                    'price_drop': priceChangeMessage,
+                    'product_url': emailProduct.productURL
                 }
             });
 
             var sender = new gcm.Sender(config.googleServerAPIKey);
-            var registrationIds = userDoc.device_ids;
+            var registrationIds = userDoc.deviceIds;
 
             /**
              * Params: message-literal, registrationIds-array, No. of retries, callback-function
@@ -116,66 +82,156 @@ function sendNotifications(emailUser, emailProduct) {
     });
 }
 
-queue.on('job complete', function(id) {
+function handleJobError (id) {
+    logger.log('info', 'job error event received for #%d', id);
+}
+
+function handleJobFailure (id) {
     kue.Job.get(id, function(err, job) {
         if (err) {
-            return;
-        }
-
-        var jobData = job.data;
-        var jobResult = job.result;
-
-        var jobQuery = {email: jobData.email, productURL: jobData.productURL};
-
-        var previousPrice = parseInt(jobData.currentPrice, 10);
-        var newPrice = parseInt(jobResult.productPrice, 10);
-
-        if (_.isNaN(newPrice)) {
-            logger.log('warning', 'price parseInt resulted as NaN. original data attached', {price: jobResult.productPrice});
-            return removeJob(job);
-        }
-
-        if (previousPrice !== newPrice) {
-            var emailUser = {email: jobData.email};
-            var seller = sellerUtils.getSellerFromURL(jobData.productURL);
-            var emailProduct = _.extend(jobData, {
-                currentPrice: newPrice,
-                oldPrice: previousPrice,
-                seller: _.str.capitalize(seller),
-                measure: previousPrice > newPrice ? 'dropped': 'increased',
-                trackURL: config.server + '/track/' + seller + '/' + jobData._id
-            });
-
-            sendNotifications(emailUser, emailProduct);
-        }
-
-        //modify the DB's currentPrice field and productPriceHistory array
-        Jobs.updateNewPrice(jobQuery, {price: newPrice}, function(err, updatedJob) {
-            if (err) {
-                logger.log('error', 'job completed db update fails', {err: err});
-            }
-            if (updatedJob) {
-                logger.log('info', 'job completed db update succeeds', updatedJob);
-            }
-
-            removeJob(job);
-        });
-    });
-});
-
-queue.on('job error', function(id) {
-    //its important to listen on this
-    logger.log('info', 'job error event received for id', {id: id});
-});
-
-queue.on('job failed', function(id) {
-    kue.Job.get(id, function(err, job) {
-        if (err) {
+            logger.log('error', 'error getting job id when job failed #%d', id);
             return;
         }
         removeJob(job);
     });
-});
+}
+
+function shouldSendAlert(data) {
+    console.log('comes inside shouldSendAlert');
+    //if price is same, no alert
+    if (data.storedPrice === data.scrapedPrice) {
+        return false;
+    }
+    console.log('price not same');
+
+    //if price is higher, no alert
+    if (data.storedPrice < data.scrapedPrice) {
+        return false;
+    }
+
+    console.log('price lower');
+
+    //if price is lower, maybe
+    var priceRange = data.storedPrice;
+    var minDiff = 0;
+    var isMinDiffFulfilled = false;
+
+    if (priceRange <= 100) {
+        minDiff = 10;
+    } else if (priceRange > 100 && priceRange <= 500) {
+        minDiff = 25;
+    } else if (priceRange > 500 && priceRange <= 1000) {
+        minDiff = 50;
+    } else if (priceRange > 1000 && priceRange <= 2500) {
+        minDiff = 75;
+    } else if (priceRange > 2500 && priceRange <= 10000) {
+        minDiff = 100;
+    } else if (priceRange > 10000) {
+        minDiff = 250;
+    }
+
+    isMinDiffFulfilled = (data.storedPrice - data.scrapedPrice >= minDiff);
+
+    if (!isMinDiffFulfilled) {
+        return false;
+    }
+
+    console.log('min diff fulfilled');
+
+    //wow. you really want the alert. Ok. Last check!
+
+    //if the alert about to be sent is same as the last one, no alert
+    if (data.alertToPrice === data.scrapedPrice) {
+        return false;
+    }
+
+    console.log('last alert was different');
+
+    //ok. you win. now buy, please?
+    return true;
+}
+
+function sendAlert (jobData, jobResult) {
+    var shouldSendAlertPayload = {
+        storedPrice     : jobData.currentPrice,
+        scrapedPrice    : jobResult.productPrice,
+        alertToPrice    : jobData.alertToPrice,
+        alertFromPrice  : jobData.alertFromPrice
+    };
+
+    if (shouldSendAlert(shouldSendAlertPayload)) {
+        var emailProduct = _.extend({}, jobData, {
+            storedPrice : shouldSendAlertPayload.storedPrice,
+            currentPrice: shouldSendAlertPayload.scrapedPrice,
+            measure     : shouldSendAlertPayload.storedPrice > shouldSendAlertPayload.scrapedPrice ? 'dropped': 'increased',
+            trackURL    : (config.server + '/track/' + jobData.seller + '/' + jobData._id)
+        });
+
+        sendNotifications({email: jobData.email}, emailProduct);
+
+        return true;
+    }
+
+    return false;
+}
+
+function handleJobComplete (id) {
+    kue.Job.get(id, function(err, job) {
+        if (err) {
+            logger.log('error', 'error getting job id from kue when job completed #%d', id);
+            return;
+        }
+
+        var jobData = job.data,
+            jobResult = job.result;
+
+        jobData.currentPrice = parseInt(jobData.currentPrice, 10);
+        jobResult.productPrice = parseInt(jobResult.productPrice, 10);
+
+        var scrapedPrice = jobResult.productPrice;
+
+        //modify the DB's currentPrice field and productPriceHistory array
+        sellerUtils
+        .getSellerJobModelInstance(jobData.seller)
+        .findById(jobData._id, function(err, storedJob) {
+            if (err) {
+                logger.log('error', 'error getting seller job id #%d for seller %s when job complete', jobData._id, jobData.seller);
+                removeJob(job);
+
+            } else {
+                // update params
+                var updateWith = {};
+
+                storedJob.productPriceHistory.push({
+                    date: new Date(),
+                    price: scrapedPrice
+                });
+
+                _.extend(updateWith, {
+                    currentPrice: scrapedPrice,
+                    productPriceHistory: storedJob.productPriceHistory
+                });
+
+                if (sendAlert(jobData, jobResult)) {
+                    //if going to send an aler, update relevant params
+                    _.extend(updateWith, {
+                        alertToPrice: scrapedPrice,
+                        alertFromPrice: storedJob.currentPrice
+                    });
+                }
+
+                sellerUtils
+                .getSellerJobModelInstance(jobData.seller)
+                .update({_id: jobData._id}, updateWith, {}, function(err, updatedDocs) {
+                    if (err) {
+                        logger.log('error', 'error updating price in db', {error: err});
+                    }
+                    removeJob(job);
+                });
+            }
+        });
+    });
+}
 
 function handleURL404 (url, seller, callback) {
     logger.log('info', 'removing url due to 404', {url: url});
@@ -226,9 +282,10 @@ function processURL(url, callback) {
 
             var scrapedData = require('../sellers/' + seller)($);
             if (callback) {
+                fs.writeFileSync('dom.html', body);
                 if (scrapedData.price && (parseInt(scrapedData.price) >= 0)) {
                     callback(null, {
-                        productPrice: scrapedData.price,
+                        productPrice: parseInt(scrapedData.price),
                         productTitle: scrapedData.name,
                         productImage: scrapedData.image
                     });
@@ -271,19 +328,20 @@ function init() {
     var sellers = config.sellers;
 
     function cronWorker(seller, SellerJobModel) {
-        SellerJobModel.get(function(err, activeJobs) {
+        SellerJobModel.get(function(err, sellerJobs) {
             if (err) {
-                logger.log('error', 'unable to get active jobs from db', {err: err});
+                logger.log('error', 'error getting jobs from db', {err: err, seller: seller});
                 return;
             }
 
-            logger.log('info', 'active jobs for seller', {
+            logger.log('info', 'cron worker', {
                 seller: seller,
-                activeJobs: activeJobs.length
+                sellerJobs: sellerJobs.length
             });
 
-            activeJobs.forEach(function(activeJob) {
-                newJob(activeJob);
+            sellerJobs.forEach(function(sellerJob) {
+                sellerJob.seller = seller;
+                queueJob(sellerJob);
             });
         });
     }
@@ -310,6 +368,10 @@ function init() {
         processURL(job.data.productURL, done);
     });
 }
+
+queue.on('job error', handleJobError);
+queue.on('job failed', handleJobFailure);
+queue.on('job complete', handleJobComplete);
 
 exports.init = init;
 exports.processURL = processURL;

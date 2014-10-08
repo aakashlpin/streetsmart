@@ -15,6 +15,7 @@ module.exports = function($) {
     var response;
 
     try {
+        // put '#kindle_meta_binding_winner' after '#actualPriceValue' for kindle books
         priceDOMs = ['#priceblock_ourprice', '#priceblock_saleprice',
         '#priceblock_dealprice', '#buyingPriceValue', '#actualPriceValue',
         '#priceBlock', '#price', '#buyNewSection .offer-price'];
@@ -29,7 +30,12 @@ module.exports = function($) {
         name = name.replace(/<(?:.|\n)*?>/gm, '').replace(/^\s+|\s+$/g, '');
         image = imageDOM ? $(imageDOM).attr('src') : '';
 
-        if (priceDOM) {
+        if ($(priceDOM).attr('id') === 'kindle_meta_binding_winner') {
+            //TODO fix this. Amazon has malformed html which prevents $.find('.price')
+            var matches = $(priceDOM).html().match(/([0-9]+(\.[0-9]{2}))/);
+            priceFormatted = matches ? matches[0] : false;
+
+        } else if (priceDOM) {
             priceParent = $(priceDOM).find('.currencyINR').parent();
             priceParent.find('.currencyINR').remove();
             priceParent.find('.currencyINRFallback').remove();
@@ -48,7 +54,9 @@ module.exports = function($) {
             image: image
         };
 
-    } catch(e) {}
+    } catch(e) {
+        console.log('error',e);
+    }
 
     return response;
 };

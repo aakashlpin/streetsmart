@@ -54,6 +54,7 @@ JobSchema.statics.post = function(req, callback) {
             callback('This URL is already being tracked for you.');
         } else {
             //good guy. put it in jobs collection and seller's jobs collection
+            findQuery.isActive = false;
             this.findOne(findQuery).lean().exec(function(err, pendingJob) {
                 if (err) {
                     return callback(err);
