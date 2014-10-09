@@ -41,8 +41,32 @@ exports.logger = {
         //additionaly it can receive tags. send dev or prod mode as one
         client.log(logObject, [process.env.NODE_ENV || 'development']);
         winston.log.apply(winston, arguments);
+
     },
     profile: function() {
         winston.profile.apply(winston, arguments);
+
+    },
+    getHourlyLogs: function() {
+        var options = {
+            from: new Date - 60 * 60 * 1000,
+            until: new Date,
+            limit: 100,
+            start: 0,
+            order: 'desc',
+            fields: ['message']
+        };
+
+        //
+        // Find items logged between today and yesterday.
+        //
+        winston.query(options, function (err, results) {
+            if (err) {
+                throw err;
+            }
+
+            console.log(results);
+            console.log('results length ', results.dailyRotateFile.length);
+        });
     }
 };

@@ -31,10 +31,10 @@ function queueJob (jobData) {
 function removeJob(job) {
     job.remove(function(err) {
         if (err) {
-            logger.log('warn', 'failed to remove completed job #%d', job.id);
+            logger.log('warn', 'failed to remove completed job', {id: job.id});
             return;
         }
-        logger.log('info', 'removed completed job #%d', job.id);
+        logger.log('info', 'removed completed job', {id: job.id});
     });
 }
 
@@ -43,7 +43,7 @@ function sendNotifications(emailUser, emailProduct) {
         emailUser._id = userDoc._id;
 
         //human readable seller name
-        emailProduct.seller = config.sellers[seller].name;
+        emailProduct.seller = config.sellers[emailProduct.seller].name;
 
         //send notification email for price change
         Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
@@ -222,7 +222,7 @@ function handleJobComplete (id) {
 
                 sellerUtils
                 .getSellerJobModelInstance(jobData.seller)
-                .update({_id: jobData._id}, updateWith, {}, function(err, updatedDocs) {
+                .update({_id: jobData._id}, updateWith, {}, function(err) {
                     if (err) {
                         logger.log('error', 'error updating price in db', {error: err});
                     }
@@ -316,6 +316,10 @@ function processURL(url, callback) {
     });
 }
 
+function logChecker () {
+    logger.getHourlyLogs();
+}
+
 function init() {
     if (!config.isCronActive) {
         logger.log('info', '=========== Cron Jobs are disabled =============');
@@ -367,11 +371,40 @@ function init() {
     queue.process('scraper', function (job, done) {
         processURL(job.data.productURL, done);
     });
+
+    new CronJob({
+        cronTime: '0-59/1 * * * *',
+        onTick: function() {
+            logChecker();
+        },
+        start: true,
+        timeZone: 'Asia/Kolkata'
+    });
+}
+
+process.stdin.resume();//so the program will not close instantly
+
+function exitHandler(options) {
+    if (options.cleanup) {
+        //graceful shutdown of kue
+        queue.shutdown(function(err) {
+            logger.log('info', 'Kue is shut down.', err || '');
+        }, 5000);
+
+    } else if (options.exit) {
+        logger.log('info', 'nodejs process exit successful');
+        //exit with success code 0
+        process.exit(0);
+    }
 }
 
 queue.on('job error', handleJobError);
 queue.on('job failed', handleJobFailure);
 queue.on('job complete', handleJobComplete);
+//do something when app is closing
+process.on('exit', exitHandler.bind(null, {exit:true}));
+//catches uncaught exceptions
+process.on('uncaughtException', exitHandler.bind(null, {cleanup:true}));
 
 exports.init = init;
 exports.processURL = processURL;
