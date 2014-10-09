@@ -9,8 +9,7 @@ var logger = require('../../logger').logger;
 var sellerUtils = require('../utils/seller');
 var async = require('async');
 var moment = require('moment');
-var queue = require('../lib/queue.js');
-var jobUtils = require('../lib/jobs.js');
+var queue = require('../lib/queue');
 var latestJobProcessedAt;
 // var fs = require('fs');
 

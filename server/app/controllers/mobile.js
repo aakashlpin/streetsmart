@@ -1,6 +1,6 @@
 'use strict';
 var Emails = require('./emails');
-var Jobs = require('./jobs');
+var jobUtils = require('../lib/jobs');
 var _ = require('underscore');
 _.str = require('underscore.string');
 var mongoose = require('mongoose');
@@ -104,7 +104,7 @@ module.exports = {
 				measure: 'dropped'
 			};
 
-			Jobs.sendNotifications(emailUser, emailProduct);
+			jobUtils.sendNotifications(emailUser, emailProduct);
 			res.json({status: 'ok'});
 
 		} else {

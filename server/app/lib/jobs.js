@@ -186,5 +186,6 @@ function handleJobComplete (job) {
 
 module.exports = {
 	remove: removeJob,
-	handleJobComplete: handleJobComplete
+	handleJobComplete: handleJobComplete,
+	sendNotifications: sendNotifications
 };
