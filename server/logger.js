@@ -2,6 +2,7 @@
 var winston = require('winston');
 var loggly = require('loggly');
 var _ = require('underscore');
+var config = require('./config/config');
 
 winston.add(winston.transports.DailyRotateFile, {
     filename: './logs/log',
@@ -12,7 +13,7 @@ winston.add(winston.transports.DailyRotateFile, {
 var client = loggly.createClient({
     token: '62dfdf72-ecb5-409e-98f8-4c4b164b4714',
     subdomain: 'cheapass',
-    json:true
+    json: true
 });
 
 exports.logger = {
@@ -47,7 +48,7 @@ exports.logger = {
         winston.profile.apply(winston, arguments);
 
     },
-    getHourlyLogs: function() {
+    getHourlyLogs: function(callback) {
         var options = {
             from: new Date - 60 * 60 * 1000,
             until: new Date,
@@ -62,11 +63,24 @@ exports.logger = {
         //
         winston.query(options, function (err, results) {
             if (err) {
-                throw err;
+                return callback(err);
             }
 
-            console.log(results);
-            console.log('results length ', results.dailyRotateFile.length);
+            var logs = results.dailyRotateFile;
+
+            //do a frequency count of config.sellerCronWorkerLog
+            var sellerCronLogs = _.filter(logs, function(log) {
+                return log.message === config.sellerCronWorkerLog;
+            });
+
+            var jobCompletedLogs = _.filter(logs, function(log) {
+                return log.message === config.jobRemovedLog;
+            });
+
+            callback(null, {
+                sellerCronLogs: sellerCronLogs,
+                jobCompletedLogs: jobCompletedLogs
+            });
         });
     }
 };

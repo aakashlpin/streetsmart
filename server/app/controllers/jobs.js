@@ -13,11 +13,13 @@ var sellerUtils = require('../utils/seller');
 var async = require('async');
 var gcm = require('node-gcm');
 var UserModel = mongoose.model('User');
-var fs = require('fs');
+// var fs = require('fs');
+var moment = require('moment');
+var queue;
+var latestJobProcessedAt;
 
-var queue = kue.createQueue();
 // Jobs = mongoose.model('Job');
-// kue.app.listen(config.kuePort);
+kue.app.listen(config.kuePort);
 
 function queueJob (jobData) {
     //title is a field necessary for the kue lib
@@ -34,7 +36,7 @@ function removeJob(job) {
             logger.log('warn', 'failed to remove completed job', {id: job.id});
             return;
         }
-        logger.log('info', 'removed completed job', {id: job.id});
+        logger.log('info', config.jobRemovedLog, {id: job.id});
     });
 }
 
@@ -83,13 +85,13 @@ function sendNotifications(emailUser, emailProduct) {
 }
 
 function handleJobError (id) {
-    logger.log('info', 'job error event received for #%d', id);
+    logger.log('info', 'job error event received', {id: id});
 }
 
 function handleJobFailure (id) {
     kue.Job.get(id, function(err, job) {
         if (err) {
-            logger.log('error', 'error getting job id when job failed #%d', id);
+            logger.log('error', 'error getting job id when job failed', {id: id});
             return;
         }
         removeJob(job);
@@ -239,12 +241,16 @@ function handleURL404 (url, seller, callback) {
         callback = function() {};
     }
 
-    var sellerModel = sellerUtils.getSellerJobModelInstance(seller);
-    sellerModel.find({productURL: url}).remove(callback);
+    sellerUtils
+    .getSellerJobModelInstance(seller)
+    .find({productURL: url})
+    .remove(callback);
 }
 
-function processURL(url, callback) {
+function processURL(url, callback, isBackgroundTask) {
     logger.log('info', 'scrape url', {url: url});
+
+    isBackgroundTask = isBackgroundTask || false;
 
     var seller = sellerUtils.getSellerFromURL(url);
 
@@ -253,7 +259,7 @@ function processURL(url, callback) {
         return;
     }
 
-    if (config.sellers[seller].hasDeepLinking) {
+    if (!isBackgroundTask && config.sellers[seller].hasDeepLinking) {
         url = sellerUtils.getDeepLinkURL(seller, url);
     }
 
@@ -280,9 +286,9 @@ function processURL(url, callback) {
                 logger.log('error', 'scraping without a callback');
             }
 
-            var scrapedData = require('../sellers/' + seller)($);
+            //TODO support isBackgroundTask
+            var scrapedData = require('../sellers/' + seller)($, isBackgroundTask);
             if (callback) {
-                fs.writeFileSync('dom.html', body);
                 if (scrapedData.price && (parseInt(scrapedData.price) >= 0)) {
                     callback(null, {
                         productPrice: parseInt(scrapedData.price),
@@ -290,7 +296,7 @@ function processURL(url, callback) {
                         productImage: scrapedData.image
                     });
                 } else {
-                    // fs.writeFileSync('dom.txt', body);
+                    // fs.writeFileSync('dom.html', body);
                     logger.log('error', 'page scraping failed', {requestOptions: requestOptions, scrapedData: scrapedData});
                     callback('Could not determine price information from page');
                 }
@@ -316,8 +322,46 @@ function processURL(url, callback) {
     });
 }
 
-function logChecker () {
-    logger.getHourlyLogs();
+function queueGracefulShutDown(callback) {
+    logger.log('info', 'about to shut down queue');
+    queue.shutdown(callback, 5000);
+}
+
+function queueProcess() {
+    queue.process('scraper', function (job, done) {
+        latestJobProcessedAt = moment();
+        processURL(job.data.productURL, done, true /*isBackgroundTask*/);
+    });
+}
+
+function queueInstance () {
+    queue = kue.createQueue();
+    queue.on('job error', handleJobError);
+    queue.on('job failed', handleJobFailure);
+    queue.on('job complete', handleJobComplete);
+}
+
+function ensureQoS (seller) {
+    if (seller !== 'flipkart') {
+        return;
+    }
+    //until kue gets completely reliable, put a watchdog
+    //
+    var lastProcessInterval = moment().diff(latestJobProcessedAt, 'minutes');
+    if (lastProcessInterval > config.QoSCheckInterval) {
+        //bouy! Kue has fucked up again!
+        //
+        logger.log('info', 'service disrupted at ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
+        queueGracefulShutDown(function(err) {
+            if (!err) {
+                logger.log('info', 'restarting kue.');
+                queueInstance();
+                queueProcess();
+            }
+        });
+    } else {
+        logger.log('info', 'service running at ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
+    }
 }
 
 function init() {
@@ -338,7 +382,7 @@ function init() {
                 return;
             }
 
-            logger.log('info', 'cron worker', {
+            logger.log('info', config.sellerCronWorkerLog, {
                 seller: seller,
                 sellerJobs: sellerJobs.length
             });
@@ -356,6 +400,7 @@ function init() {
         new CronJob({
             cronTime: sellerData.cronPattern[env],
             onTick: function() {
+                ensureQoS(seller);
                 cronWorker(seller, SellerJobModel);
             },
             start: true,
@@ -364,22 +409,10 @@ function init() {
         asyncEachCallback();
     }
 
+    queueInstance();
+
     //foreach seller, create a cron job
-    async.each(_.keys(sellers), createWorkerForSeller);
-
-    //put scraping inside init
-    queue.process('scraper', function (job, done) {
-        processURL(job.data.productURL, done);
-    });
-
-    new CronJob({
-        cronTime: '0-59/1 * * * *',
-        onTick: function() {
-            logChecker();
-        },
-        start: true,
-        timeZone: 'Asia/Kolkata'
-    });
+    async.each(_.keys(sellers), createWorkerForSeller, queueProcess);
 }
 
 process.stdin.resume();//so the program will not close instantly
@@ -387,9 +420,9 @@ process.stdin.resume();//so the program will not close instantly
 function exitHandler(options) {
     if (options.cleanup) {
         //graceful shutdown of kue
-        queue.shutdown(function(err) {
-            logger.log('info', 'Kue is shut down.', err || '');
-        }, 5000);
+        queueGracefulShutDown(function(err) {
+            logger.log('info', 'Kue is shut down due to an uncaughtException', err || '');
+        });
 
     } else if (options.exit) {
         logger.log('info', 'nodejs process exit successful');
@@ -398,13 +431,10 @@ function exitHandler(options) {
     }
 }
 
-queue.on('job error', handleJobError);
-queue.on('job failed', handleJobFailure);
-queue.on('job complete', handleJobComplete);
-//do something when app is closing
-process.on('exit', exitHandler.bind(null, {exit:true}));
 //catches uncaught exceptions
 process.on('uncaughtException', exitHandler.bind(null, {cleanup:true}));
+//do something when app is closing
+process.on('exit', exitHandler.bind(null, {exit:true}));
 
 exports.init = init;
 exports.processURL = processURL;

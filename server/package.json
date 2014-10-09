@@ -25,7 +25,8 @@
     "underscore.string": "^2.3.3",
     "loggly": "^1.0.4",
     "node-gcm": "^0.9.12",
-    "mandrill-api": "^1.0.40"
+    "mandrill-api": "^1.0.40",
+    "moment": "^2.8.3"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

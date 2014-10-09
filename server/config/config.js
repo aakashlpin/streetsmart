@@ -17,7 +17,14 @@ var commonConfig = {
     mandrillAPIKey: 'HLv4dCzPFJy7mA8Xw8j25A',
     googleServerAPIKey: 'AIzaSyBLmBJdysKJY7RWqsh_3Ku4YChcqLB7u6I',
     googleProjectNumber: '596203593464',
+    sellerCronWorkerLog: 'seller cron',
+    jobRemovedLog: 'job removed',
     emailService: 'postmark',   //postmark or mandrill
+    QoSCheckInterval: 30,
+    logsCheckCronPattern: {
+        development: '0-59/30 * * * *',
+        production: '15 0-23 * * *'
+    },
     youtubeDLSites: ['8tracks.com', '9gag.com', '9gag.tv', 'bandcamp.com',
      'blip.tv', 'collegehumor.com', 'cc.com', 'dailymotion.com',
      'discovery.com', 'engadget.com', 'extremetube.com', 'funnyordie.com',
@@ -55,7 +62,7 @@ var commonConfig = {
             requiresUserAgent: true,
             hasDeepLinking: true,
             cronPattern: {
-                'development': '0-59/1 * * * *',
+                'development': '0-59/5 * * * *',
                 'production': '0-59/30 * * * *'
             }
         },
@@ -68,7 +75,7 @@ var commonConfig = {
             hasProductAPI: false,
             hasDeepLinking: true,
             cronPattern: {
-                'development': '1-59/1 * * * *',
+                'development': '0-59/5 * * * *',
                 'production': '0 0-23/1 * * *'
             }
         },
