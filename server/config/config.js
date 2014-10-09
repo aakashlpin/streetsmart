@@ -62,7 +62,7 @@ var commonConfig = {
             requiresUserAgent: true,
             hasDeepLinking: true,
             cronPattern: {
-                'development': '0-59/5 * * * *',
+                'development': '0-59/2 * * * *',
                 'production': '0-59/30 * * * *'
             }
         },
@@ -75,7 +75,7 @@ var commonConfig = {
             hasProductAPI: false,
             hasDeepLinking: true,
             cronPattern: {
-                'development': '0-59/5 * * * *',
+                'development': '0-59/3 * * * *',
                 'production': '0 0-23/1 * * *'
             }
         },
