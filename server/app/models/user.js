@@ -4,6 +4,8 @@ Schema = mongoose.Schema,
 _ = require('underscore');
 
 var UserSchema = new Schema({
+    facebookId: String,
+    twitterId: String,
     email: String,
     dropOnlyAlerts: Boolean,
     verificationCodes: [String],

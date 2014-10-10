@@ -26,7 +26,11 @@
     "loggly": "^1.0.4",
     "node-gcm": "^0.9.12",
     "mandrill-api": "^1.0.40",
-    "moment": "^2.8.3"
+    "moment": "^2.8.3",
+    "passport": "^0.2.1",
+    "passport-twitter": "^1.0.2",
+    "passport-facebook": "^1.0.3",
+    "connect-redis": "1.4.7"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

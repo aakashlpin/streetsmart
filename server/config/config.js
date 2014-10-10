@@ -21,6 +21,11 @@ var commonConfig = {
     jobRemovedLog: 'job removed',
     emailService: 'postmark',   //postmark or mandrill
     QoSCheckInterval: 30,
+    TWITTER_CONSUMER_KEY: 'mPlfFk9ALcWHfCWoZFm5HrwvV',
+    TWITTER_CONSUMER_SECRET: 'vermpfs0YmIfDrXU4ebZiuNEOASIvOYFExqtpN1bf1aeFbmkqd',
+    FACEBOOK_APP_ID: '244555115743180',
+    FACEBOOK_APP_SECRET: 'c36b7d49a79ecdae990a6a41077eae51',
+    adminsFacebookEmailIds: ['aakash.lpin@gmail.com'],
     logsCheckCronPattern: {
         development: '0-59/30 * * * *',
         production: '15 0-23 * * *'
@@ -162,7 +167,7 @@ var commonConfig = {
 
 var config = {
     development: {
-        db: 'mongodb://localhost:27018/streetsmart-development',
+        db: 'mongodb://localhost:27019/streetsmart-development',
         isCronActive: true  //use this to control running of cron jobs
     },
 

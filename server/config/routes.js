@@ -1,6 +1,16 @@
 'use strict';
 var home = require('../app/controllers/home');
 var migrations = require('../app/migrations/index');
+var passport = require('passport');
+
+function ensureAuthenticated(req, res, next) {
+	if (req.isAuthenticated()) {
+		return next();
+	}
+	else {
+		res.redirect('/admin');
+	}
+}
 
 module.exports = function(app){
 
@@ -62,4 +72,17 @@ module.exports = function(app){
 	app.all('/mobile/register', mobile.finalizeDeviceRegistration);
 
 	app.get('/mobile/simulate', mobile.simulateNotification);
+
+	//Admin
+	var admin = require('../app/controllers/admin');
+	app.get('/admin', admin.index);
+	app.get('/admin/dashboard', ensureAuthenticated, admin.dashboard);
+
+	app.get('/auth/twitter', passport.authenticate('twitter'));
+	app.get('/auth/twitter/callback',
+		passport.authenticate('twitter', { successRedirect: '/admin/dashboard', failureRedirect: '/admin' }));
+
+	app.get('/auth/facebook', passport.authenticate('facebook', { scope: ['public_profile', 'email'] }));
+	app.get('/auth/facebook/callback',
+		passport.authenticate('facebook', { successRedirect: '/admin/dashboard', failureRedirect: '/admin' }));
 };
