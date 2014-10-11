@@ -13,7 +13,7 @@ $icon-font-path: "/bower_components/bootstrap-sass-official/vendor/assets/fonts/
 
 /* Space out content a bit */
 body {
-    padding-top: 20px;
+    // padding-top: 20px;
     padding-bottom: 20px;
     position: relative;
 }
@@ -211,4 +211,53 @@ body {
 
 .mb-90 {
     margin-bottom: 90px;
+}
+
+.landing-cover {
+    background-color: #000;
+    background-image: url('../images/cover3.jpg');
+    height: 650px;
+    background-position: bottom center;
+    background-size: cover;
+    overflow: hidden;
+    width: 100%;
+    padding-top: 150px;
+    padding-left: 20px;
+    font-family: "chaparral-pro", sans-serif;
+}
+
+.pitch {
+    font-family: "futura-pt";
+    color: #fff;
+    font-size: 72px;
+    text-shadow: 0 2px 2px rgba(0,0,0,0.5);
+}
+
+.pitch-heading {
+    // line-height: 124px;
+    animation-delay: 0.2s;
+}
+
+.pitch-subheading {
+    animation-delay: 1.5s;
+}
+
+.btn-move {
+    cursor: move;
+    border: 4px dashed #d43d3a;
+    animation-duration: 2s;
+    animation-delay: 1s;
+    animation-iteration-count: 1;
+}
+
+.img-hand {
+    width: 80px;
+    animation-delay: 2s;
+}
+
+
+.text-drag-this {
+    color: #fff;
+    font-size: 18px;
+    animation-delay: 2s;
 }
