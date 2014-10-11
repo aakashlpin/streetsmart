@@ -68,12 +68,15 @@ function queueCreateInstance (handlers) {
     queue.on('job error'   , handlers.handleJobError);
     queue.on('job failed'  , handlers.handleJobFailure);
     queue.on('job complete', handlers.handleJobComplete);
+}
+
+function getCurrentQueueInstance () {
     return queue;
 }
 
 module.exports = {
 	create: queueCreateInstance,	//create a new kue instance
-	instance: queue,	//get the current instance
+	getInstance: getCurrentQueueInstance,	//get the current instance
 	insert: queueJob,	//insert job in the queue
 	process: queueProcess,	//call .process on the queue
 	shutdown: queueGracefulShutDown,	//gracefully shutdown queue

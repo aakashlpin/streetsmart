@@ -95,6 +95,7 @@ function shouldSendAlert(data) {
     isMinDiffFulfilled = (data.storedPrice - data.scrapedPrice >= minDiff);
 
     if (!isMinDiffFulfilled) {
+        logger.log('info', 'not sending alert because min diff not met', {diff: data.storedPrice - data.scrapedPrice, minDiff: minDiff});
         return false;
     }
 
@@ -102,6 +103,7 @@ function shouldSendAlert(data) {
 
     //if the alert about to be sent is same as the last one, no alert
     if (data.alertToPrice === data.scrapedPrice) {
+        logger.log('info', 'not sending alert because duplicate as last one');
         return false;
     }
 

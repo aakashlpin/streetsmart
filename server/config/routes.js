@@ -12,7 +12,7 @@ function ensureAuthenticated(req, res, next) {
 	}
 }
 
-module.exports = function(app){
+module.exports = function(app) {
 
 	//home route
 	app.get('/', home.index);
@@ -77,6 +77,8 @@ module.exports = function(app){
 	var admin = require('../app/controllers/admin');
 	app.get('/admin', admin.index);
 	app.get('/admin/dashboard', ensureAuthenticated, admin.dashboard);
+	app.get('/admin/dashboard/users', ensureAuthenticated, admin.getUsers);
+	app.get('/admin/dashboard/reminder', ensureAuthenticated, admin.reminderEmail);
 
 	app.get('/auth/twitter', passport.authenticate('twitter'));
 	app.get('/auth/twitter/callback',

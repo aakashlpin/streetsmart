@@ -30,7 +30,7 @@ passport.use(new FacebookStrategy({
 				return done(err, user);
 			});
 		} else {
-			return done('Auth failed!');
+			return done(null, null);
 		}
 	}
 ));

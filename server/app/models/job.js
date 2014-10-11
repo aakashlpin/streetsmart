@@ -12,7 +12,8 @@ var JobSchema = new Schema({
     productName: String,
     productImage: String,
     currentPrice: Number,
-    isActive: Boolean
+    isActive: Boolean,
+    isReminded: Boolean
 });
 
 JobSchema.statics.activateAllJobsForEmail = function(req, callback) {

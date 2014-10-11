@@ -308,7 +308,7 @@ module.exports = function (grunt) {
                     expand: true,
                     dot: true,
                     cwd: '.',
-                    src: ['bower_components/bootstrap-sass-official/vendor/assets/fonts/bootstrap/*.*'],
+                    src: ['bower_components/bootstrap-sass-official/vendor/assets/fonts/bootstrap/*.*', 'bower_components/noty/js/noty/packaged/jquery.noty.packaged.min.js'],
                     dest: '<%= config.dist %>'
                 }]
             },

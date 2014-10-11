@@ -48,6 +48,12 @@ function sendEmail(service, payload, callback) {
             });
         }
 
+        if (payload.from) {
+            _.extend(message, {
+                'From': payload.from
+            });
+        }
+
         postmark.send(message, function(err, responseStatus) {
             if (err) {
                 callback(err);
@@ -71,6 +77,12 @@ function sendEmail(service, payload, callback) {
         if (payload.bcc) {
             _.extend(message, {
                 'bcc_address': payload.bcc
+            });
+        }
+
+        if (payload.from) {
+            _.extend(message, {
+                'from_email': payload.from
             });
         }
 
@@ -176,6 +188,37 @@ module.exports = {
                             'subject': 'Price tracker added for ' + locals.product.productName,
                             'html': html,
                             'to': locals.user.email
+                        }, callback);
+                    }
+                });
+            }
+        });
+    },
+    sendReminderEmail: function (user, callback) {
+        emailTemplates(templatesDir, function(err, template) {
+            if (err) {
+                callback(err);
+
+            } else {
+                var locals = {
+                    user: user
+                };
+
+                var encodedEmail = encodeURIComponent(user.email);
+                var locals = {
+                    user: user,
+                    verificationLink: config.server + '/verify?' + 'email=' + encodedEmail
+                };
+
+                template('reminder', locals, function(err, html) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        sendEmail(emailService, {
+                            'subject': 'Cheapass | What happened.. ???',
+                            'html': html,
+                            'to': locals.user.email,
+                            'from': 'aakash@cheapass.in'
                         }, callback);
                     }
                 });

@@ -20,16 +20,12 @@ var commonConfig = {
     sellerCronWorkerLog: 'seller cron',
     jobRemovedLog: 'job removed',
     emailService: 'postmark',   //postmark or mandrill
-    QoSCheckInterval: 30,
+    QoSCheckInterval: 30,   //in minutes
     TWITTER_CONSUMER_KEY: 'mPlfFk9ALcWHfCWoZFm5HrwvV',
     TWITTER_CONSUMER_SECRET: 'vermpfs0YmIfDrXU4ebZiuNEOASIvOYFExqtpN1bf1aeFbmkqd',
     FACEBOOK_APP_ID: '244555115743180',
     FACEBOOK_APP_SECRET: 'c36b7d49a79ecdae990a6a41077eae51',
     adminsFacebookEmailIds: ['aakash.lpin@gmail.com'],
-    logsCheckCronPattern: {
-        development: '0-59/30 * * * *',
-        production: '15 0-23 * * *'
-    },
     youtubeDLSites: ['8tracks.com', '9gag.com', '9gag.tv', 'bandcamp.com',
      'blip.tv', 'collegehumor.com', 'cc.com', 'dailymotion.com',
      'discovery.com', 'engadget.com', 'extremetube.com', 'funnyordie.com',

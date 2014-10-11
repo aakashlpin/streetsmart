@@ -187,13 +187,15 @@ function init() {
 function exitHandler(options, err) {
     if (options.cleanup) {
         //graceful shutdown of kue
-        queue.shutdown(function(shutDownErr) {
-            if (shutDownErr) {
-                logger.log('error', 'error in shutting down kue when uncaughtException occured', {error: shutDownErr});
-                return;
-            }
-            logger.log('info', 'Kue is shut down due to an uncaughtException', err || '');
-        });
+        if (queue.getInstance()) {
+            queue.shutdown(function(shutDownErr) {
+                if (shutDownErr) {
+                    logger.log('error', 'error in shutting down kue when uncaughtException occured', {error: shutDownErr});
+                    return;
+                }
+                logger.log('info', 'Kue is shut down due to an uncaughtException', err || '');
+            });
+        }
 
     } else if (options.exit) {
         logger.log('info', 'nodejs process exit successful');
