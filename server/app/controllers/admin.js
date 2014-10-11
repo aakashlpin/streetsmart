@@ -60,7 +60,10 @@ module.exports = {
 							return asyncEachCb(err);
 						}
 
+						tracksArray = tracksArray || [];
+
 						_.each(tracksArray, function(sellerTracks) {
+							sellerTracks.tracks = sellerTracks.tracks || [];
 							currentTracks += sellerTracks.tracks.length;
 						});
 
