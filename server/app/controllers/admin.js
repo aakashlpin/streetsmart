@@ -63,8 +63,9 @@ module.exports = {
 						tracksArray = tracksArray || [];
 
 						_.each(tracksArray, function(sellerTracks) {
-							sellerTracks.tracks = sellerTracks.tracks || [];
-							currentTracks += sellerTracks.tracks.length;
+							if (sellerTracks && sellerTracks.tracks) {
+								currentTracks += sellerTracks.tracks.length;
+							}
 						});
 
 						lifetimeTracks = _.filter(jobs, function(userJob) {
