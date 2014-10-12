@@ -297,6 +297,7 @@ body {
 
 .bg-light {
     background: #fff;
+    color: #101010;
 }
 
 .product-tracks {
@@ -305,6 +306,7 @@ body {
     margin: 0;
 
     .product-track {
+        transition: all 0.3s ease-in-out;
         list-style-type: none;
         width: 225px;
         // height: 300px;
@@ -325,6 +327,24 @@ body {
             white-space: nowrap;
             overflow: hidden;
             text-align: center;
+        }
+
+        &.inactive {
+            visibility: hidden;
+            opacity: 0;
+        }
+    }
+}
+
+.list-filters {
+    li {
+        padding: 10px;
+        cursor: pointer;
+        background: #fff;
+        border: 1px solid #b1b1b1;
+
+        &.active {
+            background: #eee;
         }
     }
 }

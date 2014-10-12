@@ -224,7 +224,7 @@
     var LandingBackground = {
         $el: $('.landing-image'),
         imgSrc: '../img/cover3.jpg',
-        init: function (argument) {
+        init: function () {
             var bgImg = new Image();
             bgImg.onload = function(){
                LandingBackground.$el.css({
@@ -270,11 +270,12 @@
         ],
         tmpl: function (data) {
             return (
-                '<li class="product-track">'+
+                '<li class="product-track" data-filter-class=\'["'+data.seller+'"]\'>'+
                     '<div class="img-container">'+
                         '<img src="'+data.productImage+'" alt="'+data.productName+'">'+
                     '</div>'+
                     '<p class="product-name" title="'+data.productName+'">'+data.productName+'</p>'+
+                    '<p class="product-seller">'+data.seller+'</p>'+
                 '</li>'
                 );
         },
@@ -286,13 +287,41 @@
 
             ProductTracks.$el.html(domStr);
 
-            $('.product-tracks > li').wookmark({
-                container: $('.product-tracks'),
+            // Get a reference to your grid items.
+            var handler = $('#product-tracks > li'),
+                filters = $('#product-filters > li');
+
+            handler.wookmark({
+                container: $('#product-tracks'),
                 itemWidth: 225,
                 autoResize: true,
-                align: "center",
-                offset: 20
+                align: 'center',
+                offset: 20,
+                ignoreInactiveItems: false,
+                comparator: function(a, b) {
+                    return $(a).hasClass('inactive') && !$(b).hasClass('inactive') ? 1 : -1;
+                }
             });
+
+            /**
+             * When a filter is clicked, toggle it's active state and refresh.
+             */
+            var onClickFilter = function(event) {
+              var item = $(event.currentTarget),
+                  activeFilters = [];
+              item.toggleClass('active');
+
+              // Collect active filter strings
+              filters.filter('.active').each(function() {
+                activeFilters.push($(this).data('filter'));
+              });
+
+              handler.wookmarkInstance.filter(activeFilters, 'or');
+              handler.wookmarkInstance.layout(true);
+            };
+
+            // Capture filter click events.
+            filters.click(onClickFilter);
         },
         init: function () {
             if (window.location.origin.indexOf('localhost') >= 0) {
