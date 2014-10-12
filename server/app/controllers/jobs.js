@@ -114,9 +114,9 @@ function createQueueBindEvents () {
     queue.create();
 }
 
-function ensureQoS (seller) {
+function ensureQoS (seller, callback) {
     if (seller !== 'flipkart') {
-        return;
+        return callback(null, true);
     }
     //until kue gets completely reliable, put a watchdog
     //
@@ -130,10 +130,12 @@ function ensureQoS (seller) {
                 logger.log('info', 'restarting kue.');
                 createQueueBindEvents();
                 queueProcess();
+                callback(null, false);
             }
         });
     } else {
         logger.log('info', 'service running at ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
+        callback(null, true);
     }
 }
 
@@ -163,8 +165,12 @@ function createWorkerForSeller (seller, asyncEachCallback) {
     new CronJob({
         cronTime: sellerData.cronPattern[env],
         onTick: function() {
-            ensureQoS(seller);
-            cronWorker(seller, SellerJobModel);
+            ensureQoS(seller, function (err, active) {
+                if (active) {
+                    //is service is not active, lets process queue before adding more
+                    cronWorker(seller, SellerJobModel);
+                }
+            });
         },
         start: true,
         timeZone: 'Asia/Kolkata'
