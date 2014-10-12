@@ -56,6 +56,16 @@
 })(document);
 
 (function(window, $) {
+    window.odometerOptions = {
+      auto: true, // Don't automatically initialize everything with class 'odometer'
+      selector: '#ca-counters-emails', // Change the selector used to automatically find things to be animated
+      format: '(,ddd).dd', // Change how digit groups are formatted, and how many digits are shown after the decimal point
+      // duration: 1000, // Change how long the javascript expects the CSS animation to take
+      // theme: 'car', // Specify the theme (if you have more than one theme css file on the page)
+      animation: 'count' // Count is a simpler animation method which just increments the value,
+                         // use it when you're looking for something more subtle.
+    };
+
     var urlForm = {
         $el: $('#fkURLForm'),
         $inputEl: $('#productPageURL'),
@@ -199,17 +209,101 @@
     };
 
     var Counters = {
-        $usersCount: $('#ca-counters-users'),
-        $itemsCount: $('#ca-counters-products'),
+        // $usersCount: $('#ca-counters-users'),
+        // $itemsCount: $('#ca-counters-products'),
         $emailsCount: $('#ca-counters-emails'),
         init: function() {
             $.getJSON('/stats', function(res) {
-                Counters.$usersCount.html(res.totalUsers);
-                Counters.$itemsCount.html(res.itemsTracked);
+                // Counters.$usersCount.html(res.totalUsers);
+                // Counters.$itemsCount.html(res.itemsTracked);
                 Counters.$emailsCount.html(res.emailsSent);
             });
         }
-    }
+    };
+
+    var LandingBackground = {
+        $el: $('.landing-image'),
+        imgSrc: '../img/cover3.jpg',
+        init: function (argument) {
+            var bgImg = new Image();
+            bgImg.onload = function(){
+               LandingBackground.$el.css({
+                    'background-image': 'url(' + bgImg.src + ')'
+               })
+               .addClass('animated fadeIn');
+            };
+            bgImg.src = LandingBackground.imgSrc;
+        }
+    };
+
+    var ProductTracks = {
+        $el: $('#product-tracks'),
+        data: [
+            {
+                productName: 'Moto X (16 GB)',
+                productImage: 'http://img5a.flixcart.com/image/mobile/m/t/n/motorola-moto-x-400x400-imadu82xgcr8abck.jpeg',
+                productPrice: 23999,
+                productPriceHistory: [],
+                eyes: 8
+            },
+            {
+                productName: 'Carry on Bags Stop Scanning Ma Tote',
+                productImage: 'http://img6a.flixcart.com/image/hand-messenger-bag/f/k/g/cob-1648-carry-on-bags-tote-stop-scanning-ma-400x400-imadwkprhxtuvztv.jpeg',
+                productPrice: 549,
+                productPriceHistory: [],
+                eyes: 12
+            },
+            {
+                productName: 'Puma Strike Ind. Running Shoes',
+                productImage: 'http://img5a.flixcart.com/image/shoe/4/a/x/01-black-white-188016-puma-10-400x400-imadzek2j34xz6vr.jpeg',
+                productPrice: 1999,
+                productPriceHistory: [],
+                eyes: 2
+            },
+            {
+                productName: 'Stanley 72-118-IN Hand Tool Kit',
+                productImage: 'http://img6a.flixcart.com/image/power-hand-tool-kit/4/a/h/72-118-in-stanley-400x400-imadu93cgqwbdggy.jpeg',
+                productPrice: 1595,
+                productPriceHistory: [],
+                eyes: 1
+            }
+        ],
+        tmpl: function (data) {
+            return (
+                '<li class="product-track">'+
+                    '<div class="img-container">'+
+                        '<img src="'+data.productImage+'" alt="'+data.productName+'">'+
+                    '</div>'+
+                    '<p class="product-name" title="'+data.productName+'">'+data.productName+'</p>'+
+                '</li>'
+                );
+        },
+        render: function (data) {
+            var domStr = '';
+            _.each(data, function (productData) {
+                domStr += ProductTracks.tmpl(productData);
+            });
+
+            ProductTracks.$el.html(domStr);
+
+            $('.product-tracks > li').wookmark({
+                container: $('.product-tracks'),
+                itemWidth: 225,
+                autoResize: true,
+                align: "center",
+                offset: 20
+            });
+        },
+        init: function () {
+            if (window.location.origin.indexOf('localhost') >= 0) {
+                ProductTracks.render(ProductTracks.data);
+            } else {
+                $.getJSON('/api/tracks', function(data) {
+                    ProductTracks.render(data);
+                });
+            }
+        }
+    };
 
     urlForm.$el.on('submit', urlForm.handleURLInputPaste);
     urlForm.$inputEl.on('paste', urlForm.handleURLInputPaste);
@@ -220,4 +314,7 @@
     }, 10000);
 
     Counters.init();
+    LandingBackground.init();
+    ProductTracks.init();
+
 })(window, jQuery);

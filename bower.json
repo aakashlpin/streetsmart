@@ -6,7 +6,9 @@
     "jquery": "~1.11.0",
     "underscore": "~1.6.0",
     "noty": "~2.2.9",
-    "animate.css": "~3.2.0"
+    "animate.css": "~3.2.0",
+    "odometer": "~0.4.7",
+    "wookmark-jquery": "~1.4.8"
   },
   "devDependencies": {
     "jquery-mockjax": "~1.5.3"

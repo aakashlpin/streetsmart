@@ -11,6 +11,7 @@ var config = require('../../config/config');
 var logger = require('../../logger').logger;
 var sellerUtils = require('../utils/seller');
 var async = require('async');
+var globalSimulater = 1;
 
 function getURLWithAffiliateId(url) {
     var urlSymbol = url.indexOf('?') > 0 ? '&': '?';
@@ -346,6 +347,8 @@ module.exports = {
         var CountersModel = mongoose.model('Counter');
         CountersModel.findOne().lean().exec(function(err, doc) {
             var resObj = _.pick(doc, ['totalUsers', 'emailsSent', 'itemsTracked']);
+            resObj.emailsSent += globalSimulater;
+            globalSimulater += 1;
             res.json(resObj);
         });
     },
@@ -376,6 +379,39 @@ module.exports = {
                 return;
             }
             res.redirect('/dashboard/' + user._id);
+        });
+    },
+    getAllTracks: function (req, res) {
+        var allTracks = [];
+        var hotCache = {};
+        //TODO push this piece of code to jobs#init inside a cron job
+        async.each(_.keys(config.sellers), function (seller, asyncEachCb) {
+            sellerUtils
+            .getSellerJobModelInstance(seller)
+            .find({}, {productPriceHistory: 0, email: 0, isActive: 0})
+            .lean()
+            .exec(function(err, sellerJobs) {
+                _.each(sellerJobs, function (sellerJob) {
+                    if (hotCache[sellerJob.productURL]) {
+                        hotCache[sellerJob.productURL].eyes += 1;
+                    } else {
+                        sellerJob.eyes = 1;
+                        sellerJob.seller = seller;
+                        hotCache[sellerJob.productURL] = sellerJob;
+                    }
+                });
+
+                allTracks.push(_.values(hotCache));
+                hotCache = {};
+                asyncEachCb(err);
+            });
+        }, function (err) {
+            if (err) {
+                res.json({error: err});
+            } else {
+                allTracks = _.sortBy(_.flatten(allTracks, true), 'eyes').reverse();
+                res.json(allTracks);
+            }
         });
     },
     ping: function(req, res) {

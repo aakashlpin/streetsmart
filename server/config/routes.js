@@ -40,6 +40,8 @@ module.exports = function(app) {
 	//User email+product page link
 	app.get('/track/:seller/:id', api.getTracking);
 
+	app.get('/api/tracks', api.getAllTracks);
+
 	//new relic ping
 	app.get('/ping', api.ping);
 
