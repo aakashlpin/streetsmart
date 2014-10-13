@@ -336,15 +336,21 @@ body {
     }
 }
 
+.section-padded {
+    padding: 60px 20px 30px 20px;
+}
+
 .list-filters {
     li {
         padding: 10px;
         cursor: pointer;
         background: #fff;
-        border: 1px solid #b1b1b1;
+        border: 1px solid #eee;
+        border-radius: 7px;
 
         &.active {
             background: #eee;
         }
     }
 }
+
