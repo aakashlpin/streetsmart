@@ -4411,7 +4411,6 @@
                         '<img class="lazy" data-original="'+data.productImage+'" alt="'+data.productName+'">'+
                     '</div>'+
                     '<p class="product-name" title="'+data.productName+'">'+data.productName+'</p>'+
-                    '<p class="product-seller">'+data.seller+'</p>'+
                 '</li>'
                 );
         },
