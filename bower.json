@@ -9,7 +9,8 @@
     "animate.css": "~3.2.0",
     "odometer": "~0.4.7",
     "wookmark-jquery": "~1.4.8",
-    "jquery.lazyload": "~1.9.3"
+    "jquery.lazyload": "~1.9.3",
+    "jquery-sticky": "*"
   },
   "devDependencies": {
     "jquery-mockjax": "~1.5.3"
