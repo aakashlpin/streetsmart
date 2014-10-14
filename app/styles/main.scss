@@ -332,20 +332,6 @@ body {
             opacity: 0.2;
         }
     }
-
-    .product-actions {
-        background: rgba(0,0,0,0.2);
-        position: absolute;
-        top: -230px;
-        left: 0;
-        height: 230px;
-        width: 225px;
-
-        &.shown {
-            transition: top 0.2s ease-out;
-            top: 0;
-        }
-    }
 }
 
 .section-padded {
@@ -386,4 +372,122 @@ body {
     .filters-container {
         padding-top: 10px;
     }
+}
+
+.congested-box {
+    width: 150px;
+    margin: 0 auto;
+}
+.price-lower {
+    color: #27ae60;
+}
+
+.price-higher {
+    // color: #e74c3c;
+    color: #e74c3c;
+}
+
+.table.table-no-border td {
+    border: none;
+    text-align: right;
+    padding: 4px;
+    &:nth-child(2) {
+        text-align: left;
+    }
+}
+
+.product-actions {
+    background: rgba(255, 255, 255, 0.5);
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    // padding: 10px 0;
+    a {
+        cursor: pointer;
+        color: #fff;
+        padding: 10px;
+        float: left;
+        width: 50%;
+        text-align: center;
+    }
+    a.js-add-track {
+        &:hover {
+            color: #3498db;
+        }
+    }
+    a.js-goto-product {
+        &:hover {
+            color: #f39c12;
+        }
+    }
+}
+/*---------------*/
+/***** Zoe *****/
+/*---------------*/
+
+
+figure {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    // cursor: pointer;
+}
+
+figure figcaption {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
+
+figure.effect-zoe figcaption {
+    top: auto;
+    bottom: 0;
+    // padding: 10px;
+    background: rgba(0,0,0,0.5);
+    color: #fff;
+    -webkit-transition: -webkit-transform 0.35s;
+    transition: transform 0.35s;
+    -webkit-transform: translate3d(0,100%,0);
+    transform: translate3d(0,100%,0);
+}
+
+figure.effect-zoe figcaption p {
+    // font-weight: semi-bold;
+}
+
+figure.effect-zoe h2,
+figure.effect-zoe figcaption > span {
+    -webkit-transition: -webkit-transform 0.35s;
+    transition: transform 0.35s;
+    -webkit-transform: translate3d(0, 200%, 0);
+    transform: translate3d(0, 200%, 0);
+}
+
+figure.effect-zoe:hover figcaption,
+figure.effect-zoe:hover h2,
+figure.effect-zoe:hover figcaption > span {
+    -webkit-transform: translate3d(0,0,0);
+    transform: translate3d(0,0,0);
+}
+
+figure.effect-zoe:hover h2 {
+    -webkit-transition-delay: 0.05s;
+    transition-delay: 0.05s;
+}
+
+figure.effect-zoe:hover figcaption > span:nth-child(4) {
+    -webkit-transition-delay: 0.1s;
+    transition-delay: 0.1s;
+}
+
+figure.effect-zoe:hover figcaption > span:nth-child(3) {
+    -webkit-transition-delay: 0.15s;
+    transition-delay: 0.15s;
+}
+
+figure.effect-zoe:hover figcaption > span:nth-child(2) {
+    -webkit-transition-delay: 0.2s;
+    transition-delay: 0.2s;
 }

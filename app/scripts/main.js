@@ -4809,14 +4809,36 @@
 		,
 		productActionsClass: 'js-product-actions',
 		tmpl: function (data) {
+			var priceTypeClasses = 'frown-o price-higher';
+			if (data.currentPrice <= data.ltp) {
+				priceTypeClasses = 'smile-o price-lower';
+			}
 			return (
 				'<li id="'+data._id+'" class="product-track" data-eyes="'+data.eyes+'" data-filter-class=\'["'+data.seller+'"]\'>'+
-					'<div class="img-container">'+
-						'<img class="lazy" data-original="'+data.productImage+'" alt="'+data.productName+'">'+
-					'</div>'+
-					'<p class="product-name" title="'+data.productName+'">'+data.productName+'</p>'+
-					'<div class="product-actions '+ProductTracks.productActionsClass+'">'+
-					'</div>'+
+					'<figure class="effect-zoe">'+
+						'<div class="img-container">'+
+							'<img class="lazy" data-original="'+data.productImage+'" alt="'+data.productName+'">'+
+						'</div>'+
+						'<p class="product-name" title="'+data.productName+'">'+data.productName+'</p>'+
+						'<figcaption>'+
+							'<h2>'+data.seller+'</h2>'+
+							'<i class="fa-3x fa fa-'+priceTypeClasses+'"></i>'+
+							'<table class="table table-no-border">'+
+								'<tr>'+
+									'<td>Current Price:</td>'+
+									'<td><i class="fa fa-rupee"></i>'+data.currentPrice+'</td>'+
+								'</tr>'+
+								'<tr>'+
+									'<td>Best known Price:</td>'+
+									'<td><i class="fa fa-rupee"></i>'+data.ltp+'</td>'+
+								'</tr>'+
+							'</table>'+
+							'<div class="product-actions clearfix">'+
+								'<a title="Buy now" target="_blank" href="'+data.productURL+'" class="js-goto-product"><i class="fa fa-3x fa-shopping-cart"></i></a>'+
+								'<a title="Add a price track" class="js-add-track"><i class="fa fa-3x fa-eye"></i></a>'+
+							'</div>'+
+						'</figcaption>'+
+					'</figure>'+
 				'</li>'
 				);
 		},
@@ -4888,35 +4910,14 @@
 				failure_limit : Math.max($imgs.length-1, 0)
 			});
 		},
-		showProductActions: function (elem) {
-			$(elem).find('.' + ProductTracks.productActionsClass).addClass('shown');
-		},
-		hideProductActions: function (elem) {
-			$(elem).find('.' + ProductTracks.productActionsClass).removeClass('shown');
-		},
-		bindAllEvents: function () {
-			ProductTracks
-			.$el
-			.find('.product-track')
-			.hover(function () {
-				//http://stackoverflow.com/a/4974515/721084
-				ProductTracks.showProductActions($(this));
-			}, function () {
-				ProductTracks.hideProductActions($(this));
-			});
-		},
 		init: function () {
 			if (window.location.origin.indexOf('localhost') >= 0) {
 				ProductTracks.render(ProductTracks.data);
 				ProductTracks.lazyLoad();
-				ProductTracks.bindAllEvents();
-
 			} else {
 				$.getJSON('/api/tracks', function(data) {
 					ProductTracks.render(data);
 					ProductTracks.lazyLoad();
-					ProductTracks.bindAllEvents();
-
 				});
 			}
 
