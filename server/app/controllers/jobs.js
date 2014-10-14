@@ -10,6 +10,7 @@ var sellerUtils = require('../utils/seller');
 var async = require('async');
 var moment = require('moment');
 var queue = require('../lib/queue');
+var bgTask = require('../lib/background');
 var latestJobProcessedAt;
 // var fs = require('fs');
 
@@ -178,7 +179,27 @@ function createWorkerForSeller (seller, asyncEachCallback) {
     asyncEachCallback();
 }
 
+function createCronTabForAllProducts () {
+    var env = process.env.NODE_ENV || 'development';
+
+    //immediately process all items
+    bgTask.processAllProducts();
+
+    //set up cron job
+    new CronJob({
+        cronTime: config.processAllProductsInterval[env],
+        onTick: function() {
+            bgTask.processAllProducts();
+        },
+        start: true,
+        timeZone: 'Asia/Kolkata'
+    });
+}
+
 function init() {
+    //for request from home page, pre-process all products and keep the data in memory
+    createCronTabForAllProducts();
+
     if (!config.isCronActive) {
         logger.log('info', '=========== Cron Jobs are disabled =============');
         return;

@@ -26,6 +26,10 @@ var commonConfig = {
     FACEBOOK_APP_ID: '244555115743180',
     FACEBOOK_APP_SECRET: 'c36b7d49a79ecdae990a6a41077eae51',
     adminsFacebookEmailIds: ['aakash.lpin@gmail.com'],
+    processAllProductsInterval: {
+        'development': '0-59/5 * * * *',
+        'production': '0-59/25 * * * *'
+    },
     youtubeDLSites: ['8tracks.com', '9gag.com', '9gag.tv', 'bandcamp.com',
      'blip.tv', 'collegehumor.com', 'cc.com', 'dailymotion.com',
      'discovery.com', 'engadget.com', 'extremetube.com', 'funnyordie.com',
@@ -163,7 +167,7 @@ var commonConfig = {
 
 var config = {
     development: {
-        db: 'mongodb://localhost:27017/streetsmart-production',
+        db: 'mongodb://localhost:27018/streetsmart-production',
         isCronActive: false  //use this to control running of cron jobs
     },
 
