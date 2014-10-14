@@ -10,7 +10,8 @@
     "odometer": "~0.4.7",
     "wookmark-jquery": "~1.4.8",
     "jquery.lazyload": "~1.9.3",
-    "jquery-sticky": "*"
+    "jquery-sticky": "*",
+    "60fps-scroll": "~0.1.1"
   },
   "devDependencies": {
     "jquery-mockjax": "~1.5.3"

@@ -4807,14 +4807,15 @@
 		  }
 		]
 		,
+		productActionsClass: 'js-product-actions',
 		tmpl: function (data) {
 			return (
-				'<li class="product-track" data-eyes="'+data.eyes+'" data-filter-class=\'["'+data.seller+'"]\'>'+
+				'<li id="'+data._id+'" class="product-track" data-eyes="'+data.eyes+'" data-filter-class=\'["'+data.seller+'"]\'>'+
 					'<div class="img-container">'+
 						'<img class="lazy" data-original="'+data.productImage+'" alt="'+data.productName+'">'+
 					'</div>'+
 					'<p class="product-name" title="'+data.productName+'">'+data.productName+'</p>'+
-					'<div class="hide js-product-actions">'+
+					'<div class="product-actions '+ProductTracks.productActionsClass+'">'+
 					'</div>'+
 				'</li>'
 				);
@@ -4887,15 +4888,35 @@
 				failure_limit : Math.max($imgs.length-1, 0)
 			});
 		},
+		showProductActions: function (elem) {
+			$(elem).find('.' + ProductTracks.productActionsClass).addClass('shown');
+		},
+		hideProductActions: function (elem) {
+			$(elem).find('.' + ProductTracks.productActionsClass).removeClass('shown');
+		},
+		bindAllEvents: function () {
+			ProductTracks
+			.$el
+			.find('.product-track')
+			.hover(function () {
+				//http://stackoverflow.com/a/4974515/721084
+				ProductTracks.showProductActions($(this));
+			}, function () {
+				ProductTracks.hideProductActions($(this));
+			});
+		},
 		init: function () {
 			if (window.location.origin.indexOf('localhost') >= 0) {
 				ProductTracks.render(ProductTracks.data);
 				ProductTracks.lazyLoad();
+				ProductTracks.bindAllEvents();
 
 			} else {
 				$.getJSON('/api/tracks', function(data) {
 					ProductTracks.render(data);
 					ProductTracks.lazyLoad();
+					ProductTracks.bindAllEvents();
+
 				});
 			}
 

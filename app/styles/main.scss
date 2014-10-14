@@ -308,8 +308,7 @@ body {
         transition: all 0.3s ease-in-out;
         list-style-type: none;
         width: 225px;
-        // height: 300px;
-        // padding: 10px;
+        overflow: hidden;
         .img-container {
             text-align: center;
             height: 200px;
@@ -331,6 +330,20 @@ body {
         &.inactive {
             visibility: visible;
             opacity: 0.2;
+        }
+    }
+
+    .product-actions {
+        background: rgba(0,0,0,0.2);
+        position: absolute;
+        top: -230px;
+        left: 0;
+        height: 230px;
+        width: 225px;
+
+        &.shown {
+            transition: top 0.2s ease-out;
+            top: 0;
         }
     }
 }
