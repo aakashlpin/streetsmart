@@ -42,6 +42,8 @@ module.exports = function(app) {
 
 	app.get('/api/tracks', api.getAllTracks);
 
+	app.get('/api/tracks/:page', api.getPagedTracks);
+
 	//new relic ping
 	app.get('/ping', api.ping);
 

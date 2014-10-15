@@ -383,6 +383,14 @@ module.exports = {
         var processedData = bgTask.getProcessedProducts();
         res.json(processedData);
     },
+    getPagedTracks: function (req, res) {
+        var page = req.params.page;
+        if (!page) {
+            return res.json({error: 'page param missing'});
+        }
+        var pagedData = bgTask.getPagedProducts(page);
+        res.json(pagedData);
+    },
     ping: function(req, res) {
         //to test if server is up
         res.json({status: 'ok'});

@@ -6,6 +6,8 @@ var sellerUtils = require('../utils/seller');
 var async = require('async');
 var moment = require('moment');
 var logger = require('../../logger').logger;
+var initialBatchSize = 50;
+var futureBatchSize = 20;
 
 var processedData = [];
 
@@ -57,6 +59,22 @@ module.exports = {
 		}, function () {
 			processedData = _.sortBy(_.flatten(allTracks, true), 'eyes').reverse();
 		});
+	},
+	getPagedProducts: function (page) {
+		page = parseInt(page);
+		if (page <= 0) {
+			return [];
+
+		}
+		if (page === 1) {
+			//initial page request
+			return _.first(processedData, initialBatchSize);
+
+		} else {
+			var beginIndex = initialBatchSize + ((page - 2) * futureBatchSize);
+			var endIndex = beginIndex + futureBatchSize - 1;
+			return processedData.slice(beginIndex, endIndex);
+		}
 	},
 	getProcessedProducts: function () {
 		return processedData;
