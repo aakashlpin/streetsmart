@@ -24,7 +24,7 @@
 	$.mockjax({
 		url: '/stats',
 		contentType: 'text/json',
-		responseTime: 3,
+		responseTime: 1000,
 		responseText: {
 			emailsSent: 16756
 		}
