@@ -106,6 +106,7 @@
     <script src="../bower_components/jquery.lazyload/jquery.scrollstop.js"></script>
     <script src="../bower_components/jquery-sticky/jquery.sticky.js"></script>
     <script src="../bower_components/60fps-scroll/dist/60fps-scroll.js"></script>
+    <script src="../bower_components/eventemitter2/lib/eventemitter2.js"></script>
     <!-- endbower -->
     <!-- endbuild -->
 
@@ -124,7 +125,16 @@
     <script src="../bower_components/jquery-mockjax/jquery.mockjax.js"></script>
     <!-- endbuild -->
 
+    <script>
+    window.App = {};
+    </script>
+
     <!-- build:js({app,.tmp}) scripts/main.js -->
+    <script src="scripts/normalize.js"></script>
+    <script src="scripts/mock.js"></script>
+    <script src="scripts/urlForm.js"></script>
+    <script src="scripts/existingTracks.js"></script>
+    <script src="scripts/animations.js"></script>
     <script src="scripts/main.js"></script>
     <!-- endbuild -->
 </body>
