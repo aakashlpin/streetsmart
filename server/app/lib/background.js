@@ -10,6 +10,7 @@ var initialBatchSize = 50;
 var futureBatchSize = 20;
 
 var processedData = [];
+var totalPages = 0;
 
 function getLeastPriceFromHistory (history) {
 	if (!history.length) {
@@ -58,6 +59,16 @@ module.exports = {
 			});
 		}, function () {
 			processedData = _.sortBy(_.flatten(allTracks, true), 'eyes').reverse();
+			//1st page = initialBatchSize
+			//next page onwards = futureBatchSize
+			if (processedData.length < initialBatchSize) {
+				totalPages = 1;
+			} else {
+				totalPages = 1 + (processedData.length - initialBatchSize)/futureBatchSize;
+				if (totalPages !== parseInt(totalPages)) {
+					totalPages += 1;
+				}
+			}
 		});
 	},
 	getPagedProducts: function (page) {
@@ -78,5 +89,8 @@ module.exports = {
 	},
 	getProcessedProducts: function () {
 		return processedData;
+	},
+	getTotalPages: function () {
+		return totalPages;
 	}
 };

@@ -4,6 +4,8 @@
 	var ProductTracks = {
 		$el: $('#product-tracks'),
 		dataPage: 1,
+		isXHRPending: false,
+		wookmarkHandler: null,
 		tmpl: function (data) {
 			var priceTypeClasses = 'frown-o price-higher';
 			if (data.currentPrice <= data.ltp) {
@@ -38,17 +40,39 @@
 				'</li>'
 				);
 		},
+		handleFilterClick: function (event, filters) {
+			var item = $(event.currentTarget),
+				activeFilters = [],
+				handler = ProductTracks.wookmarkHandler;
+
+			item.toggleClass('active');
+
+			$('html, body').animate({
+				scrollTop: $('#product-tracks').offset().top - 60
+			}, 2000);
+
+			// Collect active filter strings
+			filters.filter('.active').each(function() {
+				activeFilters.push($(this).data('filter'));
+			});
+
+			handler.wookmarkInstance.filter(activeFilters, 'or');
+			handler.wookmarkInstance.layout(true);
+		},
 		render: function (data) {
 			var domStr = '';
 			_.each(data, function (productData) {
 				domStr += ProductTracks.tmpl(productData);
 			});
 
-			ProductTracks.$el.html(domStr);
+			ProductTracks.$el.append(domStr);
 
 			// Get a reference to your grid items.
-			var handler = $('#product-tracks > li'),
-				filters = $('#product-filters > li');
+			if (ProductTracks.wookmarkHandler && ProductTracks.wookmarkHandler.wookmarkInstance) {
+				ProductTracks.wookmarkHandler.wookmarkInstance.clear();
+			}
+
+			var handler = $('#product-tracks > li');
 
 			handler.wookmark({
 				container: $('#product-tracks'),
@@ -72,30 +96,7 @@
 				}
 			});
 
-			/**
-			 * When a filter is clicked, toggle it's active state and refresh.
-			 */
-			var onClickFilter = function(event) {
-				var item = $(event.currentTarget),
-					activeFilters = [];
-
-				item.toggleClass('active');
-
-				$('html, body').animate({
-					scrollTop: $('#product-tracks').offset().top - 60
-				}, 2000);
-
-				// Collect active filter strings
-				filters.filter('.active').each(function() {
-					activeFilters.push($(this).data('filter'));
-				});
-
-				handler.wookmarkInstance.filter(activeFilters, 'or');
-				handler.wookmarkInstance.layout(true);
-			};
-
-			// Capture filter click events.
-			filters.click(onClickFilter);
+			ProductTracks.wookmarkHandler = handler;
 		},
 		lazyLoad: function () {
 			var $imgs = ProductTracks.$el.find('.lazy');
@@ -107,34 +108,60 @@
 			});
 		},
 		loadOnScroll: function () {
-			/**
-			 * When scrolled all the way to the bottom, add more tiles
-			 */
-			  // Check if we're within 100 pixels of the bottom edge of the broser window.
-			var  $window = $(window),
-			  $document = $(document);
-			var winHeight = window.innerHeight ? window.innerHeight : $window.height(), // iphone fix
+			var $window = $(window),
+			$document = $(document),
+			winHeight = window.innerHeight ? window.innerHeight : $window.height(), // iphone fix
 			closeToBottom = ($window.scrollTop() + winHeight > $document.height() - 100);
-
 			if (closeToBottom) {
-				// Get the first then items from the grid, clone them, and add them to the bottom of the grid
-				// var $items = $('li', $tiles),
-				// $firstTen = $items.slice(0, 10);
-				// $tiles.append($firstTen.clone());
-
-				// applyLayout();
+				ProductTracks.loadTracksForPage(ProductTracks.dataPage + 1);
 			}
 		},
 		bindAllEvents: function () {
-			ProductTracks.loadOnScroll();
+			$(window).bind('scroll.wookmark', ProductTracks.loadOnScroll);
+		},
+		initFilters: function () {
+			// Capture filter click events.
+			var filters = $('#product-filters > li');
+			filters.click(function (e) {
+				ProductTracks.handleFilterClick(e, filters);
+			});
+		},
+		toggleLoading: function () {
+			$('#loading').toggleClass('hide');
+		},
+		hideLoading: function () {
+			$('#loading').addClass('hide');
+		},
+		loadTracksForPage: function (page) {
+			if (ProductTracks.isXHRPending) {
+				return;
+			}
+			if (ProductTracks.maxPages && (page > ProductTracks.maxPages)) {
+				ProductTracks.hideLoading();
+				return;
+			}
+
+			ProductTracks.toggleLoading();
+			ProductTracks.isXHRPending = true;
+			$.getJSON('/api/tracks/' + page, function(res) {
+				ProductTracks.render(res.data);
+				ProductTracks.lazyLoad();
+				ProductTracks.dataPage = page;
+				ProductTracks.maxPages = res.pages;
+				ProductTracks.isXHRPending = false;
+				ProductTracks.toggleLoading();
+			});
+		},
+		initSticky: function () {
+			$('#sticker').sticky({
+				topSpacing:0
+			});
 		},
 		init: function () {
-			$.getJSON('/api/tracks/1', function(data) {
-				ProductTracks.render(data);
-				ProductTracks.lazyLoad();
-			});
-
-			$('#sticker').sticky({topSpacing:0});
+			ProductTracks.loadTracksForPage(1);
+			ProductTracks.initFilters();
+			ProductTracks.bindAllEvents();
+			ProductTracks.initSticky();
 		}
 	};
 

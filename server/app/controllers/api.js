@@ -388,8 +388,11 @@ module.exports = {
         if (!page) {
             return res.json({error: 'page param missing'});
         }
-        var pagedData = bgTask.getPagedProducts(page);
-        res.json(pagedData);
+
+        res.json({
+            data: bgTask.getPagedProducts(page),
+            pages: bgTask.getTotalPages()
+        });
     },
     ping: function(req, res) {
         //to test if server is up
