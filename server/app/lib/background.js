@@ -82,8 +82,8 @@ module.exports = {
 			return _.first(processedData, initialBatchSize);
 
 		} else {
-			var beginIndex = initialBatchSize + ((page - 2) * futureBatchSize);
-			var endIndex = beginIndex + futureBatchSize - 1;
+			var beginIndex = initialBatchSize + ((page - 2) * futureBatchSize) - 1;
+			var endIndex = beginIndex + futureBatchSize;
 			return processedData.slice(beginIndex, endIndex);
 		}
 	},
