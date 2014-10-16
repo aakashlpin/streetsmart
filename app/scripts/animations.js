@@ -39,7 +39,21 @@
 		}
 	};
 
+	var SocialProof = {
+		$el: $('#social-proof'),
+		init: function () {
+			//there's a problem with async nature of twitter embedding
+			setTimeout(function() {
+				var handler = SocialProof.$el.find('>li');
+				handler.wookmark({
+					container: SocialProof.$el
+				});
+			}, 2000);
+		}
+	}
+
 	window.App.Counters = Counters;
 	window.App.LandingBackground = LandingBackground;
+	window.App.SocialProof = SocialProof;
 
 })(jQuery, window);

@@ -28,13 +28,13 @@
 									'<td><i class="fa fa-rupee"></i>'+data.currentPrice+'</td>'+
 								'</tr>'+
 								'<tr>'+
-									'<td>Best known Price:</td>'+
+									'<td>Best Tracked Price:</td>'+
 									'<td><i class="fa fa-rupee"></i>'+data.ltp+'</td>'+
 								'</tr>'+
 							'</table>'+
 							'<div class="product-actions clearfix">'+
 								'<a title="Buy now" target="_blank" href="'+data.productURL+'" class="js-goto-product"><i class="fa fa-3x fa-shopping-cart"></i></a>'+
-								'<a title="Add a price track" class="js-add-track"><i class="fa fa-3x fa-eye"></i></a>'+
+								'<a title="Add a price track" class="js-add-track"><i class="fa fa-3x fa-plus"></i></a>'+
 							'</div>'+
 						'</figcaption>'+
 					'</figure>'+

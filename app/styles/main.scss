@@ -212,6 +212,10 @@ body {
     margin-bottom: 30px;
 }
 
+.mb-60 {
+    margin-bottom: 60px;
+}
+
 .mb-90 {
     margin-bottom: 90px;
 }
@@ -284,6 +288,14 @@ body {
     }
 }
 
+.text-gray {
+    color: #444;
+}
+
+.text-attr {
+    color: #999;
+}
+
 .odometer {
     font-size: 48px;
 }
@@ -297,6 +309,10 @@ body {
 .bg-light {
     background: #fff;
     color: #101010;
+}
+
+.bg-gray {
+    background: #eee;
 }
 
 .product-tracks {
@@ -335,7 +351,13 @@ body {
 }
 
 .section-padded {
-    padding: 60px 20px 30px 20px;
+    padding-top: 60px;
+    padding-bottom: 30px;
+}
+
+.section-sidewise-padded {
+    padding-left: 20px;
+    padding-right: 20px;
 }
 
 .list-filters {
