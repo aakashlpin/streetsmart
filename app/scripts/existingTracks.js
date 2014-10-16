@@ -11,8 +11,9 @@
 			if (data.currentPrice <= data.ltp) {
 				priceTypeClasses = 'smile-o price-lower';
 			}
+			var addedAt = +new Date();
 			return (
-				'<li id="'+data._id+'" class="product-track" data-eyes="'+data.eyes+'" data-filter-class=\'["'+data.seller+'"]\'>'+
+				'<li id="'+data._id+'" class="product-track" data-added-at="'+addedAt+'" data-eyes="'+data.eyes+'" data-filter-class=\'["'+data.seller+'"]\'>'+
 					'<figure class="effect-zoe">'+
 						'<div class="img-container">'+
 							'<img class="lazy" data-original="'+data.productImage+'" alt="'+data.productName+'">'+
@@ -82,10 +83,15 @@
 				offset: 20,
 				ignoreInactiveItems: false,
 				comparator: function(a, b) {
-					if (!$(a).hasClass('inactive') && !$(b).hasClass('inactive')) {
-						return $(a).data('eyes') > $(b).data('eyes') ? -1 : 1;
+					var $a = $(a);
+					var $b = $(b);
+					if (!$a.hasClass('inactive') && !$b.hasClass('inactive')) {
+						if ($a.data('eyes') === $b.data('eyes')) {
+							return $a.data('added-at') < $b.data('added-at') ? -1 : 1;
+						}
+						return $a.data('eyes') > $b.data('eyes') ? -1 : 1;
 					}
-					return $(a).hasClass('inactive') && !$(b).hasClass('inactive') ? 1 : -1;
+					return $a.hasClass('inactive') && !$b.hasClass('inactive') ? 1 : -1;
 				},
 				onLayoutChanged: function () {
 					ProductTracks
