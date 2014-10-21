@@ -66,4 +66,14 @@
 		}
 	});
 
+	$.mockjax({
+		url: '/user/:userEmail',
+		contentType: 'text/json',
+		responseTime: 500,
+		responseText: {
+			status: 'ok',
+			id: '5433870387adc5161cce89d2'
+		}
+	});
+
 })(jQuery, window);

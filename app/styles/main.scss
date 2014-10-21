@@ -226,7 +226,7 @@ body {
     color: #999;
 }
 
-.odometer {
+.css-odometer {
     font-size: 48px;
 }
 
@@ -286,9 +286,13 @@ body {
     padding-bottom: 30px;
 }
 
-.section-sidewise-padded {
+%section-sidewise-padded {
     padding-left: 20px;
     padding-right: 20px;
+}
+
+.section-sidewise-padded {
+    @extend %section-sidewise-padded;
 }
 
 .list-filters {
@@ -299,6 +303,7 @@ body {
         background: #fff;
         border: 1px solid #eee;
         border-radius: 7px;
+        margin-right: 2px;
 
         &.active {
             background: #eee;
@@ -329,7 +334,9 @@ body {
 
 .is-sticky {
     .filters-container {
+        @extend %section-sidewise-padded;
         padding-top: 10px;
+        left: 0;
     }
 }
 
@@ -383,6 +390,26 @@ body {
 
 .pos-rel {
     position: relative;
+}
+
+.css-tracking-email {
+    margin-bottom: 0;
+    margin-top: 12px;
+    .css-te-email {
+        font-style: italic;
+        text-decoration: underline;
+        margin-right: 5px;
+    }
+    .css-te-alerts {
+        padding: 5px 6px;
+        background: #2c3e50;
+        color: #fff;
+        text-decoration: none;
+
+        &:hover {
+            text-decoration: none;
+        }
+    }
 }
 
 /*---------------*/

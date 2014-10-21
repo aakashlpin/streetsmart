@@ -15,7 +15,9 @@
 	App.Counters.init();
 	App.LandingBackground.init();
 	App.SocialProof.init();
-	window.onload = App.ProductTracks.init;
+	App.User.init();
 
+	//begin loading the products on home page
+	window.onload = App.ProductTracks.init;
 
 })(jQuery, window);

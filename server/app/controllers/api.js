@@ -215,7 +215,46 @@ module.exports = {
             jobDoc.email = params.email;
 
             createJob(jobDoc, function(err, responseMessage) {
-                res.json({status: responseMessage});
+                res.json({
+                    status: responseMessage,
+                    id: params.id
+                });
+            });
+        });
+    },
+    getUserDetails: function (req, res) {
+        var userEmail = _.pick(req.params, ['email']);
+        if (!userEmail.email) {
+            return res.json({error: 'Invalid request'});
+        }
+
+        var email = decodeURIComponent(userEmail.email);
+        User.findOne({email: email}).lean().exec(function (err, userDoc) {
+            if (err || !userDoc) {
+                if (err) {
+                    logger.log('error', 'error finding user from ui', {error: err, email: email});
+                }
+                return res.json({error: 'User not found'});
+            }
+
+            var userJobsCount = 0;
+
+            async.each(_.keys(config.sellers), function (seller, asyncEachCb) {
+                sellerUtils
+                .getSellerJobModelInstance(seller)
+                .find({email: email})
+                .lean()
+                .exec(function (err, userJobs) {
+                    if (!err && userJobs) {
+                        userJobsCount += userJobs.length;
+                    }
+                    asyncEachCb();
+                });
+            }, function () {
+                res.json({
+                    id: userDoc._id,
+                    alerts: userJobsCount
+                });
             });
         });
     },

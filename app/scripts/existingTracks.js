@@ -160,8 +160,8 @@
 				.find(addTrackButtonClassSelector)
 				.toggleClass('js-add-track active')
 				.attr('title', 'Price Track Added')
-					// .find('.fa-plus')
-					// .addClass('fa-plus ');
+					.find('.fa-plus')
+					.toggleClass('fa-plus fa-check');
 		},
 		bindAllEvents: function () {
 			// Capture scroll for infinite scroll
