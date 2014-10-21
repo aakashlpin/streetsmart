@@ -34,7 +34,7 @@
 							'</table>'+
 							'<div class="product-actions clearfix">'+
 								'<a title="Buy now" target="_blank" href="'+data.productURL+'" class="css-goto-product js-goto-product"><i class="fa fa-3x fa-shopping-cart"></i></a>'+
-								'<a title="Add a price track" data-href="'+data.productURL+'" class="css-add-track js-add-track"><i class="fa fa-3x fa-plus"></i></a>'+
+								'<a title="Add a price track" data-seller="'+data.seller+'" class="css-add-track js-add-track"><i class="fa fa-3x fa-plus"></i></a>'+
 							'</div>'+
 						'</figcaption>'+
 					'</figure>'+
@@ -140,13 +140,19 @@
 
 			e.preventDefault();
 
-			var urlToTrack = target.data('href') || target.closest(classNameSelector).data('href');
-			if (!urlToTrack) {
+			var seller = target.data('seller') || target.closest(classNameSelector).data('seller');
+			if (!seller) {
 				return;
 			}
 
+			var email = localStorage.getItem('userEmail');
+			if (!email) {
+				email = prompt('Email?');
+			}
+
 			ProductTracks.initiateAddTrack({
-				url: urlToTrack,
+				email: email,
+				seller: seller,
 				id: target.closest('.product-track').attr('id')
 			});
 		},

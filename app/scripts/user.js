@@ -18,12 +18,12 @@
 		initOdometer: function (val) {
 			var odometer = new Odometer({
 				el: User.$userAlerts[0],
-				value: val,
 				duration: 500,
 				theme: 'plaza'
 			});
 
 			odometer.render();
+			odometer.update(val);
 		},
 		init: function () {
 			var storedEmail = getLocalStorageEmail();

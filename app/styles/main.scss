@@ -17,7 +17,11 @@ $ca-black: #010101;
 body {
     padding-bottom: 20px;
     position: relative;
-    background-color: $ca-black;
+    background-color: #fff;
+
+    &.bg-dark {
+        background-color: $ca-black;
+    }
 }
 
 .cursor-default {

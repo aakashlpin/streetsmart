@@ -13,10 +13,10 @@
 				Counters.$emailsCount.html(res.emailsSent);
 				var odometer = new Odometer({
 					el: Counters.$emailsCount[0],
-					value: res.emailsSent,
 					theme: 'car'
 				});
 				odometer.render();
+				odometer.update(res.emailsSent);
 			});
 		}
 	};

@@ -24,9 +24,7 @@
 			});
 		},
 		saveEmailLocally: function(email) {
-			if ('localStorage' in window) {
-				localStorage.setItem('userEmail', email);
-			}
+			localStorage.setItem('userEmail', email);
 		},
 		resetState: function(e) {
 			e.preventDefault();
@@ -118,11 +116,9 @@
 						responseContainer.appendChild(clone);
 
 						var inputEmailClonedDOM = $('#inputEmail');
-						if ('localStorage' in window) {
-							var userEmail = localStorage.getItem('userEmail');
-							if (userEmail) {
-								inputEmailClonedDOM.val(userEmail);
-							}
+						var userEmail = localStorage.getItem('userEmail');
+						if (userEmail) {
+							inputEmailClonedDOM.val(userEmail);
 						}
 
 						inputEmailClonedDOM.focus();

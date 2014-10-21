@@ -182,7 +182,7 @@ module.exports = {
     copyTrack: function (req, res) {
         var params = _.pick(req.query, ['id', 'seller', 'email']);
         //check for all params
-        if (!params.id || !params.seller || !params.email) {
+        if (!params.id || !params.seller || !params.email || params.id === 'undefined') {
             return res.json({error: 'Invalid Request'});
         }
         //check if seller param is valid
@@ -213,6 +213,7 @@ module.exports = {
 
             //update the email id for new user
             jobDoc.email = params.email;
+            jobDoc.seller = params.seller;
 
             createJob(jobDoc, function(err, responseMessage) {
                 res.json({
