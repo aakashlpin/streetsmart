@@ -23,9 +23,6 @@ function sendNotifications(emailUser, emailProduct) {
     UserModel.findOne({email: emailUser.email}).lean().exec(function(err, userDoc) {
         emailUser._id = userDoc._id;
 
-        //human readable seller name
-        emailProduct.seller = config.sellers[emailProduct.seller].name;
-
         //send notification email for price change
         Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
             if (err) {

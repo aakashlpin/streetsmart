@@ -104,6 +104,11 @@ module.exports = {
 
             } else {
                 var encodedEmail = encodeURIComponent(user.email);
+                if (product.seller) {
+                    //human readable seller name
+                    product.seller = config.sellers[product.seller].name;
+                }
+
                 var locals = {
                     user: user,
                     product: product,
@@ -132,6 +137,11 @@ module.exports = {
                 callback(err);
 
             } else {
+                if (product.seller) {
+                    //human readable seller name
+                    product.seller = config.sellers[product.seller].name;
+                }
+
                 var locals = {
                     user: user,
                     product: product,
@@ -171,6 +181,11 @@ module.exports = {
                 callback(err);
 
             } else {
+                if (product.seller) {
+                    //human readable seller name
+                    product.seller = config.sellers[product.seller].name;
+                }
+
                 var locals = {
                     user: user,
                     product: product
@@ -200,10 +215,6 @@ module.exports = {
                 callback(err);
 
             } else {
-                var locals = {
-                    user: user
-                };
-
                 var encodedEmail = encodeURIComponent(user.email);
                 var locals = {
                     user: user,

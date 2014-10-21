@@ -57,6 +57,78 @@ function getResponseMethodAndManipulateHeaders(queryParams, res) {
     return 'json';
 }
 
+function createJob (data, callback) {
+    // data =>
+    // {
+    //     email: String,
+    //     currentPrice: Number,
+    //     productName: String,
+    //     productURL: String,
+    //     productImage: String,
+    //     seller: String
+    // }
+
+    callback = callback || function() {};
+
+    User.findOne({email: data.email}, function(err, userQueryResult) {
+        if (err) {
+            logger.log('error', 'error finding email in user model', {error: err, email: data.email});
+            return;
+        }
+
+        var isEmailVerified = userQueryResult ? ( userQueryResult.email ? true : false) : false,
+            emailObject = { email: data.email },
+            responseMessage = '';
+
+        if (!isEmailVerified) {
+            logger.log('info', 'new user unverified', {email: data.email});
+            responseMessage = 'Almost Done! Just verify your email, then sit back and relax!';
+
+            Emails.sendVerifier(emailObject, data, function(err, status) {
+                if (err) {
+                    logger.log('error', 'error sending verification email', {error: err, email: emailObject.email});
+                    return;
+                }
+                logger.log('info', 'verification email triggered', {status: status, email: emailObject.email});
+            });
+
+        } else {
+            logger.log('info', 'returning user', {email: userQueryResult.email});
+            responseMessage = 'Sweet! We\'ll keep you posted as the price changes.';
+
+            Emails.sendHandshake(emailObject, data, function(err, status) {
+                if (err) {
+                    logger.log('error', 'error sending acceptance email', {error: err, email: emailObject.email});
+                    return;
+                }
+                logger.log('info', 'acceptance email triggered', {status: status, email: emailObject.email});
+            });
+
+        }
+
+        var jobData = {
+            email: emailObject.email,
+            currentPrice: data.currentPrice,
+            productName: data.productName,
+            productURL: data.productURL,
+            productImage: data.productImage,
+            seller: data.seller,
+            isEmailVerified: isEmailVerified    //this is needed for some checks while creating a new job
+        };
+
+        Job.post({query: jobData}, function(err, createdJob) {
+            if (err || !createdJob) {
+                logger.log('error', 'error adding job to db', {error: err});
+                return callback(null, responseMessage);
+            }
+
+            //increase the products counter in the db
+            sellerUtils.increaseCounter('itemsTracked');
+            callback(null, responseMessage);
+        });
+    });
+}
+
 module.exports = {
     processInputURL: function(req, res) {
         var url = req.query.url;
@@ -99,82 +171,53 @@ module.exports = {
 
         productData.seller = seller;
         productData.productURL = getURLWithAffiliateId(productData.productURL);
+        productData.email = user.inputEmail;
 
-        var userData = {
-            email: user.inputEmail
-        };
-
-        var userQuery = {
-            query: userData
-        };
-
-        User.get(userQuery, function(err, userQueryResult) {
-            if (err) {
-                logger.log(err);
-                return;
-            }
-
-            var isEmailVerified = userQueryResult ? ( userQueryResult.email ? true : false) : false;
-            var emailProductData = _.extend({}, productData, {
-                seller: _.str.capitalize(productData.seller)
-            });
-
-            if (!isEmailVerified) {
-                //1. send response back for the UI
-                logger.log('info', 'new user unverified', {email: userData.email});
-                res[resMethod]({
-                    status: 'Almost Done! Just verify your email, then sit back and relax!'
-                });
-
-                //2. send verification email
-                Emails.sendVerifier(userData, emailProductData, function(err, status) {
-                    if (err) {
-                        logger.log('error', 'error sending verification email', {error: err});
-                        return;
-                    }
-                    logger.log('info', 'verification email triggered', {status: status});
-                });
-
-            } else {
-                logger.log('info', 'returning user', {email: userQueryResult.email});
-                res[resMethod]({
-                    status: 'Sweet! We\'ll keep you posted as the price changes.'
-                });
-
-                //2. send acceptance email
-                Emails.sendHandshake(userData, emailProductData, function(err, status) {
-                    if (err) {
-                        logger.log('error', 'error sending acceptance email', {error: err});
-                        return;
-                    }
-                    logger.log('info', 'acceptance email triggered', {status: status});
-                });
-
-            }
-
-            //add job to the db
-            var newJobData = {
-                email: userData.email,
-                currentPrice: productData.currentPrice,
-                productName: productData.productName,
-                productURL: productData.productURL,
-                productImage: productData.productImage,
-                seller: productData.seller,
-                isEmailVerified: isEmailVerified    //this is needed for some checks while creating a new job
-            };
-
-            Job.post({query: newJobData}, function(err, createdJob) {
-                if (err) {
-                    logger.log('error', 'error adding job to db', {error: err});
-                    return;
-                }
-                if (createdJob) {
-                    //increase the products counter in the db
-                    sellerUtils.increaseCounter('itemsTracked');
-                }
+        createJob(productData, function(err, responseMessage) {
+            res[resMethod]({
+                status: responseMessage
             });
         });
+    },
+    copyTrack: function (req, res) {
+        var params = _.pick(req.query, ['id', 'seller', 'email']);
+        //check for all params
+        if (!params.id || !params.seller || !params.email) {
+            return res.json({error: 'Invalid Request'});
+        }
+        //check if seller param is valid
+        if (!sellerUtils.isLegitSeller(params.seller)) {
+            return res.json({error: 'Invalid Seller'});
+        }
+        //check if email exists
+        sellerUtils
+        .getSellerJobModelInstance(params.seller)
+        .findById(params.id)
+        .lean()
+        .exec(function(err, jobDoc) {
+            if (err || !jobDoc) {
+                logger.log('error', 'error finding job by id in db when trying to copy track', {
+                    error: err,
+                    id: params.id,
+                    seller: params.seller
+                });
+                return res.json({error: 'Job not found'});
+            }
 
+            if (jobDoc.email === params.email) {
+                return res.json({error: 'You are already tracking this item'});
+            }
+
+            //remove the object id. let mongo create a new id
+            delete jobDoc._id;
+
+            //update the email id for new user
+            jobDoc.email = params.email;
+
+            createJob(jobDoc, function(err, responseMessage) {
+                res.json({status: responseMessage});
+            });
+        });
     },
     verifyEmail: function(req, res) {
         var queryObject = req.query;

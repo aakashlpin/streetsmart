@@ -1,4 +1,5 @@
 'use strict';
+/*globals twttr*/
 
 (function($, window) {
 	window.odometerOptions = {
@@ -42,15 +43,26 @@
 	var SocialProof = {
 		$el: $('#social-proof'),
 		init: function () {
-			//there's a problem with async nature of twitter embedding
-			setTimeout(function() {
-				var handler = SocialProof.$el.find('>li');
-				handler.wookmark({
-					container: SocialProof.$el
-				});
-			}, 2000);
+			twttr.events.bind(
+				'loaded',
+				function () {
+					var handler = SocialProof.$el.find('>li');
+					handler.each(function() {
+						//hack for safari (width returned as 0)
+						$(this).css({
+							height: $(this).height() + 'px',
+							width: ($(this).width() || 500) + 'px'
+						});
+					});
+
+					handler.wookmark({
+						container: SocialProof.$el,
+						autoResize: true
+					});
+				}
+			);
 		}
-	}
+	};
 
 	window.App.Counters = Counters;
 	window.App.LandingBackground = LandingBackground;

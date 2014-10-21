@@ -27,6 +27,7 @@ module.exports = function(app) {
 	//UI AJAX calls
 	app.get('/inputurl', api.processInputURL);
 	app.get('/queue', api.processQueue);
+	app.get('/copy', api.copyTrack);
 
 	//Email verification
 	app.get('/verify', api.verifyEmail);

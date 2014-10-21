@@ -14,7 +14,8 @@
 
 	App.Counters.init();
 	App.LandingBackground.init();
-	// App.SocialProof.init();
+	App.SocialProof.init();
 	window.onload = App.ProductTracks.init;
+
 
 })(jQuery, window);

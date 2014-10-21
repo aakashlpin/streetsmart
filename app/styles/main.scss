@@ -15,37 +15,13 @@ $ca-black: #010101;
 
 /* Space out content a bit */
 body {
-    // padding-top: 20px;
     padding-bottom: 20px;
     position: relative;
     background-color: $ca-black;
 }
 
-/* Everything but the jumbotron gets side spacing for mobile first views */
-.header,
-.marketing,
-.footer {
-    padding-left: 15px;
-    padding-right: 15px;
-}
-
-/* Custom page header */
-.header {
-    // border-bottom: 1px solid #e5e5e5;
-
-    /* Make the masthead heading the same height as the navigation */
-    h3 {
-        margin-top: 0;
-        margin-bottom: 0;
-        line-height: 40px;
-        padding-bottom: 0px;
-    }
-
-    /* User CSS */
-    .text-sub-heading {
-        color: #777;
-        font-weight: bold;
-    }
+.cursor-default {
+    cursor: default!important;
 }
 
 /* Custom page footer */
@@ -59,24 +35,6 @@ body {
     margin: 30px 0;
 }
 
-/* Main marketing message and sign up button */
-.jumbotron {
-    text-align: center;
-    border-bottom: 1px solid #e5e5e5;
-    .btn {
-        font-size: 21px;
-        padding: 14px 24px;
-    }
-}
-
-/* Supporting marketing content */
-.marketing {
-    margin: 40px 0;
-    p + h4 {
-        margin-top: 28px;
-    }
-}
-
 .bookmarklet-container {
     display: none;
 }
@@ -88,34 +46,6 @@ body {
             max-width: 730px;
         }
     }
-}
-@media screen and (min-width: 768px) {
-    /* Remove the padding we set earlier */
-    .header,
-    .marketing,
-    .footer {
-        padding-left: 0;
-        padding-right: 0;
-    }
-
-    /* Space out the masthead */
-    .header {
-        margin-bottom: 60px;
-    }
-
-    /* Remove the bottom border on the jumbotron for visual effect */
-    .jumbotron {
-        border-bottom: 0;
-    }
-
-    .bookmarklet-container {
-        display: block;
-        position: absolute;
-        top: 40px;
-        right: 10px;
-        text-align: right;
-    }
-
 }
 
 .current-price {
@@ -313,6 +243,7 @@ body {
 
 .bg-gray {
     background: #eee;
+    color: #444;
 }
 
 .product-tracks {
@@ -375,6 +306,12 @@ body {
     }
 }
 
+.list-social-proof {
+    > li {
+        float: left;
+    }
+}
+
 .mb-30 {
     margin-bottom: 30px;
 }
@@ -432,17 +369,22 @@ body {
         width: 50%;
         text-align: center;
     }
-    a.js-add-track {
-        &:hover {
+    a.css-add-track {
+        &:hover, &.active {
             color: #3498db;
         }
     }
-    a.js-goto-product {
-        &:hover {
+    a.css-goto-product {
+        &:hover, &.active {
             color: #f39c12;
         }
     }
 }
+
+.pos-rel {
+    position: relative;
+}
+
 /*---------------*/
 /***** Zoe *****/
 /*---------------*/

@@ -1,5 +1,10 @@
 'use strict';
-(function($) {
+(function($, window) {
+
+	if (window.location.host.indexOf('localhost') === -1) {
+		return;
+	}
+
 	$.mockjax({
 		url: '/inputurl',
 		contentType: 'text/json',
@@ -51,4 +56,14 @@
 		proxy: '/scripts/page3results.json'
 	});
 
-})(jQuery);
+	$.mockjax({
+		url: '/copy',
+		contentType: 'text/json',
+		responseTime: 500,
+		responseText: {
+			status: 'ok',
+			id: '5433870387adc5161cce89d2'
+		}
+	});
+
+})(jQuery, window);
