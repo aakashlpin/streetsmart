@@ -146,8 +146,19 @@
 			}
 
 			var email = localStorage.getItem('userEmail');
+			var promptEmail;
 			if (!email) {
-				email = prompt('Email?');
+				promptEmail = prompt('Email?');
+			}
+
+			//if user chose to enter nothing
+			if (!email && !promptEmail) {
+				return;
+			}
+			if (!email && promptEmail) {
+				//TODO put a email validation
+				window.App.eventBus.emit('user:initiated', promptEmail);
+				email = promptEmail;
 			}
 
 			ProductTracks.initiateAddTrack({

@@ -253,6 +253,7 @@ module.exports = {
                 });
             }, function () {
                 res.json({
+                    email: email,
                     id: userDoc._id,
                     alerts: userJobsCount
                 });

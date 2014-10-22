@@ -24,6 +24,10 @@ body {
     }
 }
 
+a {
+    cursor: pointer;
+}
+
 .cursor-default {
     cursor: default!important;
 }
@@ -399,20 +403,28 @@ body {
 .css-tracking-email {
     margin-bottom: 0;
     margin-top: 12px;
-    .css-te-email {
-        font-style: italic;
-        text-decoration: underline;
-        margin-right: 5px;
-    }
-    .css-te-alerts {
-        padding: 5px 6px;
-        background: #2c3e50;
-        color: #fff;
+    a {
         text-decoration: none;
-
         &:hover {
             text-decoration: none;
         }
+    }
+
+    .css-te-email {
+        font-style: italic;
+        margin-right: 5px;
+    }
+    .css-user-verified {
+        border-bottom: 1px solid;
+    }
+    .css-user-unverified {
+        border-bottom: 1px dashed;
+    }
+    .css-te-alerts {
+        cursor: default;
+        padding: 5px 6px;
+        background: #2c3e50;
+        color: #fff;
     }
 }
 
