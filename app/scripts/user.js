@@ -14,22 +14,29 @@
 	}
 
 	function render (user, verified) {
+		var emailTitle;
+
 		if (verified) {
+			emailTitle = 'Goto your Dashboard';
 			User.$userEmail
 			.removeClass(unverifiedEmailClass)
-			.addClass(verifiedEmailClass)
-			.attr('title', 'Goto your Dashboard')
-			;
+			.addClass(verifiedEmailClass);
 
 		} else {
+			emailTitle = 'Click to resend verification email';
 			User.$userEmail
 			.removeClass(verifiedEmailClass)
 			.addClass(unverifiedEmailClass)
-			.attr('title', 'Click to resend verification email')
-			;
 		}
 
-		User.$userEmail.html(user.email);
+		User
+		.$userEmail
+		.html(user.email)
+		.attr({
+			'title': emailTitle,
+			'data-original-title': emailTitle
+		});
+
 		User.$userAlerts.html(user.alerts);
 		User.$el.show();
 
@@ -38,6 +45,10 @@
 		});
 
 		User.$userAlerts.tooltip({
+			placement: 'left'
+		});
+
+		User.$editUser.tooltip({
 			placement: 'left'
 		});
 
@@ -59,11 +70,22 @@
 		$el: $('.js-tracking-email-container'),
 		$userEmail: $('.js-tracking-email'),
 		$userAlerts: $('.js-tracking-alerts'),
+		$editUser: $('.js-change-user'),
 		currentAlertsCount: 0,
 		addEventListeners: function () {
 			var eventBus = window.App.eventBus;
 			eventBus.on('track:added', User.plusOneAlertsCount);
 			eventBus.on('user:initiated', User.storeAndProcessEmail);
+
+			User.$editUser.on('click', User.editUser);
+		},
+		editUser: function (e) {
+			e.preventDefault();
+			var promptEmail = prompt('Email?');
+			if (!promptEmail) {
+				return;
+			}
+			User.storeAndProcessEmail(promptEmail);
 		},
 		initOdometer: function (val) {
 			val = val || 0;
