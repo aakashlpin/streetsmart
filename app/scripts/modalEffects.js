@@ -20,39 +20,25 @@
 			var modal = document.querySelector( '#' + el.getAttribute( 'data-modal' ) ),
 				close = modal.querySelector( '.md-close' );
 
-			function removeModal( hasPerspective ) {
+			function removeModal() {
 				$(modal).removeClass( 'md-show' );
-
-				if( hasPerspective ) {
-					// classie.remove( document.documentElement, 'md-perspective' );
-				}
 			}
 
-			function removeModalHandler() {
-				// removeModal( classie.has( el, 'md-setperspective' ) );
-				removeModal(false);
-			}
-
-			el.addEventListener( 'click', function() {
+			function showModal () {
 				$(modal).addClass('md-show').find('#userEmail').focus();
-				// classie.add( modal, 'md-show' );
-				overlay.removeEventListener( 'click', removeModalHandler );
-				overlay.addEventListener( 'click', removeModalHandler );
+				overlay.removeEventListener( 'click', removeModal );
+				overlay.addEventListener( 'click', removeModal );
+			}
 
-				// if( classie.has( el, 'md-setperspective' ) ) {
-				// 	setTimeout( function() {
-				// 		classie.add( document.documentElement, 'md-perspective' );
-				// 	}, 25 );
-				// }
-			});
+			el.addEventListener( 'click', showModal );
 
 			close.addEventListener( 'click', function( ev ) {
 				ev.stopPropagation();
-				removeModalHandler();
+				removeModal();
 			});
 
-			window.App.eventBus.on('modal:close', removeModalHandler);
-
+			window.App.eventBus.on( 'modal:show',  showModal );
+			window.App.eventBus.on( 'modal:close', removeModal );
 		} );
 	}
 

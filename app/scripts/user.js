@@ -105,8 +105,9 @@
 		},
 		editUser: function (e) {
 			e.preventDefault();
+			var eventBus = window.App.eventBus;
 			var promptEmail = User.$emailInput.val();
-			window.App.eventBus.emit('modal:close');
+			eventBus.emit('modal:close', promptEmail);
 
 			User.storeAndProcessEmail(promptEmail);
 		},
@@ -132,7 +133,7 @@
 			}
 
 			getUserDetails(storedEmail, function (user) {
-				if (!user.id) {
+				if (!user.id || user.status === 'pending') {
 					//user not found.
 					user = { email: storedEmail };
 					//keep checking if email verified

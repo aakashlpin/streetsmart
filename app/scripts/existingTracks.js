@@ -6,6 +6,7 @@
 		dataPage: 1,
 		isXHRPending: false,
 		wookmarkHandler: null,
+		pendingTrackData: null,
 		tmpl: function (data) {
 			var priceTypeClasses = 'frown-o price-higher';
 			if (data.currentPrice <= data.ltp) {
@@ -126,6 +127,19 @@
 			window.App.eventBus.emit('track:add', trackPayload);
 
 		},
+		initiateAddTrackHandler: function (email) {
+			if (!email || !ProductTracks.pendingTrackData) {
+				return;
+			}
+
+			var trackData = _.extend({}, ProductTracks.pendingTrackData, {
+				email: email
+			});
+
+			ProductTracks.initiateAddTrack(trackData);
+			window.App.eventBus.emit('user:initiated', email);
+
+		},
 		addTrackHandler: function (e) {
 			var target = $(e.target);
 			var className = 'js-add-track';
@@ -146,26 +160,21 @@
 			}
 
 			var email = localStorage.getItem('userEmail');
-			var promptEmail;
-			if (!email) {
-				promptEmail = prompt('Email?');
-			}
+			if (email) {
+				ProductTracks.initiateAddTrack({
+					email: email,
+					seller: seller,
+					id: target.closest('.product-track').attr('id')
+				});
 
-			//if user chose to enter nothing
-			if (!email && !promptEmail) {
-				return;
-			}
-			if (!email && promptEmail) {
-				//TODO put a email validation
-				window.App.eventBus.emit('user:initiated', promptEmail);
-				email = promptEmail;
-			}
+			} else {
+				ProductTracks.pendingTrackData = {
+					seller: seller,
+					id: target.closest('.product-track').attr('id')
+				};
 
-			ProductTracks.initiateAddTrack({
-				email: email,
-				seller: seller,
-				id: target.closest('.product-track').attr('id')
-			});
+				window.App.eventBus.emit('modal:show');
+			}
 		},
 		trackAddedHandler: function (trackRes) {
 			var trackId = trackRes.id;
@@ -187,6 +196,8 @@
 			ProductTracks.$el.on('click', ProductTracks.addTrackHandler);
 			// Handle response from event bus when server responds
 			window.App.eventBus.on('track:added', ProductTracks.trackAddedHandler);
+			//
+			window.App.eventBus.on('modal:close', ProductTracks.initiateAddTrackHandler);
 		},
 		initFilters: function () {
 			// Capture filter click events.

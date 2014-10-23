@@ -235,29 +235,45 @@ module.exports = {
                 if (err) {
                     logger.log('error', 'error finding user from ui', {error: err, email: email});
                 }
-                return res.json({error: 'User not found'});
-            }
 
-            var userJobsCount = 0;
+                //if user not found in users collection
+                //check for pending jobs in the jobs collections
+                Job.find({email: email}).lean().exec(function (err, pendingJobs) {
+                    if (err) {
+                        logger.log('error', 'error finding user in jobs collection', {error: err, email: email});
+                        return res.json({error: 'User not found'});
 
-            async.each(_.keys(config.sellers), function (seller, asyncEachCb) {
-                sellerUtils
-                .getSellerJobModelInstance(seller)
-                .find({email: email})
-                .lean()
-                .exec(function (err, userJobs) {
-                    if (!err && userJobs) {
-                        userJobsCount += userJobs.length;
+                    } else {
+                        if (!pendingJobs.length) {
+                            return res.json({status: 'error', error: 'User not found'});
+                        } else {
+                            return res.json({status: 'pending', alerts: pendingJobs.length});
+                        }
                     }
-                    asyncEachCb();
                 });
-            }, function () {
-                res.json({
-                    email: email,
-                    id: userDoc._id,
-                    alerts: userJobsCount
+
+            } else {
+                var userJobsCount = 0;
+                async.each(_.keys(config.sellers), function (seller, asyncEachCb) {
+                    sellerUtils
+                    .getSellerJobModelInstance(seller)
+                    .find({email: email})
+                    .lean()
+                    .exec(function (err, userJobs) {
+                        if (!err && userJobs) {
+                            userJobsCount += userJobs.length;
+                        }
+                        asyncEachCb();
+                    });
+                }, function () {
+                    res.json({
+                        status: 'verified',
+                        email: email,
+                        id: userDoc._id,
+                        alerts: userJobsCount
+                    });
                 });
-            });
+            }
         });
     },
     verifyEmail: function(req, res) {
