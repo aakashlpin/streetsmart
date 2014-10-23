@@ -13,6 +13,7 @@
 				Counters.$emailsCount.html(res.emailsSent);
 				var odometer = new Odometer({
 					el: Counters.$emailsCount[0],
+					duration: 1500,
 					theme: 'car'
 				});
 				odometer.render();

@@ -91,7 +91,7 @@
 			val = val || 0;
 			var odometer = new Odometer({
 				el: User.$userAlerts[0],
-				duration: 500,
+				duration: 1500,
 				theme: 'plaza'
 			});
 
