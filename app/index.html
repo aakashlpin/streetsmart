@@ -129,7 +129,8 @@
                     </div>
                     <div class="pull-right">
                         <p class="css-tracking-email js-tracking-email-container" style="display:none;">
-                            <a data-toggle="tooltip" title="Edit email id" class="js-change-user"><i class="fa fa-pencil"></i></a>
+                            <a data-toggle="tooltip" title="Edit email id" class="md-trigger" data-modal="modal-1"><i class="fa fa-pencil"></i></a>
+                            <!-- <a  class="js-change-user"></a> -->
                             <a target="_blank" data-toggle="tooltip" title="Goto your Dashboard" class="css-te-email js-tracking-email"></a>
                             <a data-toggle="tooltip" title="Alerts you've set" class="css-te-alerts js-tracking-alerts"></a>
                         </p>
@@ -144,6 +145,25 @@
         </div>
 
     </div>
+
+    <div class="md-modal md-effect-1" id="modal-1">
+        <div class="md-content">
+            <h3>Get started!</h3>
+            <div>
+                <form role="form">
+                    <div class="form-group">
+                        <label for="email">Email address</label>
+                        <input type="email" class="form-control input-lg" name="email" id="email" placeholder="yourname@email.com" spellcheck=false required=required>
+                    </div>
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-success btn-lg js-accept-email">Save</button>
+                        <button type="button" class="btn btn-default btn-lg md-close">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div class="md-overlay"></div>
 
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
@@ -200,6 +220,7 @@
     <script src="scripts/urlForm.js"></script>
     <script src="scripts/remote.js"></script>
     <script src="scripts/existingTracks.js"></script>
+    <script src="scripts/modalEffects.js"></script>
     <script src="scripts/animations.js"></script>
     <script src="scripts/home.js"></script>
     <script src="scripts/user.js"></script>
