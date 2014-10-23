@@ -93,21 +93,21 @@
 		$el: $('.js-tracking-email-container'),
 		$userEmail: $('.js-tracking-email'),
 		$userAlerts: $('.js-tracking-alerts'),
-		$editUser: $('.js-change-user'),
+		$editUser: $('.js-accept-email-form'),
+		$emailInput: $('#email'),
 		currentAlertsCount: 0,
 		addEventListeners: function () {
 			var eventBus = window.App.eventBus;
 			eventBus.on('track:added', User.plusOneAlertsCount);
 			eventBus.on('user:initiated', User.storeAndProcessEmail);
 
-			User.$editUser.on('click', User.editUser);
+			User.$editUser.on('submit', User.editUser);
 		},
 		editUser: function (e) {
 			e.preventDefault();
-			var promptEmail = prompt('Email?');
-			if (!promptEmail) {
-				return;
-			}
+			var promptEmail = User.$emailInput.val();
+			window.App.eventBus.emit('modal:close');
+
 			User.storeAndProcessEmail(promptEmail);
 		},
 		initOdometer: function (val) {

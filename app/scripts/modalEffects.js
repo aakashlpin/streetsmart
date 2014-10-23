@@ -51,10 +51,11 @@
 				removeModalHandler();
 			});
 
-		} );
+			window.App.eventBus.on('modal:close', removeModalHandler);
 
+		} );
 	}
 
 	init();
 
-})(jQuery);
+})(jQuery, window);
