@@ -4,6 +4,7 @@
 (function ($, window) {
 	var unverifiedEmailClass = 'css-user-unverified';
 	var verifiedEmailClass = 'css-user-verified';
+	var timeoutCounter = 0;
 
 	function getLocalStorageEmail () {
 		return localStorage.getItem('userEmail');	//will be null if not found
@@ -18,15 +19,23 @@
 
 		if (verified) {
 			emailTitle = 'Goto your Dashboard';
-			User.$userEmail
+
+			User
+			.$userEmail
 			.removeClass(unverifiedEmailClass)
-			.addClass(verifiedEmailClass);
+			.addClass(verifiedEmailClass)
+			.attr('href', '//cheapass.in/dashboard/' + user.id)
+			;
 
 		} else {
 			emailTitle = 'Click to resend verification email';
-			User.$userEmail
+
+			User
+			.$userEmail
 			.removeClass(verifiedEmailClass)
 			.addClass(unverifiedEmailClass)
+			.removeAttr('href')
+			;
 		}
 
 		User
@@ -64,6 +73,20 @@
 
 	function showVerifiedEmailUI (user) {
 		render(user, true);
+	}
+
+	function pollIfVerifiedImpl (user) {
+		getUserDetails(user.email, function (userDoc) {
+			if (userDoc.id) {
+				//user verified.
+				clearInterval(timeoutCounter);
+				showVerifiedEmailUI(userDoc);
+			}
+		});
+	}
+
+	function pollIfVerified (user) {
+		timeoutCounter = setInterval(pollIfVerifiedImpl.bind(this, user), 5000);
 	}
 
 	var User = {
@@ -111,7 +134,12 @@
 			getUserDetails(storedEmail, function (user) {
 				if (!user.id) {
 					//user not found.
-					return showUnverifiedEmailUI({ email: storedEmail });
+					user = { email: storedEmail };
+					//keep checking if email verified
+					pollIfVerified(user);
+					//render unverified ui
+					showUnverifiedEmailUI(user);
+					return;
 				}
 
 				showVerifiedEmailUI(user);
