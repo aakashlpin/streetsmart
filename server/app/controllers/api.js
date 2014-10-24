@@ -513,6 +513,38 @@ module.exports = {
             pages: bgTask.getTotalPages()
         });
     },
+    resendVerificationEmail: function (req, res) {
+        var email = req.params.email;
+        if (!email) {
+            return res.json({error: 'Expected Email'});
+        }
+
+        email = decodeURIComponent(email);
+        User.findOne({email: email}).lean().exec(function(err, user) {
+            if (err || !user) {
+                //search for user in Jobs collections
+                Job.findOne({email: email}).lean().exec(function (err, user) {
+                    if (user) {
+                        //send verification email
+                        Emails.resendVerifierEmail(user, function (err, status) {
+                            if (err) {
+                                logger.log('error', 'error resending verification email', {error: err, email: user.email});
+                                return;
+                            }
+                            logger.log('info', 'verification email resent', {status: status, email: user.email});
+                        });
+
+                        res.json({status: 'Done! Check your inbox now?'});
+
+                    } else {
+                        return res.json({error: 'Invalid Request'});
+                    }
+                });
+            } else {
+                return res.json({error: 'Invalid Request'});
+            }
+        });
+    },
     ping: function(req, res) {
         //to test if server is up
         res.json({status: 'ok'});

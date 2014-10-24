@@ -29,6 +29,7 @@ module.exports = function(app) {
 	app.get('/queue', api.processQueue);
 	app.get('/copy', api.copyTrack);
 	app.get('/user/:email', api.getUserDetails);
+	app.get('/user/verify/:email', api.resendVerificationEmail);
 
 	//Email verification
 	app.get('/verify', api.verifyEmail);

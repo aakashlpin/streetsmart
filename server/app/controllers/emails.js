@@ -209,6 +209,32 @@ module.exports = {
             }
         });
     },
+    resendVerifierEmail: function (user, callback) {
+        emailTemplates(templatesDir, function(err, template) {
+            if (err) {
+                callback(err);
+
+            } else {
+                var encodedEmail = encodeURIComponent(user.email);
+                var locals = {
+                    user: user,
+                    verificationLink: config.server + '/verify?' + 'email=' + encodedEmail
+                };
+
+                template('reverifier', locals, function(err, html) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        sendEmail(emailService, {
+                            'subject': 'Cheapass | Verify your email id',
+                            'html': html,
+                            'to': locals.user.email
+                        }, callback);
+                    }
+                });
+            }
+        });
+    },
     sendReminderEmail: function (user, callback) {
         emailTemplates(templatesDir, function(err, template) {
             if (err) {

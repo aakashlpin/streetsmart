@@ -1,5 +1,5 @@
 'use strict';
-/*globals Odometer, noty*/
+/*globals Odometer, noty, _*/
 
 (function ($, window) {
 	var unverifiedEmailClass = 'css-user-unverified';
@@ -126,12 +126,42 @@
 		$editUserTrigger: $('.js-edit-user-trigger'),
 		$emailInput: $('#email'),
 		currentAlertsCount: 0,
+		notyDefaults: {
+			layout: 'topCenter',
+			type: 'information',
+			dismissQueue: true,
+			force: true,
+			timeout: 5000,
+			maxVisible: 2
+		},
 		addEventListeners: function () {
 			var eventBus = window.App.eventBus;
 			eventBus.on('track:added', User.plusOneAlertsCountHandler);
 			eventBus.on('user:initiated', User.storeAndProcessEmail);
 
 			User.$editUser.on('submit', User.editUser);
+			User.$userEmail.on('click', User.resendVerificationEmail);
+		},
+		resendVerificationEmail: function (e) {
+			if (!$(this).hasClass(unverifiedEmailClass)) {
+				return;
+			}
+			e.preventDefault();
+			$.getJSON('/user/verify/' + encodeURIComponent(getLocalStorageEmail()), function (res) {
+				var notificationText, notificationType;
+				if (res.error) {
+					notificationText = res.error;
+					notificationType = 'warning';
+				} else {
+					notificationText = res.status;
+					notificationType = 'information';
+				}
+
+				noty(_.extend({}, User.notyDefaults, {
+					type: notificationType,
+					text: notificationText
+				}));
+			});
 		},
 		editUser: function (e) {
 			e.preventDefault();
@@ -179,15 +209,9 @@
 			if (!res.error) {
 				User.plusOneAlertsCount();
 			} else {
-				noty({
-					layout: 'topCenter',
-					type: 'information',
-					dismissQueue: true,
-					force: true,
-					text: res.error,
-					timeout: 5000,
-					maxVisible: 2
-				});
+				noty(_.extend({}, User.notyDefaults, {
+					text: res.error
+				}));
 			}
 		},
 		plusOneAlertsCount: function () {
