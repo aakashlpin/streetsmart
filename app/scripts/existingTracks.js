@@ -35,12 +35,22 @@
 							'</table>'+
 							'<div class="product-actions clearfix">'+
 								'<a title="Buy now" target="_blank" href="'+data.productURL+'" class="css-goto-product js-goto-product"><i class="fa fa-3x fa-shopping-cart"></i></a>'+
-								'<a title="Add a price track" data-seller="'+data.seller+'" class="css-add-track js-add-track"><i class="fa fa-3x fa-plus"></i></a>'+
+								'<a title="Add a price track" data-producturl="'+data.productURL+'" data-seller="'+data.seller+'" class="css-add-track js-add-track"><i class="fa fa-3x fa-plus"></i></a>'+
 							'</div>'+
 						'</figcaption>'+
 					'</figure>'+
 				'</li>'
 				);
+		},
+		bindAllEvents: function () {
+			// Capture scroll for infinite scroll
+			$(window).bind('scroll.wookmark', ProductTracks.loadOnScroll);
+			// Capture click on copy track to user dashboard button
+			ProductTracks.$el.on('click', ProductTracks.addTrackHandler);
+			// Handle response from event bus when server responds
+			window.App.eventBus.on('track:added', ProductTracks.trackAddedHandler);
+			//
+			window.App.eventBus.on('modal:close', ProductTracks.initiateAddTrackHandler);
 		},
 		handleFilterClick: function (event, filters) {
 			var item = $(event.currentTarget),
@@ -155,6 +165,7 @@
 			e.preventDefault();
 
 			var seller = target.data('seller') || target.closest(classNameSelector).data('seller');
+			var productURL = target.data('producturl') || target.closest(classNameSelector).data('producturl');
 			if (!seller) {
 				return;
 			}
@@ -164,12 +175,14 @@
 				ProductTracks.initiateAddTrack({
 					email: email,
 					seller: seller,
+					productURL: productURL,
 					id: target.closest('.product-track').attr('id')
 				});
 
 			} else {
 				ProductTracks.pendingTrackData = {
 					seller: seller,
+					productURL: productURL,
 					id: target.closest('.product-track').attr('id')
 				};
 
@@ -188,16 +201,6 @@
 				.attr('title', 'Price Track Added')
 					.find('.fa-plus')
 					.toggleClass('fa-plus fa-check');
-		},
-		bindAllEvents: function () {
-			// Capture scroll for infinite scroll
-			$(window).bind('scroll.wookmark', ProductTracks.loadOnScroll);
-			// Capture click on copy track to user dashboard button
-			ProductTracks.$el.on('click', ProductTracks.addTrackHandler);
-			// Handle response from event bus when server responds
-			window.App.eventBus.on('track:added', ProductTracks.trackAddedHandler);
-			//
-			window.App.eventBus.on('modal:close', ProductTracks.initiateAddTrackHandler);
 		},
 		initFilters: function () {
 			// Capture filter click events.

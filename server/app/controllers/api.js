@@ -180,36 +180,48 @@ module.exports = {
         });
     },
     copyTrack: function (req, res) {
-        var params = _.pick(req.query, ['id', 'seller', 'email']);
+        var params = _.pick(req.query, ['id', 'seller', 'email', 'productURL']);
         //check for all params
-        if (!params.id || !params.seller || !params.email || params.id === 'undefined') {
+        if (!params.id || !params.productURL || !params.seller || !params.email || params.id === 'undefined') {
             return res.json({error: 'Invalid Request'});
         }
         //check if seller param is valid
         if (!sellerUtils.isLegitSeller(params.seller)) {
             return res.json({error: 'Invalid Seller'});
         }
-        //check if email exists
+
         sellerUtils
         .getSellerJobModelInstance(params.seller)
-        .findById(params.id)
+        .find({productURL: params.productURL})
         .lean()
-        .exec(function(err, jobDoc) {
-            if (err || !jobDoc) {
-                logger.log('error', 'error finding job by id in db when trying to copy track', {
-                    error: err,
-                    id: params.id,
-                    seller: params.seller
-                });
-                return res.json({error: 'Job not found'});
+        .exec(function(err, productURLDocs) {
+            if (err || !productURLDocs) {
+                logger.log('error', 'error finding job in db when trying to copy track', _.extend({}, params, {
+                    error: err
+                }));
+                //if someone adds a track at the same time as OP unsubscribes it
+                //then this case would happen
+                return res.json({error: 'Something went wrong! Visit the product page to set the price drop alert!'});
             }
 
-            if (jobDoc.email === params.email) {
-                return res.json({error: 'You are already tracking this item'});
+            if (_.find(productURLDocs, function (productURLDoc) {
+                return productURLDoc.email === params.email;
+            })) {
+                return res.json({
+                    id: params.id,
+                    error: 'You are already tracking this item'
+                });
             }
+
+            //find the job requested from ui in the array
+            var jobDoc = _.find(productURLDocs, function (productURLDoc) {
+                console.log(typeof productURLDoc._id.toHexString(), typeof params.id);
+                return productURLDoc._id.toHexString() === params.id;
+            });
 
             //remove the object id. let mongo create a new id
             delete jobDoc._id;
+            // delete jobDoc.id;
 
             //update the email id for new user
             jobDoc.email = params.email;

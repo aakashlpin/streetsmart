@@ -98,7 +98,7 @@
 		currentAlertsCount: 0,
 		addEventListeners: function () {
 			var eventBus = window.App.eventBus;
-			eventBus.on('track:added', User.plusOneAlertsCount);
+			eventBus.on('track:added', User.plusOneAlertsCountHandler);
 			eventBus.on('user:initiated', User.storeAndProcessEmail);
 
 			User.$editUser.on('submit', User.editUser);
@@ -151,6 +151,19 @@
 			User.addEventListeners();
 			//process local email
 			User.processLocalStorageEmail();
+		},
+		plusOneAlertsCountHandler: function (res) {
+			if (!res.error) {
+				User.plusOneAlertsCount();
+			} else {
+				noty({
+					layout: 'topCenter',
+					type: 'information',
+					text: res.error,
+					timeout: 10000,
+					killer: true
+				});
+			}
 		},
 		plusOneAlertsCount: function () {
 			User.currentAlertsCount += 1;
