@@ -13,6 +13,7 @@ var ProductPriceHistorySchema = new Schema({
 
 var SellerJobSchema = new Schema({
     email: String,
+    source: String,
     productURL: String,
     productName: String,
     productImage: String,
@@ -68,7 +69,7 @@ SellerJobSchema.statics.get = function(callback) {
 
 SellerJobSchema.statics.addJob = function(jobData, callback) {
     var data = _.pick(jobData, ['email', 'currentPrice', 'productURL',
-    'productImage', 'productName', 'productPriceHistory']);
+    'productImage', 'productName', 'productPriceHistory', 'source']);
 
     (new this(data)).save(callback);
 };

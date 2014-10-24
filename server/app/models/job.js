@@ -13,7 +13,8 @@ var JobSchema = new Schema({
     productImage: String,
     currentPrice: Number,
     isActive: Boolean,
-    isReminded: Boolean
+    isReminded: Boolean,
+    source: String
 });
 
 JobSchema.statics.activateAllJobsForEmail = function(req, callback) {
@@ -41,7 +42,7 @@ JobSchema.statics.post = function(req, callback) {
 
     data = _.pick(req.query,
         ['email', 'currentPrice', 'productURL', 'seller', 'isEmailVerified',
-        'productImage', 'productName']
+        'productImage', 'productName', 'source']
     );
 
     var SellerJobModel = SellerUtils.getSellerJobModelInstance(data.seller);
@@ -75,7 +76,8 @@ JobSchema.statics.post = function(req, callback) {
                             date: new Date(),
                             price: data.currentPrice
                         }],
-                        isActive: data.isEmailVerified
+                        isActive: data.isEmailVerified,
+                        source: data.source
                     };
 
                     Job = new this(jobData);

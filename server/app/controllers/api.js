@@ -65,7 +65,8 @@ function createJob (data, callback) {
     //     productName: String,
     //     productURL: String,
     //     productImage: String,
-    //     seller: String
+    //     seller: String,
+    //     source: String
     // }
 
     callback = callback || function() {};
@@ -113,6 +114,7 @@ function createJob (data, callback) {
             productURL: data.productURL,
             productImage: data.productImage,
             seller: data.seller,
+            source: data.source,
             isEmailVerified: isEmailVerified    //this is needed for some checks while creating a new job
         };
 
@@ -172,6 +174,11 @@ module.exports = {
         productData.seller = seller;
         productData.productURL = getURLWithAffiliateId(productData.productURL);
         productData.email = user.inputEmail;
+        if (isJSONPRequested(req.query)) {
+            productData.source = 'bookmarklet';
+        } else {
+            productData.source = 'onsite';
+        }
 
         createJob(productData, function(err, responseMessage) {
             res[resMethod]({
@@ -215,7 +222,6 @@ module.exports = {
 
             //find the job requested from ui in the array
             var jobDoc = _.find(productURLDocs, function (productURLDoc) {
-                console.log(typeof productURLDoc._id.toHexString(), typeof params.id);
                 return productURLDoc._id.toHexString() === params.id;
             });
 
@@ -226,6 +232,7 @@ module.exports = {
             //update the email id for new user
             jobDoc.email = params.email;
             jobDoc.seller = params.seller;
+            jobDoc.source = 'copy';
 
             createJob(jobDoc, function(err, responseMessage) {
                 res.json({
