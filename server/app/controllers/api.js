@@ -225,9 +225,12 @@ module.exports = {
                 return productURLDoc._id.toHexString() === params.id;
             });
 
+            if (!jobDoc) {
+                return res.json({error: 'Something went wrong! Visit the product page to set the price drop alert!'});
+            }
+
             //remove the object id. let mongo create a new id
             delete jobDoc._id;
-            // delete jobDoc.id;
 
             //update the email id for new user
             jobDoc.email = params.email;

@@ -38,7 +38,6 @@ function getDeepLinkURL(seller, url) {
     if (seller === 'amazon') {
         // extract ASIN from the url
         // http://stackoverflow.com/questions/1764605/scrape-asin-from-amazon-url-using-javascript
-        // need to &cor=US to prevent 3g delivery price from showing up on Kindle books
         var asin = url.match('/([a-zA-Z0-9]{10})(?:[/?]|$)');
         if (asin && asin[1]) {
             return ('http://www.amazon.in/dp/'+ asin[1]);
@@ -50,10 +49,12 @@ function getDeepLinkURL(seller, url) {
         // signature: url.parse(urlStr, [parseQueryString], [slashesDenoteHost])
         var parsedURL = urlLib.parse(url, true);
         var pidQueryString = (parsedURL.query.pid && (parsedURL.query.pid !== undefined)) ? ('?pid=' + parsedURL.query.pid + '&') : '?';
+        var affiliateHost = parsedURL.host;
         if (parsedURL.pathname.indexOf('/dl') !== 0) {
             parsedURL.pathname = '/dl' + parsedURL.pathname;
         }
-        var normalizedURL = parsedURL.protocol + '//' + parsedURL.host + parsedURL.pathname + pidQueryString + config.sellers.flipkart.key + '=' + config.sellers.flipkart.value;
+        affiliateHost = affiliateHost.replace('www.flipkart.com', 'dl.flipkart.com');
+        var normalizedURL = parsedURL.protocol + '//' + affiliateHost + parsedURL.pathname + pidQueryString + config.sellers.flipkart.key + '=' + config.sellers.flipkart.value;
         return normalizedURL;
     }
 
