@@ -159,9 +159,11 @@
 				noty({
 					layout: 'topCenter',
 					type: 'information',
+					dismissQueue: true,
+					force: true,
 					text: res.error,
-					timeout: 10000,
-					killer: true
+					timeout: 5000,
+					maxVisible: 2
 				});
 			}
 		},
