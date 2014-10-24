@@ -45,27 +45,17 @@
 			User.$userEmail.removeAttr('href');
 		}
 
-		User
-		.$userEmail
+		User.$userEmail
 		.html(user.email)
-		.attr({
-			'data-original-title': emailTitle
-		});
+		.attr({'data-original-title': emailTitle});
 
 		User.$userAlerts.html(user.alerts);
 		User.$el.show();
 
-		User.$userEmail.tooltip({
-			placement: 'left'
-		});
-
-		User.$userAlerts.tooltip({
-			placement: 'left'
-		});
-
-		User.$editUserTrigger.tooltip({
-			placement: 'left'
-		});
+		//initialize tooltip elems
+		User.$userEmail.tooltip({placement: 'left'});
+		User.$userAlerts.tooltip({placement: 'left'});
+		User.$editUserTrigger.tooltip({placement: 'left'});
 
 		//init the count
 		User.currentAlertsCount = user.alerts;
