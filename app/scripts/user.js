@@ -1,9 +1,10 @@
 'use strict';
-/*globals Odometer*/
+/*globals Odometer, noty*/
 
 (function ($, window) {
 	var unverifiedEmailClass = 'css-user-unverified';
 	var verifiedEmailClass = 'css-user-verified';
+	var notfoundEmailClass = 'css-user-notfound';
 	var timeoutCounter = 0;
 
 	function getLocalStorageEmail () {
@@ -14,35 +15,40 @@
 		$.getJSON('/user/' + encodeURIComponent(email), callback);
 	}
 
-	function render (user, verified) {
+	function render (user, userStatus) {
 		var emailTitle;
 
-		if (verified) {
-			emailTitle = 'Goto your Dashboard';
+		if (userStatus === -1) {
+			//user not found
+			emailTitle = 'Track a product to receive a one-time verification email';
+			User.$userEmail
+			.removeClass(unverifiedEmailClass).removeClass(verifiedEmailClass)
+			.addClass(notfoundEmailClass);
 
-			User
-			.$userEmail
-			.removeClass(unverifiedEmailClass)
-			.addClass(verifiedEmailClass)
-			.attr('href', '//cheapass.in/dashboard/' + user.id)
-			;
+		} else if (userStatus === 0) {
+			//unverified user
+			emailTitle = 'Click to resend verification email';
+			User.$userEmail
+			.removeClass(notfoundEmailClass).removeClass(verifiedEmailClass)
+			.addClass(unverifiedEmailClass);
 
 		} else {
-			emailTitle = 'Click to resend verification email';
+			//verified user
+			emailTitle = 'Goto your Dashboard';
+			User.$userEmail
+			.removeClass(unverifiedEmailClass).removeClass(notfoundEmailClass)
+			.addClass(verifiedEmailClass)
+			.attr('href', '//cheapass.in/dashboard/' + user.id);
+		}
 
-			User
-			.$userEmail
-			.removeClass(verifiedEmailClass)
-			.addClass(unverifiedEmailClass)
-			.removeAttr('href')
-			;
+		if (userStatus === -1 || userStatus === 0) {
+			User.$userEmail.removeAttr('href');
 		}
 
 		User
 		.$userEmail
 		.html(user.email)
 		.attr({
-			'title': emailTitle,
 			'data-original-title': emailTitle
 		});
 
@@ -57,7 +63,7 @@
 			placement: 'left'
 		});
 
-		User.$editUser.tooltip({
+		User.$editUserTrigger.tooltip({
 			placement: 'left'
 		});
 
@@ -66,27 +72,60 @@
 		User.initOdometer(user.alerts);
 	}
 
-	function showUnverifiedEmailUI (user) {
+	function resetInterval () {
+		clearInterval(timeoutCounter);
+		timeoutCounter = null;
+	}
+
+	function showUserNotFoundUI (user) {
 		user.alerts = 0;
-		render(user, false);
+		render(user, -1);
+	}
+
+	function showUnverifiedEmailUI (user) {
+		render(user, 0);
 	}
 
 	function showVerifiedEmailUI (user) {
-		render(user, true);
+		render(user, 1);
+	}
+
+	function getAndProcessUser (email, shouldClearInterval) {
+		getUserDetails(email, function (user) {
+			user.email = email;
+			if (user.status === 'error') {
+				//user not found.
+				//render unverified ui
+				showUserNotFoundUI(user);
+				//keep checking if email verified
+				pollIfVerified(user);
+
+			} else if (user.status === 'pending') {
+				//user has added tracks but not verified email
+				showUnverifiedEmailUI(user);
+				//keep checking if email verified
+				pollIfVerified(user);
+
+			} else {
+				//verified user
+				if (shouldClearInterval) {
+					resetInterval();
+				}
+				showVerifiedEmailUI(user);
+			}
+		});
+
 	}
 
 	function pollIfVerifiedImpl (user) {
-		getUserDetails(user.email, function (userDoc) {
-			if (userDoc.id) {
-				//user verified.
-				clearInterval(timeoutCounter);
-				showVerifiedEmailUI(userDoc);
-			}
-		});
+		getAndProcessUser(user.email, true);
 	}
 
 	function pollIfVerified (user) {
-		timeoutCounter = setInterval(pollIfVerifiedImpl.bind(this, user), 5000);
+		if (timeoutCounter) {
+			return;
+		}
+		timeoutCounter = setInterval(pollIfVerifiedImpl.bind(User, user), 5000);
 	}
 
 	var User = {
@@ -94,6 +133,7 @@
 		$userEmail: $('.js-tracking-email'),
 		$userAlerts: $('.js-tracking-alerts'),
 		$editUser: $('.js-accept-email-form'),
+		$editUserTrigger: $('.js-edit-user-trigger'),
 		$emailInput: $('#email'),
 		currentAlertsCount: 0,
 		addEventListeners: function () {
@@ -108,6 +148,11 @@
 			var eventBus = window.App.eventBus;
 			var promptEmail = User.$emailInput.val();
 			eventBus.emit('modal:close', promptEmail);
+
+			if (timeoutCounter) {
+				//just in case polling is happening in the background, stop it
+				resetInterval();
+			}
 
 			User.storeAndProcessEmail(promptEmail);
 		},
@@ -132,19 +177,7 @@
 				return;
 			}
 
-			getUserDetails(storedEmail, function (user) {
-				if (!user.id || user.status === 'pending') {
-					//user not found.
-					user = { email: storedEmail };
-					//keep checking if email verified
-					pollIfVerified(user);
-					//render unverified ui
-					showUnverifiedEmailUI(user);
-					return;
-				}
-
-				showVerifiedEmailUI(user);
-			});
+			getAndProcessUser(storedEmail, false);
 		},
 		init: function () {
 			//bind all events

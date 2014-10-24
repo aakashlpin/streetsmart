@@ -253,7 +253,7 @@ module.exports = {
                 Job.find({email: email}).lean().exec(function (err, pendingJobs) {
                     if (err) {
                         logger.log('error', 'error finding user in jobs collection', {error: err, email: email});
-                        return res.json({error: 'User not found'});
+                        return res.json({status: 'error', error: 'User not found'});
 
                     } else {
                         if (!pendingJobs.length) {
