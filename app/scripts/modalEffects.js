@@ -24,10 +24,23 @@
 				$(modal).removeClass( 'md-show' );
 			}
 
-			function showModal () {
-				$(modal).addClass('md-show').find('#userEmail').focus();
+			function showModal ( modalId ) {
+				//for the click event, it won't be a string
+				if (_.isString(modalId)) {
+					if (modalId) {
+						modalId = '#' + modalId;
+					} else {
+						modalId = modal;
+					}
+				} else {
+					modalId = '#' + $(modal).attr('id');
+				}
+				$(modalId).addClass('md-show').find('.js-modal-input').focus();
 				overlay.removeEventListener( 'click', removeModal );
 				overlay.addEventListener( 'click', removeModal );
+
+				//emit event in case someone wants to listen
+				window.App.eventBus.emit('modal:shown', modalId);
 			}
 
 			el.addEventListener( 'click', showModal );

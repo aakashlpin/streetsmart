@@ -80,7 +80,7 @@
 		render(user, 1);
 	}
 
-	function getAndProcessUser (email, shouldClearInterval) {
+	function getAndProcessUser (email, shouldClearInterval, callback) {
 		getUserDetails(email, function (user) {
 			user.email = email;
 			if (user.status === 'error') {
@@ -103,8 +103,10 @@
 				}
 				showVerifiedEmailUI(user);
 			}
-		});
 
+			callback = callback || function() {};
+			callback(user);
+		});
 	}
 
 	function pollIfVerifiedImpl (user) {
@@ -196,7 +198,6 @@
 			if (!storedEmail) {
 				return;
 			}
-
 			getAndProcessUser(storedEmail, false);
 		},
 		init: function () {
@@ -217,6 +218,13 @@
 		plusOneAlertsCount: function () {
 			User.currentAlertsCount += 1;
 			User.$userAlerts.html(User.currentAlertsCount);
+		},
+		getUser: function (callback) {
+			var storedEmail = getLocalStorageEmail();
+			if (!storedEmail) {
+				return callback(null);
+			}
+			getAndProcessUser(storedEmail, false, callback);
 		}
 	};
 

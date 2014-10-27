@@ -39,13 +39,14 @@ function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, b
     if (scrapedData.price && (parseInt(scrapedData.price) >= 0)) {
         callback(null, {
             productPrice: parseInt(scrapedData.price),
-            productTitle: scrapedData.name,
-            productImage: scrapedData.image
+            productName: scrapedData.name,
+            productImage: scrapedData.image,
+            seller: config.sellers[seller].name
         });
     } else {
         // fs.writeFileSync('dom.html', body);
         logger.log('error', 'page scraping failed', {requestOptions: requestOptions, scrapedData: scrapedData});
-        callback('Could not determine price information from page');
+        callback('Sorry! We were unable to process this page!');
     }
 }
 
@@ -67,7 +68,7 @@ function handleURLFailure (requestOptions, seller, error, response, body, callba
         return;
     }
 
-    callback('error in scraping');
+    callback('Sorry! We were unable to process this page! Please try again.');
 }
 
 function processURL(url, callback, isBackgroundTask) {
@@ -77,7 +78,7 @@ function processURL(url, callback, isBackgroundTask) {
     var seller = sellerUtils.getSellerFromURL(url);
 
     if (!isBackgroundTask && !config.sellers[seller]) {
-        callback('seller not supported');
+        callback('Sorry! This website is not supported at the moment.');
         return;
     }
 

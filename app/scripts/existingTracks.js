@@ -186,7 +186,7 @@
 					id: target.closest('.product-track').attr('id')
 				};
 
-				window.App.eventBus.emit('modal:show');
+				window.App.eventBus.emit('modal:show', 'modalEmail');
 			}
 		},
 		trackAddedHandler: function (trackRes) {

@@ -4,14 +4,11 @@
 (function($, window) {
 	App = window.App;
 
-	App.urlForm.$el.on('submit', App.urlForm.handleURLInputPaste);
-	App.urlForm.$inputEl.on('paste', App.urlForm.handleURLInputPaste);
-	App.urlForm.$inputEl.on('click', App.urlForm.handleURLInputClick);
-
 	setInterval(function() {
 		App.Counters.init();
 	}, 10000);
 
+	App.UrlForm.init();
 	App.Counters.init();
 	App.LandingBackground.init();
 	App.SocialProof.init();

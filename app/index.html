@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Track changes in product price. Get notifications by email.</title>
+    <title>Instant Price Drop Alerts. Buy everything you need, Cheaper!</title>
     <meta name="description" content="Track price changes to Flipkart, Amazon, PepperFry, Snapdeal, Infibeam, FabFurnish, Jabong, Bajaao, Myntra products and get notified by email when the price changes.">
     <meta name="viewport" content="width=device-width">
     <meta name="google-site-verification" content="Wu9IL2WJLd4pQoZSQdDKhvMqVJZkje_p1FYRIFU94J0" />
@@ -66,7 +66,7 @@
                         <h4 class='text-attr mb-30'>It's called a bookmarklet.</span></h4>
                         <h3 class="text-gray">On Flipkart, Amazon, etc?</h3>
                         <h3 class="text-gray">Click on the bookmarklet to set the price drop alert!</h3>
-                        <!-- <p><a href="#">Or, Use it here</a></p> -->
+                        <p><a class="md-trigger" data-modal="modalUrlForm">Or, Use it here</a></p>
                     </div>
                 </div>
             </div>
@@ -129,7 +129,7 @@
                     </div>
                     <div class="pull-right">
                         <p class="css-tracking-email js-tracking-email-container" style="display:none;">
-                            <a data-toggle="tooltip" title="Edit email id" class="md-trigger js-edit-user-trigger" data-modal="modal-1"><i class="fa fa-pencil"></i></a>
+                            <a data-toggle="tooltip" title="Edit email id" class="md-trigger js-edit-user-trigger" data-modal="modalEmail"><i class="fa fa-pencil"></i></a>
                             <a target="_blank" data-toggle="tooltip" title="" class="css-te-email js-tracking-email"></a>
                             <a data-toggle="tooltip" title="Alerts you've set" class="css-te-alerts js-tracking-alerts"></a>
                         </p>
@@ -145,14 +145,14 @@
 
     </div>
 
-    <div class="md-modal md-effect-1" id="modal-1">
+    <div class="md-modal md-effect-1" id="modalEmail">
         <div class="md-content">
             <h3>Get started!</h3>
             <div>
                 <form role="form" class="js-accept-email-form">
                     <div class="form-group">
                         <label for="email">Email address</label>
-                        <input type="email" class="form-control input-lg" name="email" id="email" placeholder="yourname@email.com" spellcheck=false required=required>
+                        <input type="email" class="form-control input-lg js-modal-input" name="email" id="email" placeholder="yourname@email.com" spellcheck=false required=required>
                     </div>
                     <div class="form-group">
                         <button type="submit" class="btn btn-success btn-lg js-accept-email-btn">Save</button>
@@ -162,7 +162,96 @@
             </div>
         </div>
     </div>
+
+    <div class="md-modal md-effect-1" id="modalUrlForm">
+        <div class="md-content">
+            <h3>Quick Set Alert!</h3>
+            <div>
+                <div id="addUrlEmailFormContainer">
+                    <form role="form" class="css-add-url-form" id="addUrlEmailForm">
+                        <div class="form-group js-url-group">
+                            <label for="productPageURL">Product Page Link?</label>
+                            <div class="input-group">
+                                <input required=required spellcheck=false type="url" name="url" class="form-control input-lg js-modal-input js-add-url-form-input" placeholder="http://www.flipkart.com/apple-iphone-6/p/itmeygpzakjyvwqt?pid=MOBEYHZ2YAXZMF2J">
+                                <span class="input-group-addon css-iga-add-url">
+                                    <button type="button" disabled="disabled" class="btn btn-primary css-add-url-action js-add-url-to-email">Email id <i class="fa fa-angle-double-right"></i></button>
+                                </span>
+                            </div>
+                        </div>
+                        <div class="form-group js-email-group" style="display: none;">
+                            <label for="productPageURL">Email id?</label>
+                            <div class="input-group">
+                                <input name="email" spellcheck=false required=required type="email" class="form-control input-lg js-modal-input js-add-url-form-email-input" placeholder="yourname@email.com">
+                                <span class="input-group-addon css-iga-add-url">
+                                    <input disabled="disabled" type="submit" class="btn btn-primary css-add-url-action js-add-url-action" value="Add Alert!">
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div id="addUrlFormContainer" style="display: none;">
+                    <form role="form" class="css-add-url-form" id="addUrlForm">
+                        <input type="hidden" name="email" value="">
+                        <div class="form-group">
+                            <label for="productPageURL">Product Page Link?</label>
+                            <div class="input-group">
+                                <input required="required" type="url" class="form-control input-lg js-modal-input js-add-url-form-input" placeholder="http://www.flipkart.com/apple-iphone-5s/p/itmdv6f75dyxhmt4?pid=MOBDPPZZPXVDJHSQ">
+                                <span class="input-group-addon css-iga-add-url">
+                                    <input disabled="disabled" type="submit" class="btn btn-primary css-add-url-action js-add-url-action" value="Add Alert!">
+                                </span>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="js-url-loader" style="display: none;">
+                    <p><i class="fa fa-spinner fa-spin"></i> Doing some magic. You don't have to wait...</p>
+                </div>
+
+                <div id="addUrlFormResponse">
+                </div>
+
+                <button type="button" class="hide btn btn-link md-close pull-right">Cancel</button>
+            </div>
+        </div>
+    </div>
+
     <div class="md-overlay"></div>
+    <template id="tmplNotifyMe">
+        <div class="row">
+            <div class="col-xs-12 col-sm-5">
+                <img id="product-image" src="" alt="">
+            </div>
+            <div class="col-xs-12 col-sm-7">
+                <h2 id="product-title"></h2>
+                <h4 class="current-price">Current Price: Rs. <span id="product-price"></span></h4>
+                <form class="form-horizontal" role="form" id="fkSubmissionForm" style="margin-top: 20px;">
+                    <div class="form-group">
+                        <label for="inputEmail" class="col-sm-2 control-label">Email</label>
+                        <div class="col-sm-10">
+                            <input required="required" name="inputEmail" type="email" class="form-control" id="inputEmail" placeholder="Email">
+                        </div>
+                    </div>
+                    <div class="form-group hide" id="queueResponse">
+                        <div class="col-sm-10 col-sm-offset-2">
+                            <label class="text-success js-queue-response"></label>
+                        </div>
+                    </div>
+                    <input type="hidden" name="currentPrice" id="currentPrice" value="">
+                    <input type="hidden" name="productName" id="productName" value="">
+                    <input type="hidden" name="productURL" id="productURL" value="">
+                    <input type="hidden" name="productImage" id="productImage" value="">
+                    <div class="form-group">
+                        <div class="col-sm-offset-2 col-sm-10">
+                            <button type="submit" class="btn btn-info" id="submitBtn">Keep me notified</button>
+                            <a class="btn btn-success hide" id="reloadBtn">Track another Product</a>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </template>
 
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
@@ -216,13 +305,13 @@
     <script src="scripts/normalize.js"></script>
     <script src="scripts/mock.js"></script>
     <script src="scripts/events.js"></script>
+    <script src="scripts/user.js"></script>
     <script src="scripts/urlForm.js"></script>
     <script src="scripts/remote.js"></script>
     <script src="scripts/existingTracks.js"></script>
     <script src="scripts/modalEffects.js"></script>
     <script src="scripts/animations.js"></script>
     <script src="scripts/home.js"></script>
-    <script src="scripts/user.js"></script>
     <script src="scripts/main.js"></script>
     <!-- endbuild -->
 </body>

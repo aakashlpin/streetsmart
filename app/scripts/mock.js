@@ -10,10 +10,10 @@
 		contentType: 'text/json',
 		responseTime: 2000,
 		responseText: {
-			name: 'Apple iPhone 5S',
-			image: 'http://img5a.flixcart.com/image/mobile/z/h/f/apple-iphone-5s-400x400-imadpppc54zfpj9c.jpeg',
-			price: 45940,
-			time: new Date()
+			productName: 'Apple iPhone 5S',
+			productImage: 'http://img5a.flixcart.com/image/mobile/z/h/f/apple-iphone-5s-400x400-imadpppc54zfpj9c.jpeg',
+			productPrice: 45940,
+			seller: 'Flipkart'
 		}
 	});
 
@@ -67,7 +67,7 @@
 	});
 
 	$.mockjax({
-		url: '/user/:userEmail',
+		url: '/user/*',
 		contentType: 'text/json',
 		responseTime: 500,
 		responseText: {

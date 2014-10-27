@@ -97,8 +97,11 @@ a {
 
 .alt-font {
     font-family: "chaparral-pro",sans-serif;
-    font-style: normal;
     font-weight: 400;
+}
+
+.text-italics {
+    font-style: italic;
 }
 
 //FreeCharge offer
@@ -183,6 +186,10 @@ a {
     color: #fff;
 }
 
+.css-animation-repeat {
+    animation-iteration-count: infinite;
+}
+
 .pitch {
     padding-left: 20px;
     font-size: 72px;
@@ -243,6 +250,10 @@ a {
     position: fixed;
     top: 20px; right: 20px;
     width: 45px;
+}
+
+.css-img-small {
+    max-height: 100px;
 }
 
 .bg-light {
@@ -430,6 +441,21 @@ a {
         background: #2c3e50;
         color: #fff;
     }
+}
+
+.css-add-url-form .css-iga-add-url {
+    padding: 0;
+    background: $brand-primary;
+    border: none;
+
+    .btn {
+        border: none;
+        padding: 13px 12px 14px;
+    }
+}
+
+.css-add-url-action {
+    min-width: 80px;
 }
 
 /*---------------*/

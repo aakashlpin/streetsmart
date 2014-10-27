@@ -79,11 +79,13 @@ function createJob (data, callback) {
 
         var isEmailVerified = userQueryResult ? ( userQueryResult.email ? true : false) : false,
             emailObject = { email: data.email },
-            responseMessage = '';
+            responseMessage = '',
+            responseCode;
 
         if (!isEmailVerified) {
             logger.log('info', 'new user unverified', {email: data.email});
-            responseMessage = 'Almost Done! Just verify your email, then sit back and relax!';
+            responseMessage = 'Please verify your email id to activate this alert.';
+            responseCode = 'pending';
 
             Emails.sendVerifier(emailObject, data, function(err, status) {
                 if (err) {
@@ -95,7 +97,8 @@ function createJob (data, callback) {
 
         } else {
             logger.log('info', 'returning user', {email: userQueryResult.email});
-            responseMessage = 'Sweet! We\'ll keep you posted as the price changes.';
+            responseMessage = 'Awesome! Price drop alert activated.';
+            responseCode = 'verified';
 
             Emails.sendHandshake(emailObject, data, function(err, status) {
                 if (err) {
@@ -121,12 +124,18 @@ function createJob (data, callback) {
         Job.post({query: jobData}, function(err, createdJob) {
             if (err || !createdJob) {
                 logger.log('error', 'error adding job to db', {error: err});
-                return callback(null, responseMessage);
+                return callback(null, {
+                    status: err,
+                    code: 'error'
+                });
             }
 
             //increase the products counter in the db
             sellerUtils.increaseCounter('itemsTracked');
-            callback(null, responseMessage);
+            callback(null, {
+                status: responseMessage,
+                code: responseCode
+            });
         });
     });
 }
@@ -145,7 +154,7 @@ module.exports = {
         jobs.processURL(url, function(err, crawledInfo) {
             if (err) {
                 logger.log('error', 'processing URL from UI failed', {error: err});
-                res[resMethod]({error: 'Oops. Our servers screwed up! Try again, please?'});
+                res[resMethod]({error: err});
                 return;
             }
             res[resMethod](crawledInfo);
@@ -180,9 +189,57 @@ module.exports = {
             productData.source = 'onsite';
         }
 
-        createJob(productData, function(err, responseMessage) {
-            res[resMethod]({
-                status: responseMessage
+        createJob(productData, function(err, responseObj) {
+            res[resMethod](responseObj);
+        });
+    },
+    setAlertFromURL: function (req, res) {
+        //dogfooding own apis => /inputurl and /queue
+        var payload = _.pick(req.query, ['url', 'email']);
+        if (!payload.url || !payload.email) {
+            return res.json({error: 'Invalid Request'});
+        }
+
+        var inputRequestParams = {
+            url: config.server + '/inputurl',
+            json: true,
+            qs: payload //only `url` is needed though
+        };
+
+        request(inputRequestParams, function (error, response, body) {
+            if (error) {
+                logger.log('error', 'error internally making request to /inputurl', error);
+                return res.json({error: 'Something went wrong! Please try again.'});
+            }
+
+            if (body.error) {
+                return res.json({error: body.error});
+            }
+
+            //at this step, we are sure that there is crawled information
+            var crawledData = body;
+            var queueRequestParams = {
+                url: config.server + '/queue',
+                json: true,
+                qs: _.extend({}, crawledData, {
+                    email: payload.email
+                })
+            };
+
+            request(queueRequestParams, function (error, response, body) {
+                if (error) {
+                    logger.log('error', 'error internally making request to /queue', error);
+                    return res.json({error: 'Something went wrong! Please try again.'});
+                }
+                //body.code can be 'error', 'pending' or 'verified'
+                if (body.code === 'error') {
+                    return res.json(body);
+                }
+
+                return res.json(_.extend({}, body, {
+                    productName: crawledData.productName,
+                    productImage: crawledData.productImage
+                }));
             });
         });
     },
@@ -237,9 +294,9 @@ module.exports = {
             jobDoc.seller = params.seller;
             jobDoc.source = 'copy';
 
-            createJob(jobDoc, function(err, responseMessage) {
+            createJob(jobDoc, function(err, responseObj) {
                 res.json({
-                    status: responseMessage,
+                    status: responseObj.status,
                     id: params.id
                 });
             });
