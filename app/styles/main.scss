@@ -15,7 +15,6 @@ $ca-black: #010101;
 
 /* Space out content a bit */
 body {
-    padding-bottom: 20px;
     position: relative;
     background-color: #fff;
     font-family: "futura-pt";
@@ -184,8 +183,9 @@ a {
     // font-family: "chaparral-pro", sans-serif;
     position: absolute;
     top: 0; left: 0;
-    bottom: 0; right: 0;
+    // bottom: 0; right: 0;
     padding-top: 150px;
+    height: 650px;
     // padding-left: 20px;
     // font-family: "futura-pt";
     color: #fff;

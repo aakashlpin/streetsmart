@@ -17,4 +17,6 @@
 	//begin loading the products on home page
 	window.onload = App.ProductTracks.init;
 
+	analytics.track('Home page visit');
+
 })(jQuery, window);

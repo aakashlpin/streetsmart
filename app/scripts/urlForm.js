@@ -137,6 +137,8 @@
 					UrlForm.$formUrlEmailContainer.hide();
 					UrlForm.$formUrlContainer.show().find('.js-add-url-form-input').removeAttr('disabled').val('').focus();
 					UrlForm.$formUrlContainer.find('.js-hidden-email').attr('value', user.email);
+
+					analytics.identify(user.id, user);
 				}
 			});
 		},
