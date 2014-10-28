@@ -168,10 +168,13 @@
             <h3>Quick Set Alert!</h3>
             <div>
                 <div id="addUrlEmailFormContainer">
-                    <form role="form" class="css-add-url-form" id="addUrlEmailForm">
+                    <form role="form" class="css-add-url-form js-add-url-form" id="addUrlEmailForm">
                         <div class="form-group js-url-group">
-                            <label for="productPageURL">Product Page Link?</label>
+                            <label for="url">Product Page Link?</label>
                             <div class="input-group">
+                                <span class="input-group-addon js-form-reset css-form-reset">
+                                    <i class="fa fa-repeat"></i>
+                                </span>
                                 <input required=required spellcheck=false type="url" name="url" class="form-control input-lg js-modal-input js-add-url-form-input" placeholder="http://www.flipkart.com/apple-iphone-6/p/itmeygpzakjyvwqt?pid=MOBEYHZ2YAXZMF2J">
                                 <span class="input-group-addon css-iga-add-url">
                                     <button type="button" disabled="disabled" class="btn btn-primary css-add-url-action js-add-url-to-email">Email id <i class="fa fa-angle-double-right"></i></button>
@@ -179,11 +182,14 @@
                             </div>
                         </div>
                         <div class="form-group js-email-group" style="display: none;">
-                            <label for="productPageURL">Email id?</label>
+                            <label for="email">Email id?</label>
                             <div class="input-group">
+                                <span class="input-group-addon js-form-reset-stage-one css-form-reset active">
+                                    <i class="fa fa-repeat"></i>
+                                </span>
                                 <input name="email" spellcheck=false required=required type="email" class="form-control input-lg js-modal-input js-add-url-form-email-input" placeholder="yourname@email.com">
                                 <span class="input-group-addon css-iga-add-url">
-                                    <input disabled="disabled" type="submit" class="btn btn-primary css-add-url-action js-add-url-action" value="Add Alert!">
+                                    <input type="submit" class="btn btn-primary css-add-url-action js-add-url-action" value="Add Alert!">
                                 </span>
                             </div>
                         </div>
@@ -191,12 +197,15 @@
                 </div>
 
                 <div id="addUrlFormContainer" style="display: none;">
-                    <form role="form" class="css-add-url-form" id="addUrlForm">
-                        <input type="hidden" name="email" value="">
+                    <form role="form" class="css-add-url-form js-add-url-form" id="addUrlForm">
+                        <input class="js-hidden-email" type="hidden" name="email" value="">
                         <div class="form-group">
-                            <label for="productPageURL">Product Page Link?</label>
+                            <label for="url">Product Page Link?</label>
                             <div class="input-group">
-                                <input required="required" type="url" class="form-control input-lg js-modal-input js-add-url-form-input" placeholder="http://www.flipkart.com/apple-iphone-5s/p/itmdv6f75dyxhmt4?pid=MOBDPPZZPXVDJHSQ">
+                                <span class="input-group-addon js-form-reset css-form-reset">
+                                    <i class="fa fa-repeat"></i>
+                                </span>
+                                <input required=required spellcheck=false type="url" name="url" class="form-control input-lg js-modal-input js-add-url-form-input" placeholder="http://www.flipkart.com/apple-iphone-6/p/itmeygpzakjyvwqt?pid=MOBEYHZ2YAXZMF2J">
                                 <span class="input-group-addon css-iga-add-url">
                                     <input disabled="disabled" type="submit" class="btn btn-primary css-add-url-action js-add-url-action" value="Add Alert!">
                                 </span>
@@ -209,9 +218,17 @@
                     <p><i class="fa fa-spinner fa-spin"></i> Doing some magic. You don't have to wait...</p>
                 </div>
 
+                <div class="js-url-submit-loader" style="display: none;">
+                    <p><i class="fa fa-spinner fa-spin"></i> Attempting to set alert...</p>
+                </div>
+
                 <div id="addUrlFormResponse">
                 </div>
 
+<!--                 <div id="addUrlFormRefresh">
+                    <a class="js-form-reset"><i class="fa fa-repeat"></i> Reset</a>
+                </div>
+ -->
                 <button type="button" class="hide btn btn-link md-close pull-right">Cancel</button>
             </div>
         </div>

@@ -19,6 +19,7 @@ body {
     position: relative;
     background-color: #fff;
     font-family: "futura-pt";
+    overflow-x: hidden;
 
     &.bg-dark {
         background-color: $ca-black;
@@ -27,6 +28,10 @@ body {
 
 a {
     cursor: pointer;
+}
+
+.text-underline {
+    text-decoration: underline;
 }
 
 .cursor-default {
@@ -412,6 +417,12 @@ a {
     position: relative;
 }
 
+.css-form-refresh {
+    position: absolute;
+    top: 15px;
+    right: 40px;
+}
+
 .css-tracking-email {
     margin-bottom: 0;
     margin-top: 12px;
@@ -456,6 +467,25 @@ a {
 
 .css-add-url-action {
     min-width: 80px;
+}
+
+.css-form-reset {
+    i {
+        color: #bbb;
+    }
+
+    &.active {
+        cursor: pointer;
+        i {
+            transition: all 0.05s;
+            color: #555;
+        }
+        &:hover {
+            i {
+                transform: scale(1.3);
+            }
+        }
+    }
 }
 
 /*---------------*/

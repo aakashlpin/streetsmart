@@ -12,6 +12,7 @@ var logger = require('../../logger').logger;
 var sellerUtils = require('../utils/seller');
 var async = require('async');
 var bgTask = require('../lib/background');
+var request = require('request');
 
 function getURLWithAffiliateId(url) {
     var urlSymbol = url.indexOf('?') > 0 ? '&': '?';
@@ -99,15 +100,6 @@ function createJob (data, callback) {
             logger.log('info', 'returning user', {email: userQueryResult.email});
             responseMessage = 'Awesome! Price drop alert activated.';
             responseCode = 'verified';
-
-            Emails.sendHandshake(emailObject, data, function(err, status) {
-                if (err) {
-                    logger.log('error', 'error sending acceptance email', {error: err, email: emailObject.email});
-                    return;
-                }
-                logger.log('info', 'acceptance email triggered', {status: status, email: emailObject.email});
-            });
-
         }
 
         var jobData = {
@@ -136,6 +128,16 @@ function createJob (data, callback) {
                 status: responseMessage,
                 code: responseCode
             });
+
+            if (isEmailVerified) {
+                Emails.sendHandshake(emailObject, data, function(err, status) {
+                    if (err) {
+                        logger.log('error', 'error sending acceptance email', {error: err, email: emailObject.email});
+                        return;
+                    }
+                    logger.log('info', 'acceptance email triggered', {status: status, email: emailObject.email});
+                });
+            }
         });
     });
 }
@@ -171,7 +173,7 @@ module.exports = {
         //check if legitimate seller
         if (!sellerUtils.isLegitSeller(seller)) {
             res[resMethod]({
-                status: 'Sorry. We don\'t support this seller currently.'
+                status: 'Sorry! This website is not supported yet!'
             });
             return;
         }
@@ -221,8 +223,11 @@ module.exports = {
             var queueRequestParams = {
                 url: config.server + '/queue',
                 json: true,
+                //sanitize the data as expected by /queue
                 qs: _.extend({}, crawledData, {
-                    email: payload.email
+                    productURL: payload.url,
+                    inputEmail: payload.email,
+                    currentPrice: body.productPrice
                 })
             };
 
