@@ -39,8 +39,8 @@ a {
 
 /* Custom page footer */
 .footer {
-    padding-top: 19px;
-    color: #777;
+    padding: 20px;
+    background: rgba(0,0,0,0.1);
     border-top: 1px solid #e5e5e5;
 }
 
@@ -85,6 +85,12 @@ a {
 
 .logo {
     width: 134px;
+    position: absolute;
+    top: 50px; left: 25px;
+}
+
+.css-landing-alert {
+    text-align: center;
 }
 
 #fkURLForm {
@@ -184,7 +190,7 @@ a {
     position: absolute;
     top: 0; left: 0;
     // bottom: 0; right: 0;
-    padding-top: 150px;
+    padding-top: 120px;
     height: 650px;
     // padding-left: 20px;
     // font-family: "futura-pt";
