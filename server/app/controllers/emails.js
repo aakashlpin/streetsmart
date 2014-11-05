@@ -200,7 +200,7 @@ module.exports = {
                         callback(err);
                     } else {
                         sendEmail(emailService, {
-                            'subject': 'Price Alert Set | ' + locals.product.productName,
+                            'subject': 'Price Alert Set | ' + locals.product.seller + ' | ' + locals.product.productName,
                             'html': html,
                             'to': locals.user.email
                         }, callback);

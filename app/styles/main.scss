@@ -85,8 +85,10 @@ a {
 
 .logo {
     width: 134px;
-    position: absolute;
-    top: 50px; left: 25px;
+    &.home {
+        position: absolute;
+        top: 50px; left: 25px;
+    }
 }
 
 .css-landing-alert {
