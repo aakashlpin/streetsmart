@@ -105,7 +105,7 @@
                     if (response.downloadURLs || response.downloadURL) {
                         inputURLVideoDownloader(response.downloadURLs || response.downloadURL);
                     } else {
-                        if (response.productPrice && response.productTitle) {
+                        if (response.productPrice && response.productName) {
                             inputURLSuccessHandler(response);
                         } else {
                             inputURLErrorHandler();
@@ -147,7 +147,7 @@
                 }
 
                 function inputURLSuccessHandler(response) {
-                    var name = response.productTitle,
+                    var name = response.productName,
                     price = response.productPrice,
                     image = response.productImage;
 
