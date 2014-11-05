@@ -41,7 +41,7 @@ module.exports = {
 						leastPriceForJob = getLeastPriceFromHistory(sellerJob.productPriceHistory);
 						if (leastPriceForJob && (leastPriceForJob.price < dataInCache.ltp)) {
 							dataInCache.ltp = leastPriceForJob.price;
-							dataInCache._id = leastPriceForJob._id;
+							dataInCache._id = leastPriceForJob._id ? leastPriceForJob._id.toHexString(): dataInCache._id;
 						}
 
 					} else {
