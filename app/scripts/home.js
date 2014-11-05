@@ -1,6 +1,8 @@
 'use strict';
-(function($, window) {
+/*globals analytics*/
+(function($) {
 	$('.js-noop').on('click', function (e) {
 		e.preventDefault();
+		analytics.track('Attempted clicking on Bookmarklet');
 	});
-})(jQuery, window);
+})(jQuery);

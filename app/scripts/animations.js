@@ -1,5 +1,5 @@
 'use strict';
-/*globals twttr*/
+/*globals twttr, Odometer*/
 
 (function($, window) {
 	var Counters = {

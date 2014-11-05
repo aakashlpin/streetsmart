@@ -1,5 +1,5 @@
 'use strict';
-/* globals _*/
+/* globals _, analytics*/
 (function($, window) {
 	var sellers = ['flipkart.com', 'amazon.in', 'infibeam.com', 'bajaao.com',
 	'jabong.com', 'myntra.com', 'pepperfry.com', 'snapdeal.com',
@@ -100,10 +100,13 @@
 					} else {
 						UrlForm.$formUrlResponseContainer.html(getMessageDOM(res.error));
 					}
+					analytics.track('On Site URL', _.extend({}, res, {
+						url: url
+					}));
 				});
 			}.bind(this), 0);
 		},
-		handleResetUrlFormTrigger: function (e) {
+		handleResetUrlFormTrigger: function () {
 			var $this = $(this);
 			if (!$this.hasClass('active')) {
 				return;
@@ -137,8 +140,6 @@
 					UrlForm.$formUrlEmailContainer.hide();
 					UrlForm.$formUrlContainer.show().find('.js-add-url-form-input').removeAttr('disabled').val('').focus();
 					UrlForm.$formUrlContainer.find('.js-hidden-email').attr('value', user.email);
-
-					analytics.identify(user.id, user);
 				}
 			});
 		},
@@ -152,6 +153,7 @@
 			e.preventDefault();
 			UrlForm.$formUrlGroup.hide();
 			UrlForm.$formEmailGroup.show().addClass('animated bounceInRight').find('.js-modal-input').focus();
+			analytics.track('New User via Instant Alert transitions to Email');
 		},
 		handleUrlInputClick: function (e) {
 			$(e.target).select();
@@ -174,17 +176,12 @@
 			$formInputEl.removeAttr('disabled');
 
 			$.getJSON('/alert', $form.serialize(), function (res) {
-				console.log(res);
 				UrlForm.$formUrlSubmitLoader.hide();
 				UrlForm.$formUrlResponseContainer.html(getMessageDOM(res.error || res.status));
 				$formInputEl.attr('disabled', 'disabled');
-
-				// submitBtn.removeAttr('disabled');
-				// if (res.error || res.code === 'error') {
-				// 	return;
-				// }
-
-				// UrlForm.$formUrlResponseContainer.html(getMessageDOM(res.status));
+				analytics.track('Alert Set', {
+					source: 'Site'
+				});
 			});
 		},
 		init: function () {

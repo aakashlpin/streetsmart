@@ -1,5 +1,5 @@
 'use strict';
-/*globals Odometer, noty, _*/
+/*globals Odometer, noty, _, analytics*/
 
 (function ($, window) {
 	var unverifiedEmailClass = 'css-user-unverified';
@@ -101,6 +101,12 @@
 				if (shouldClearInterval) {
 					resetInterval();
 				}
+
+				analytics.identify(user.id, {
+					email: user.email,
+					alerts: user.alerts || 0
+				});
+
 				showVerifiedEmailUI(user);
 			}
 

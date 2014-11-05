@@ -1,5 +1,5 @@
 'use strict';
-/* global _ */
+/* global _, analytics */
 (function($, window) {
 	var ProductTracks = {
 		$el: $('#product-tracks'),
@@ -70,6 +70,10 @@
 
 			handler.wookmarkInstance.filter(activeFilters, 'or');
 			handler.wookmarkInstance.layout(true);
+
+			analytics.track('Existing Tracks Filters', {
+				clicked: item.data('filter')
+			});
 		},
 		render: function (data) {
 			var domStr = '';
@@ -179,12 +183,26 @@
 					id: target.closest('.product-track').attr('id')
 				});
 
+				analytics.track('Alert Set', {
+					source: 'Copy',
+					email: email,
+					seller: seller,
+					productURL: productURL
+				});
+
 			} else {
 				ProductTracks.pendingTrackData = {
 					seller: seller,
 					productURL: productURL,
 					id: target.closest('.product-track').attr('id')
 				};
+
+				analytics.track('New User Using Copy', {
+					step: 1,
+					source: 'Copy',
+					seller: seller,
+					productURL: productURL
+				});
 
 				window.App.eventBus.emit('modal:show', 'modalEmail');
 			}
@@ -233,6 +251,10 @@
 				ProductTracks.maxPages = res.pages;
 				ProductTracks.isXHRPending = false;
 				ProductTracks.toggleLoading();
+			});
+
+			analytics.track('Existing Tracks Scrolled', {
+				page: page
 			});
 		},
 		initSticky: function () {

@@ -166,7 +166,7 @@ module.exports = {
                         callback(err);
                     } else {
                         sendEmail(emailService, {
-                            'subject': 'Price drop alert for ' + locals.product.productName,
+                            'subject': 'Price Drop Alert | ' + locals.product.seller + ' | ' + locals.product.productName,
                             'html': html,
                             'to': locals.user.email
                         }, callback);
@@ -200,7 +200,7 @@ module.exports = {
                         callback(err);
                     } else {
                         sendEmail(emailService, {
-                            'subject': 'Price tracker added for ' + locals.product.productName,
+                            'subject': 'Price Alert Set | ' + locals.product.productName,
                             'html': html,
                             'to': locals.user.email
                         }, callback);
