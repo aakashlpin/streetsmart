@@ -24,7 +24,19 @@
 
 	var LandingBackground = {
 		$el: $('.landing-image'),
-		imgSrc: '../img/cover3.jpg',
+		imgSrc: function () {
+			//depending on window width, return the image
+			var width = $(window).width();
+			if (width <= 320) {
+				return '../img/cover_320.jpg';
+			} else if (width > 320 && width <= 700) {
+				return '../img/cover_700.jpg';
+			} else if (width > 700 && width <= 1300) {
+				return '../img/cover_1300.jpg';
+			} else if (width > 1300) {
+				return '../img/cover_1600.jpg';
+			}
+		},
 		init: function () {
 			var bgImg = new Image();
 			bgImg.onload = function(){
@@ -33,7 +45,7 @@
 			   })
 			   .addClass('animated fadeIn');
 			};
-			bgImg.src = LandingBackground.imgSrc;
+			bgImg.src = LandingBackground.imgSrc();
 		}
 	};
 

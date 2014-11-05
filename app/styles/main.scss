@@ -176,24 +176,16 @@ a {
     height: 650px;
     overflow: hidden;
     width: 100%;
-    // padding-top: 150px;
-    // padding-left: 20px;
     background-color: $ca-black;
-    // background-image: url('../images/cover3.jpg');
     background-position: bottom center;
     background-size: cover;
-    // animation-duration: 1s;
 }
 
 .landing-cover {
-    // font-family: "chaparral-pro", sans-serif;
     position: absolute;
     top: 0; left: 0;
-    // bottom: 0; right: 0;
     padding-top: 120px;
     height: 650px;
-    // padding-left: 20px;
-    // font-family: "futura-pt";
     color: #fff;
 }
 
@@ -205,6 +197,10 @@ a {
     padding-left: 20px;
     font-size: 72px;
     text-shadow: 0 2px 2px rgba(0,0,0,0.5);
+    @media only screen and (max-width: 320px) {
+        padding-left: 10px;
+        font-size: 30px;
+    }
 }
 
 .pitch-heading {
@@ -335,6 +331,7 @@ a {
         border: 1px solid #eee;
         border-radius: 7px;
         margin-right: 2px;
+        margin-bottom: 5px;
 
         &.active {
             background: #eee;
