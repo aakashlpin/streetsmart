@@ -28,7 +28,7 @@ var commonConfig = {
     adminsFacebookEmailIds: ['aakash.lpin@gmail.com'],
     processAllProductsInterval: {
         'development': '0-59/5 * * * *',
-        'production': '0-59/25 * * * *'
+        'production': '0-59/10 * * * *'
     },
     youtubeDLSites: ['8tracks.com', '9gag.com', '9gag.tv', 'bandcamp.com',
      'blip.tv', 'collegehumor.com', 'cc.com', 'dailymotion.com',
