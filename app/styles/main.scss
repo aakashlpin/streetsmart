@@ -13,6 +13,10 @@ $icon-font-path: "/bower_components/bootstrap-sass-official/vendor/assets/fonts/
 
 $ca-black: #010101;
 
+html {
+    overflow-x: hidden;
+}
+
 /* Space out content a bit */
 body {
     position: relative;
