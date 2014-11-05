@@ -203,7 +203,11 @@ a {
     padding-left: 20px;
     font-size: 72px;
     text-shadow: 0 2px 2px rgba(0,0,0,0.5);
-    @media only screen and (max-width: 320px) {
+    @media only screen and (max-width: 990px) and (min-width: 400px) {
+        padding-left: 10px;
+        font-size: 48px;
+    }
+    @media only screen and (max-width: 400px) {
         padding-left: 10px;
         font-size: 30px;
     }
