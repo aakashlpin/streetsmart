@@ -69,7 +69,6 @@
                 var domFinePrintSite =
                 '<p class="caFinePrint">A Cheapass doesn\'t pay for stuff.</p>';
                 var domBottom =
-                '<a class="fc-offer-link" target="_blank" href="https://cheapass.in">Get PAID for tracking before buying! Click to know more.</a>'+
                 '</div>';
 
                 var url = document.location.href;
@@ -137,7 +136,7 @@
                 function inputURLErrorHandler() {
                     var dom = domTop + domFinePrintSeller +
                     '<div id="caResponseNotification" class="caResponseNotification">'+
-                    '<p class="caTextError" style="margin-bottom: 15px;">Cheapass works only on product pages of <a href="https://cheapass.in" target="_blank">these sellers</a>.</p>'+
+                    '<p class="caTextError" style="margin-bottom: 15px;">Cheapass works only on product pages of Flipkart, Amazon India, Snapdeal, Infibeam, Jabong, Myntra, Peppefry, Fabfurnish and Bajaao</p>'+
                     '<p>Is this a product page but I couldn\'t detect it? <a href="mailto:aakash@cheapass.in">Let me know</a>, please?</p>'+
                     '</div>'+
                     domBottom;
