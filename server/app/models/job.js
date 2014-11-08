@@ -12,7 +12,9 @@ var JobSchema = new Schema({
     productName: String,
     productImage: String,
     currentPrice: Number,
-    isActive: Boolean
+    isActive: Boolean,
+    isReminded: Boolean,
+    source: String
 });
 
 JobSchema.statics.activateAllJobsForEmail = function(req, callback) {
@@ -40,27 +42,32 @@ JobSchema.statics.post = function(req, callback) {
 
     data = _.pick(req.query,
         ['email', 'currentPrice', 'productURL', 'seller', 'isEmailVerified',
-        'productImage', 'productName']
+        'productImage', 'productName', 'source']
     );
 
     var SellerJobModel = SellerUtils.getSellerJobModelInstance(data.seller);
     var findQuery = {email: data.email, productURL: data.productURL};
     SellerJobModel.getOneGeneric(findQuery, function(err, existingJob) {
         if (err) {
-            return callback(err);
+            logger.log('error', 'error in jobs post in getOneGeneric', err);
+            return callback('Sorry! Something went wrong. Please try again.');
         }
+
         if (existingJob) {
             //bullshit. guy is trying to enter the same email+url combo again
-            callback('This URL is already being tracked for you.');
+            callback('You are already tracking this item!');
+
         } else {
             //good guy. put it in jobs collection and seller's jobs collection
+            findQuery.isActive = false;
             this.findOne(findQuery).lean().exec(function(err, pendingJob) {
                 if (err) {
-                    return callback(err);
+                    logger.log('error', 'error in jobs post in findOne', err);
+                    return callback('Sorry! Something went wrong. Please try again.');
                 }
                 if (pendingJob) {
                     //not-so-good guy. he should have verified his email
-                    callback('Tracking of this URL is pending email id verification');
+                    callback('Please verify your email id to activate this alert.');
                 } else {
                     var jobData = {
                         email: data.email,
@@ -73,7 +80,8 @@ JobSchema.statics.post = function(req, callback) {
                             date: new Date(),
                             price: data.currentPrice
                         }],
-                        isActive: data.isEmailVerified
+                        isActive: data.isEmailVerified,
+                        source: data.source
                     };
 
                     Job = new this(jobData);

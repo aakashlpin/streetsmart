@@ -11,6 +11,8 @@ var config = require('../../config/config');
 var logger = require('../../logger').logger;
 var sellerUtils = require('../utils/seller');
 var async = require('async');
+var bgTask = require('../lib/background');
+var request = require('request');
 
 function getURLWithAffiliateId(url) {
     var urlSymbol = url.indexOf('?') > 0 ? '&': '?';
@@ -56,6 +58,90 @@ function getResponseMethodAndManipulateHeaders(queryParams, res) {
     return 'json';
 }
 
+function createJob (data, callback) {
+    // data =>
+    // {
+    //     email: String,
+    //     currentPrice: Number,
+    //     productName: String,
+    //     productURL: String,
+    //     productImage: String,
+    //     seller: String,
+    //     source: String
+    // }
+
+    callback = callback || function() {};
+
+    User.findOne({email: data.email}, function(err, userQueryResult) {
+        if (err) {
+            logger.log('error', 'error finding email in user model', {error: err, email: data.email});
+            return;
+        }
+
+        var isEmailVerified = userQueryResult ? ( userQueryResult.email ? true : false) : false,
+            emailObject = { email: data.email },
+            responseMessage = '',
+            responseCode;
+
+        if (!isEmailVerified) {
+            logger.log('info', 'new user unverified', {email: data.email});
+            responseMessage = 'Please verify your email id to activate this alert.';
+            responseCode = 'pending';
+
+            Emails.sendVerifier(emailObject, data, function(err, status) {
+                if (err) {
+                    logger.log('error', 'error sending verification email', {error: err, email: emailObject.email});
+                    return;
+                }
+                logger.log('info', 'verification email triggered', {status: status, email: emailObject.email});
+            });
+
+        } else {
+            logger.log('info', 'returning user', {email: userQueryResult.email});
+            responseMessage = 'Awesome! Price drop alert activated.';
+            responseCode = 'verified';
+        }
+
+        var jobData = {
+            email: emailObject.email,
+            currentPrice: data.currentPrice,
+            productName: data.productName,
+            productURL: data.productURL,
+            productImage: data.productImage,
+            seller: data.seller,
+            source: data.source,
+            isEmailVerified: isEmailVerified    //this is needed for some checks while creating a new job
+        };
+
+        Job.post({query: jobData}, function(err, createdJob) {
+            if (err || !createdJob) {
+                logger.log('error', 'error adding job to db', {error: err});
+                return callback(null, {
+                    status: err,
+                    code: 'error'
+                });
+            }
+
+            //increase the products counter in the db
+            sellerUtils.increaseCounter('itemsTracked');
+            callback(null, {
+                status: responseMessage,
+                code: responseCode
+            });
+
+            if (isEmailVerified) {
+                Emails.sendHandshake(emailObject, data, function(err, status) {
+                    if (err) {
+                        logger.log('error', 'error sending acceptance email', {error: err, email: emailObject.email});
+                        return;
+                    }
+                    logger.log('info', 'acceptance email triggered', {status: status, email: emailObject.email});
+                });
+            }
+        });
+    });
+}
+
 module.exports = {
     processInputURL: function(req, res) {
         var url = req.query.url;
@@ -70,7 +156,7 @@ module.exports = {
         jobs.processURL(url, function(err, crawledInfo) {
             if (err) {
                 logger.log('error', 'processing URL from UI failed', {error: err});
-                res[resMethod]({error: 'Oops. Our servers screwed up! Try again, please?'});
+                res[resMethod]({error: err});
                 return;
             }
             res[resMethod](crawledInfo);
@@ -87,7 +173,7 @@ module.exports = {
         //check if legitimate seller
         if (!sellerUtils.isLegitSeller(seller)) {
             res[resMethod]({
-                status: 'Sorry. We don\'t support this seller currently.'
+                status: 'Sorry! This website is not supported yet!'
             });
             return;
         }
@@ -98,82 +184,181 @@ module.exports = {
 
         productData.seller = seller;
         productData.productURL = getURLWithAffiliateId(productData.productURL);
+        productData.email = user.inputEmail;
+        if (isJSONPRequested(req.query)) {
+            productData.source = 'bookmarklet';
+        } else {
+            productData.source = 'onsite';
+        }
 
-        var userData = {
-            email: user.inputEmail
+        createJob(productData, function(err, responseObj) {
+            res[resMethod](responseObj);
+        });
+    },
+    setAlertFromURL: function (req, res) {
+        //dogfooding own apis => /inputurl and /queue
+        var payload = _.pick(req.query, ['url', 'email']);
+        if (!payload.url || !payload.email) {
+            return res.json({error: 'Invalid Request'});
+        }
+
+        var inputRequestParams = {
+            url: config.server + '/inputurl',
+            json: true,
+            qs: payload //only `url` is needed though
         };
 
-        var userQuery = {
-            query: userData
-        };
-
-        User.get(userQuery, function(err, userQueryResult) {
-            if (err) {
-                logger.log(err);
-                return;
+        request(inputRequestParams, function (error, response, body) {
+            if (error) {
+                logger.log('error', 'error internally making request to /inputurl', error);
+                return res.json({error: 'Something went wrong! Please try again.'});
             }
 
-            var isEmailVerified = userQueryResult ? ( userQueryResult.email ? true : false) : false;
-            var emailProductData = _.extend({}, productData, {
-                seller: _.str.capitalize(productData.seller)
+            if (body.error) {
+                return res.json({error: body.error});
+            }
+
+            //at this step, we are sure that there is crawled information
+            var crawledData = body;
+            var queueRequestParams = {
+                url: config.server + '/queue',
+                json: true,
+                //sanitize the data as expected by /queue
+                qs: _.extend({}, crawledData, {
+                    productURL: payload.url,
+                    inputEmail: payload.email,
+                    currentPrice: body.productPrice
+                })
+            };
+
+            request(queueRequestParams, function (error, response, body) {
+                if (error) {
+                    logger.log('error', 'error internally making request to /queue', error);
+                    return res.json({error: 'Something went wrong! Please try again.'});
+                }
+                //body.code can be 'error', 'pending' or 'verified'
+                if (body.code === 'error') {
+                    return res.json(body);
+                }
+
+                return res.json(_.extend({}, body, {
+                    productName: crawledData.productName,
+                    productImage: crawledData.productImage
+                }));
+            });
+        });
+    },
+    copyTrack: function (req, res) {
+        var params = _.pick(req.query, ['id', 'seller', 'email', 'productURL']);
+        //check for all params
+        if (!params.id || !params.productURL || !params.seller || !params.email || params.id === 'undefined') {
+            return res.json({error: 'Invalid Request'});
+        }
+        //check if seller param is valid
+        if (!sellerUtils.isLegitSeller(params.seller)) {
+            return res.json({error: 'Invalid Seller'});
+        }
+
+        sellerUtils
+        .getSellerJobModelInstance(params.seller)
+        .find({productURL: params.productURL})
+        .lean()
+        .exec(function(err, productURLDocs) {
+            if (err || !productURLDocs) {
+                logger.log('error', 'error finding job in db when trying to copy track', _.extend({}, params, {
+                    error: err
+                }));
+                //if someone adds a track at the same time as OP unsubscribes it
+                //then this case would happen
+                return res.json({error: 'Something went wrong! Visit the product page to set the price drop alert!'});
+            }
+
+            if (_.find(productURLDocs, function (productURLDoc) {
+                return productURLDoc.email === params.email;
+            })) {
+                return res.json({
+                    id: params.id,
+                    error: 'You are already tracking this item'
+                });
+            }
+
+            //find the job requested from ui in the array
+            var jobDoc = _.find(productURLDocs, function (productURLDoc) {
+                return productURLDoc._id.toHexString() === params.id;
             });
 
-            if (!isEmailVerified) {
-                //1. send response back for the UI
-                logger.log('info', 'new user unverified', {email: userData.email});
-                res[resMethod]({
-                    status: 'Almost Done! Just verify your email, then sit back and relax!'
-                });
+            if (!jobDoc) {
+                return res.json({error: 'Something went wrong! Visit the product page to set the price drop alert!'});
+            }
 
-                //2. send verification email
-                Emails.sendVerifier(userData, emailProductData, function(err, status) {
+            //remove the object id. let mongo create a new id
+            delete jobDoc._id;
+
+            //update the email id for new user
+            jobDoc.email = params.email;
+            jobDoc.seller = params.seller;
+            jobDoc.source = 'copy';
+
+            createJob(jobDoc, function(err, responseObj) {
+                res.json({
+                    status: responseObj.status,
+                    id: params.id
+                });
+            });
+        });
+    },
+    getUserDetails: function (req, res) {
+        var userEmail = _.pick(req.params, ['email']);
+        if (!userEmail.email) {
+            return res.json({error: 'Invalid request'});
+        }
+
+        var email = decodeURIComponent(userEmail.email);
+        User.findOne({email: email}).lean().exec(function (err, userDoc) {
+            if (err || !userDoc) {
+                if (err) {
+                    logger.log('error', 'error finding user from ui', {error: err, email: email});
+                }
+
+                //if user not found in users collection
+                //check for pending jobs in the jobs collections
+                Job.find({email: email}).lean().exec(function (err, pendingJobs) {
                     if (err) {
-                        logger.log('error', 'error sending verification email', {error: err});
-                        return;
+                        logger.log('error', 'error finding user in jobs collection', {error: err, email: email});
+                        return res.json({status: 'error', error: 'User not found'});
+
+                    } else {
+                        if (!pendingJobs.length) {
+                            return res.json({status: 'error', error: 'User not found'});
+                        } else {
+                            return res.json({status: 'pending', alerts: pendingJobs.length});
+                        }
                     }
-                    logger.log('info', 'verification email triggered', {status: status});
                 });
 
             } else {
-                logger.log('info', 'returning user', {email: userQueryResult.email});
-                res[resMethod]({
-                    status: 'Sweet! We\'ll keep you posted as the price changes.'
+                var userJobsCount = 0;
+                async.each(_.keys(config.sellers), function (seller, asyncEachCb) {
+                    sellerUtils
+                    .getSellerJobModelInstance(seller)
+                    .find({email: email})
+                    .lean()
+                    .exec(function (err, userJobs) {
+                        if (!err && userJobs) {
+                            userJobsCount += userJobs.length;
+                        }
+                        asyncEachCb();
+                    });
+                }, function () {
+                    res.json({
+                        status: 'verified',
+                        email: email,
+                        id: userDoc._id,
+                        alerts: userJobsCount
+                    });
                 });
-
-                //2. send acceptance email
-                Emails.sendHandshake(userData, emailProductData, function(err, status) {
-                    if (err) {
-                        logger.log('error', 'error sending acceptance email', {error: err});
-                        return;
-                    }
-                    logger.log('info', 'acceptance email triggered', {status: status});
-                });
-
             }
-
-            //add job to the db
-            var newJobData = {
-                email: userData.email,
-                currentPrice: productData.currentPrice,
-                productName: productData.productName,
-                productURL: productData.productURL,
-                productImage: productData.productImage,
-                seller: productData.seller,
-                isEmailVerified: isEmailVerified    //this is needed for some checks while creating a new job
-            };
-
-            Job.post({query: newJobData}, function(err, createdJob) {
-                if (err) {
-                    logger.log('error', 'error adding job to db', {error: err});
-                    return;
-                }
-                if (createdJob) {
-                    //increase the products counter in the db
-                    sellerUtils.increaseCounter('itemsTracked');
-                }
-            });
         });
-
     },
     verifyEmail: function(req, res) {
         var queryObject = req.query;
@@ -376,6 +561,53 @@ module.exports = {
                 return;
             }
             res.redirect('/dashboard/' + user._id);
+        });
+    },
+    getAllTracks: function (req, res) {
+        var processedData = bgTask.getProcessedProducts();
+        res.json(processedData);
+    },
+    getPagedTracks: function (req, res) {
+        var page = req.params.page;
+        if (!page) {
+            return res.json({error: 'page param missing'});
+        }
+
+        res.json({
+            data: bgTask.getPagedProducts(page),
+            pages: bgTask.getTotalPages()
+        });
+    },
+    resendVerificationEmail: function (req, res) {
+        var email = req.params.email;
+        if (!email) {
+            return res.json({error: 'Expected Email'});
+        }
+
+        email = decodeURIComponent(email);
+        User.findOne({email: email}).lean().exec(function(err, user) {
+            if (err || !user) {
+                //search for user in Jobs collections
+                Job.findOne({email: email}).lean().exec(function (err, user) {
+                    if (user) {
+                        //send verification email
+                        Emails.resendVerifierEmail(user, function (err, status) {
+                            if (err) {
+                                logger.log('error', 'error resending verification email', {error: err, email: user.email});
+                                return;
+                            }
+                            logger.log('info', 'verification email resent', {status: status, email: user.email});
+                        });
+
+                        res.json({status: 'Done! Check your inbox now?'});
+
+                    } else {
+                        return res.json({error: 'Invalid Request'});
+                    }
+                });
+            } else {
+                return res.json({error: 'Invalid Request'});
+            }
         });
     },
     ping: function(req, res) {

@@ -1,6 +1,6 @@
 'use strict';
 var Emails = require('./emails');
-var Jobs = require('./jobs');
+var jobUtils = require('../lib/jobs');
 var _ = require('underscore');
 _.str = require('underscore.string');
 var mongoose = require('mongoose');
@@ -28,7 +28,7 @@ module.exports = {
 			//generate a 6 digit number and store it in the db corresponding to the email id
 			var verificationCode = Math.floor(Math.random()*999999+1);
 
-			User.update({email: registrationData.email}, {$push: {verification_codes: verificationCode}}, {}, function() {
+			User.update({email: registrationData.email}, {$push: {verificationCodes: verificationCode}}, {}, function() {
 				registrationData.verificationCode = verificationCode;
 				Emails.sendDeviceVerificationCode(registrationData, function() {
 					res.json({status: 'ok'});
@@ -51,7 +51,7 @@ module.exports = {
 		}
 
 		User.findOne({email: registrationData.email}).lean().exec(function(err, userDoc) {
-			var verificationCodes = userDoc.verification_codes;
+			var verificationCodes = userDoc.verificationCodes;
 			var isValidVerificationCode = !!(_.find(verificationCodes, function(verificationCode) {
 				return verificationCode === registrationData.verify_code;
 			}));
@@ -78,17 +78,18 @@ module.exports = {
 			return;
 		}
 
-		User.update({email: registrationData.email}, {$push: {device_ids: registrationData.deviceid}}, {}, function(err, updatedDoc) {
+		User.update({email: registrationData.email}, {$push: {deviceIds: registrationData.deviceid}}, {}, function(err, updatedDoc) {
 			if (err || !updatedDoc) {
 				res.json({status: 'error', message: 'Internal Server Error'});
 				return;
 			}
 			res.json({status: 'ok'});
 		});
+
 	},
 	simulateNotification: function(req, res) {
 		var payload = _.pick(req.query, ['email']);
-		if (payload.email === "aakash.lpin@gmail.com" || payload.email === "plaban.nayak@gmail.com") {
+		if (payload.email === 'aakash.lpin@gmail.com' || payload.email === 'plaban.nayak@gmail.com') {
 			var emailUser = {
 				email: payload.email
 			};
@@ -103,7 +104,7 @@ module.exports = {
 				measure: 'dropped'
 			};
 
-			Jobs.sendNotifications(emailUser, emailProduct);
+			jobUtils.sendNotifications(emailUser, emailProduct);
 			res.json({status: 'ok'});
 
 		} else {

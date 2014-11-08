@@ -613,7 +613,7 @@
                             <h1 style="text-align: center;"><span style="font-size:24px"><span style="color:#34495e">Prices&nbsp;have&nbsp;<%= product.measure %>!</span></span></h1>
 
 <div style="text-align: center;"><br>
-Hey! A&nbsp;product you were tracking on <%= product.seller %> has <%= product.measure %> in price!<br>
+Hey! A&nbsp;product you were tracking on <b><%= product.seller %></b> has <%= product.measure %> in price!<br>
 &nbsp;</div>
 
                         </td>
@@ -645,7 +645,7 @@ Hey! A&nbsp;product you were tracking on <%= product.seller %> has <%= product.m
             <strong><%= product.productName %><br>
 <br>
 <span style="font-size: 20px;">Rs. <%= product.currentPrice %>/-</span><br>
-<span style="text-decoration:line-through;color:#b3bfcb">Rs. <%= product.oldPrice %>/-</span></strong>
+<span style="text-decoration:line-through;color:#b3bfcb">Rs. <%= product.storedPrice %>/-</span></strong>
         </td>
     </tr>
 </tbody></table>

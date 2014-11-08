@@ -10,7 +10,7 @@ module.exports = function($) {
         }
         name = nameDOM.text().replace(/^\s+|\s+$/g, '');
 
-        priceDOM = $('meta[itemprop="price"]');
+        priceDOM = $('.price-wrap meta[itemprop="price"]');
         price = priceDOM.attr('content') || false;
 
 		if (price) {

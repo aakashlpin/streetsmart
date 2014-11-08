@@ -48,6 +48,12 @@ function sendEmail(service, payload, callback) {
             });
         }
 
+        if (payload.from) {
+            _.extend(message, {
+                'From': payload.from
+            });
+        }
+
         postmark.send(message, function(err, responseStatus) {
             if (err) {
                 callback(err);
@@ -74,6 +80,12 @@ function sendEmail(service, payload, callback) {
             });
         }
 
+        if (payload.from) {
+            _.extend(message, {
+                'from_email': payload.from
+            });
+        }
+
         mandrillClient.messages.send({
             'message': message
         }, function(result) {
@@ -92,6 +104,11 @@ module.exports = {
 
             } else {
                 var encodedEmail = encodeURIComponent(user.email);
+                if (product.seller) {
+                    //human readable seller name
+                    product.seller = config.sellers[product.seller].name;
+                }
+
                 var locals = {
                     user: user,
                     product: product,
@@ -120,6 +137,11 @@ module.exports = {
                 callback(err);
 
             } else {
+                if (product.seller) {
+                    //human readable seller name
+                    product.seller = config.sellers[product.seller].name;
+                }
+
                 var locals = {
                     user: user,
                     product: product,
@@ -144,7 +166,7 @@ module.exports = {
                         callback(err);
                     } else {
                         sendEmail(emailService, {
-                            'subject': 'Price drop alert for ' + locals.product.productName,
+                            'subject': 'Price Drop Alert | ' + locals.product.seller + ' | ' + locals.product.productName,
                             'html': html,
                             'to': locals.user.email
                         }, callback);
@@ -159,6 +181,11 @@ module.exports = {
                 callback(err);
 
             } else {
+                if (product.seller) {
+                    //human readable seller name
+                    product.seller = config.sellers[product.seller].name;
+                }
+
                 var locals = {
                     user: user,
                     product: product
@@ -173,9 +200,62 @@ module.exports = {
                         callback(err);
                     } else {
                         sendEmail(emailService, {
-                            'subject': 'Price tracker added for ' + locals.product.productName,
+                            'subject': 'Price Alert Set | ' + locals.product.seller + ' | ' + locals.product.productName,
                             'html': html,
                             'to': locals.user.email
+                        }, callback);
+                    }
+                });
+            }
+        });
+    },
+    resendVerifierEmail: function (user, callback) {
+        emailTemplates(templatesDir, function(err, template) {
+            if (err) {
+                callback(err);
+
+            } else {
+                var encodedEmail = encodeURIComponent(user.email);
+                var locals = {
+                    user: user,
+                    verificationLink: config.server + '/verify?' + 'email=' + encodedEmail
+                };
+
+                template('reverifier', locals, function(err, html) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        sendEmail(emailService, {
+                            'subject': 'Cheapass | Verify your email id',
+                            'html': html,
+                            'to': locals.user.email
+                        }, callback);
+                    }
+                });
+            }
+        });
+    },
+    sendReminderEmail: function (user, callback) {
+        emailTemplates(templatesDir, function(err, template) {
+            if (err) {
+                callback(err);
+
+            } else {
+                var encodedEmail = encodeURIComponent(user.email);
+                var locals = {
+                    user: user,
+                    verificationLink: config.server + '/verify?' + 'email=' + encodedEmail
+                };
+
+                template('reminder', locals, function(err, html) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        sendEmail(emailService, {
+                            'subject': 'Cheapass | What happened.. ???',
+                            'html': html,
+                            'to': locals.user.email,
+                            'from': 'aakash@cheapass.in'
                         }, callback);
                     }
                 });

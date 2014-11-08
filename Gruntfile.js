@@ -65,7 +65,8 @@ module.exports = function (grunt) {
                 files: [
                     '<%= config.app %>/{,*/}*.html',
                     '.tmp/styles/{,*/}*.css',
-                    '<%= config.app %>/images/{,*/}*'
+                    '<%= config.app %>/images/{,*/}*',
+                    '<%= config.app %>/img/{,*/}*'
                 ]
             }
         },
@@ -236,6 +237,11 @@ module.exports = function (grunt) {
                     cwd: '<%= config.app %>/images',
                     src: '{,*/}*.{gif,jpeg,jpg,png}',
                     dest: '<%= config.dist %>/images'
+                }, {
+                    expand: true,
+                    cwd: '<%= config.app %>/img',
+                    src: '{,*/}*.{gif,jpeg,jpg,png}',
+                    dest: '<%= config.dist %>/img'
                 }]
             }
         },
@@ -308,7 +314,7 @@ module.exports = function (grunt) {
                     expand: true,
                     dot: true,
                     cwd: '.',
-                    src: ['bower_components/bootstrap-sass-official/vendor/assets/fonts/bootstrap/*.*'],
+                    src: ['bower_components/bootstrap-sass-official/vendor/assets/fonts/bootstrap/*.*', 'bower_components/noty/js/noty/packaged/jquery.noty.packaged.min.js'],
                     dest: '<%= config.dist %>'
                 }]
             },

@@ -4,10 +4,12 @@ Schema = mongoose.Schema,
 _ = require('underscore');
 
 var UserSchema = new Schema({
+    facebookId: String,
+    twitterId: String,
     email: String,
     dropOnlyAlerts: Boolean,
-    verification_codes: [String],
-    device_ids: [String]
+    verificationCodes: [String],
+    deviceIds: [String]
 });
 
 UserSchema.statics.post = function(req, callback) {

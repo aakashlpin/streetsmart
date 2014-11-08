@@ -26,6 +26,7 @@ jobs.init();
 var app = express();
 require('./config/express')(app, config);
 require('./config/routes')(app);
+require('./auth');
 
 app.listen(config.port);
 console.log(config.app.name + ' running ');
