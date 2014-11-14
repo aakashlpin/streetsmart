@@ -1,10 +1,10 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
     <head>
-    	<!-- NAME: 1 COLUMN -->
+    	<!-- NAME: RIGHT SIDEBAR -->
         <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Price change notification for <%= product.productName %></title>
+        <title>*|MC:SUBJECT|*</title>
         
     <style type="text/css">
 		body,#bodyTable,#bodyCell{
@@ -236,6 +236,14 @@
 		}
 	/*
 	@tab Body
+	@section body style
+	@tip Set the background color and borders for your email's body area.
+	*/
+		#templateSidebar{
+			/*@editable*/border-left:0;
+		}
+	/*
+	@tab Body
 	@section body text
 	@tip Set the styling for your email's body text. Choose a size and color that is easy to read.
 	*/
@@ -252,6 +260,44 @@
 	@tip Set the styling for your email's body links. Choose a color that helps them stand out from your text.
 	*/
 		.bodyContainer .mcnTextContent a{
+			/*@editable*/color:#6DC6DD;
+			/*@editable*/font-weight:normal;
+			/*@editable*/text-decoration:underline;
+		}
+	/*
+	@tab Sidebar
+	@section sidebar style
+	@tip Set the background color and borders for your email's sidebar area.
+	*/
+		#templateSidebar{
+			/*@editable*/background-color:#FFFFFF;
+		}
+	/*
+	@tab Sidebar
+	@section sidebar style
+	@tip Set the background color and borders for your email's sidebar area.
+	*/
+		#templateSidebarInner{
+			/*@editable*/border-left:0;
+		}
+	/*
+	@tab Sidebar
+	@section sidebar text
+	@tip Set the styling for your email's sidebar text. Choose a size and color that is easy to read.
+	*/
+		.sidebarContainer .mcnTextContent,.sidebarContainer .mcnTextContent p{
+			/*@editable*/color:#606060;
+			/*@editable*/font-family:Helvetica;
+			/*@editable*/font-size:13px;
+			/*@editable*/line-height:125%;
+			/*@editable*/text-align:left;
+		}
+	/*
+	@tab Sidebar
+	@section sidebar link
+	@tip Set the styling for your email's sidebar links. Choose a color that helps them stand out from your text.
+	*/
+		.sidebarContainer .mcnTextContent a{
 			/*@editable*/color:#6DC6DD;
 			/*@editable*/font-weight:normal;
 			/*@editable*/text-decoration:underline;
@@ -375,23 +421,6 @@
 		}
 
 }	@media only screen and (max-width: 480px){
-		td[class=mcnImageCardLeftImageContent],td[class=mcnImageCardRightImageContent]{
-			padding-right:18px !important;
-			padding-left:18px !important;
-			padding-bottom:0 !important;
-		}
-
-}	@media only screen and (max-width: 480px){
-		td[class=mcnImageCardBottomImageContent]{
-			padding-bottom:9px !important;
-		}
-
-}	@media only screen and (max-width: 480px){
-		td[class=mcnImageCardTopImageContent]{
-			padding-top:18px !important;
-		}
-
-}	@media only screen and (max-width: 480px){
 		table[class=mcnCaptionLeftContentOuter] td[class=mcnTextContent],table[class=mcnCaptionRightContentOuter] td[class=mcnTextContent]{
 			padding-top:9px !important;
 		}
@@ -408,6 +437,13 @@
 		}
 
 }	@media only screen and (max-width: 480px){
+		td[class=sectionContainer]{
+			display:block !important;
+			max-width:600px !important;
+			width:100% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
 		td[class=mcnTextContent]{
 			padding-right:18px !important;
 			padding-left:18px !important;
@@ -419,7 +455,7 @@
 	@section template width
 	@tip Make the template fluid for portrait or landscape view adaptability. If a fluid layout doesn't work for you, set the width to 300px instead.
 	*/
-		table[id=templateContainer],table[id=templatePreheader],table[id=templateHeader],table[id=templateBody],table[id=templateFooter]{
+		table[id=templateContainer],table[id=templatePreheader],table[id=templateHeader],table[id=templateBody],table[id=templateBodyInner],table[id=templateSidebar],table[id=templateSidebarInner],table[id=templateFooter]{
 			/*@tab Mobile Styles
 @section template width
 @tip Make the template fluid for portrait or landscape view adaptability. If a fluid layout doesn't work for you, set the width to 300px instead.*/max-width:600px !important;
@@ -527,6 +563,29 @@
 }	@media only screen and (max-width: 480px){
 	/*
 	@tab Mobile Styles
+	@section Sidebar Text
+	@tip Make the sidebar text larger in size for better readability on small screens. We recommend a font size of at least 16px.
+	*/
+		td[class=sidebarContainer] td[class=mcnTextContent],td[class=sidebarContainer] td[class=mcnTextContent] p{
+			/*@editable*/font-size:18px !important;
+			/*@editable*/line-height:125% !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		table[id=templateSidebar]{
+			border-left:0 !important;
+			border-right:0 !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+		table[id=templateSidebarInner]{
+			border-left:0 !important;
+			border-right:0 !important;
+		}
+
+}	@media only screen and (max-width: 480px){
+	/*
+	@tab Mobile Styles
 	@section footer text
 	@tip Make the body content text larger in size for better readability on small screens.
 	*/
@@ -557,27 +616,28 @@
     <tbody class="mcnTextBlockOuter">
         <tr>
             <td valign="top" class="mcnTextBlockInner">
-            
-	            <table align="left" border="0" cellpadding="0" cellspacing="0" width="366" class="mcnTextContentContainer">
-	                <tbody><tr>
-	                    
-	                    <td valign="top" class="mcnTextContent" style="padding-top:9px; padding-left:18px; padding-bottom:9px; padding-right:0;font-size:12px;color:#7f8c8d;">
-	                    
-	                        Price Drop Alert from Cheapass
-	                    </td>
-	                </tr>
-	            </tbody></table>
-	            
-	            <table align="right" border="0" cellpadding="0" cellspacing="0" width="197" class="mcnTextContentContainer">
-	                <tbody><tr>
-	                    
-	                    <td valign="top" class="mcnTextContent" style="padding-top:9px; padding-right:18px; padding-bottom:9px; padding-left:0;">
-	                    
-	                        <div style="text-align: right;"><img align="none" height="16" src="https://gallery.mailchimp.com/8f82924a01c5bcd58324fe5a2/images/c4683f58-7df8-4a62-8d09-3a1f10a64ff7.png" style="width: 80px; height: 16px; margin: 0px;" width="80"></div>
+                
+                <table align="left" border="0" cellpadding="0" cellspacing="0" width="366" class="mcnTextContentContainer">
+                    <tbody><tr>
+                        
+                        <td valign="top" class="mcnTextContent" style="padding-top:9px; padding-left:18px; padding-bottom:9px; padding-right:0;">
+                        
+                            Price drop Alert for <%= product.productName %> on <%= product.seller %>
+                        </td>
+                    </tr>
+                </tbody></table>
+                
+                <table align="right" border="0" cellpadding="0" cellspacing="0" width="197" class="mcnTextContentContainer">
+                    <tbody><tr>
+                        
+                        <td valign="top" class="mcnTextContent" style="padding-top:9px; padding-right:18px; padding-bottom:9px; padding-left:0;">
+                        
+                            <div style="text-align: right;"><img align="none" height="16" src="https://gallery.mailchimp.com/8f82924a01c5bcd58324fe5a2/images/c4683f58-7df8-4a62-8d09-3a1f10a64ff7.png" style="width: 80px; height: 16px; margin: 0px;" width="80"></div>
 
-	                    </td>
-	                </tr>
-	            </tbody></table>
+                        </td>
+                    </tr>
+                </tbody></table>
+                
             </td>
         </tr>
     </tbody>
@@ -589,61 +649,10 @@
                             </tr>
                             <tr>
                                 <td align="center" valign="top">
-                                    <!-- BEGIN BODY // -->
-                                    <table border="0" cellpadding="0" cellspacing="0" width="600" id="templateBody">
+                                    <!-- BEGIN HEADER // -->
+                                    <table border="0" cellpadding="0" cellspacing="0" width="600" id="templateHeader">
                                         <tr>
-                                            <td valign="top" class="bodyContainer">
-                                            <table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnCaptionBlock">
-    <tbody class="mcnCaptionBlockOuter">
-        <tr>
-            <td class="mcnCaptionBlockInner" valign="top" style="padding:9px;">
-                
-
-<table align="left" border="0" cellpadding="0" cellspacing="0" class="mcnCaptionBottomContent" width="false">
-    <tbody><tr>
-        <td class="mcnCaptionBottomImageContent" align="center" valign="top" style="padding:0 9px 9px 9px;">
-        
-            
-
-            <img alt="<%= product.productName %>" src="<%= product.productImage %>" width="193" style="max-width:193px;" class="mcnImage">
-            
-        
-        </td>
-    </tr>
-    <tr>
-        <td class="mcnTextContent" valign="top" style="padding: 0px 9px; text-align: center;" width="564">
-            <strong><%= product.productName %><br>
-<br>
-<span style="font-size: 20px;">Rs. <%= product.currentPrice %>/-</span><br>
-<span style="text-decoration:line-through;color:#b3bfcb;font-size: 12px;">Rs. <%= product.storedPrice %>/-</span></strong>
-        </td>
-    </tr>
-</tbody></table>
-
-
-
-
-
-            </td>
-        </tr>
-    </tbody>
-</table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnButtonBlock">
-    <tbody class="mcnButtonBlockOuter">
-        <tr>
-            <td style="padding-top:0; padding-right:18px; padding-bottom:18px; padding-left:18px;" valign="top" align="center" class="mcnButtonBlockInner">
-                <table border="0" cellpadding="0" cellspacing="0" class="mcnButtonContentContainer" style="border-collapse: separate !important;border: 2px solid #5BC0DE;border-top-left-radius: 5px;border-top-right-radius: 5px;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;background-color: #5BC0DE;">
-                    <tbody>
-                        <tr>
-                            <td align="center" valign="middle" class="mcnButtonContent" style="font-family: Arial; font-size: 16px; padding: 16px;">
-                                <a class="mcnButton " title="BUY NOW" href="<%= product.productURL %>" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">BUY NOW</a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </td>
-        </tr>
-    </tbody>
-</table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock">
+                                            <td valign="top" class="headerContainer"><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock">
     <tbody class="mcnTextBlockOuter">
         <tr>
             <td valign="top" class="mcnTextBlockInner">
@@ -651,9 +660,9 @@
                 <table align="left" border="0" cellpadding="0" cellspacing="0" width="600" class="mcnTextContentContainer">
                     <tbody><tr>
                         
-                        <td valign="top" class="mcnTextContent" style="padding: 9px 18px;color: #8D8D8D;font-size: 12px;line-height: 100%;">
+                        <td valign="top" class="mcnTextContent" style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
                         
-                            <div style="text-align: center;"><em>The prices&nbsp;might have changed since this email was sent. Remember to check the prices before buying.</em></div>
+                            <div style="text-align: center;"><span style="color:#34495e"><strong><span style="font-size:20px">Voila! Prices have dropped</span></strong></span></div>
 
                         </td>
                     </tr>
@@ -662,7 +671,167 @@
             </td>
         </tr>
     </tbody>
-</table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnDividerBlock">
+</table></td>
+                                        </tr>
+                                    </table>
+                                    <!-- // END HEADER -->
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center" valign="top">
+                                    <!-- BEGIN BODY // -->
+                                    <table border="0" cellpadding="0" cellspacing="0" width="600" id="templateBody">
+                                        <tr>
+                                            <td align="center" valign="top" width="390" class="sectionContainer">
+                                            	<table border="0" cellpadding="0" cellspacing="0" width="100%" id="templateBodyInner">
+                                                	<tr>
+                                                    	<td valign="top" class="bodyContainer"><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnCaptionBlock">
+    <tbody class="mcnCaptionBlockOuter">
+        <tr>
+            <td class="mcnCaptionBlockInner" valign="top" style="padding:9px;">
+                
+
+
+
+<table border="0" cellpadding="0" cellspacing="0" class="mcnCaptionRightContentOuter" width="100%">
+    <tbody><tr>
+        <td valign="top" class="mcnCaptionRightContentInner" style="padding:0 9px ;">
+            <table align="left" border="0" cellpadding="0" cellspacing="0" class="mcnCaptionRightImageContentContainer">
+                <tbody><tr>
+                    <td class="mcnCaptionRightImageContent" valign="top">
+                    
+                        
+
+                        <img alt="" src="https://gallery.mailchimp.com/8f82924a01c5bcd58324fe5a2/images/24a8c573-1c44-4ad8-a4c9-167db9de6dde.jpg" width="162" style="max-width:193px;" class="mcnImage">
+                        
+
+                    
+                    </td>
+                </tr>
+            </tbody></table>
+            <table class="mcnCaptionRightTextContentContainer" align="right" border="0" cellpadding="0" cellspacing="0" width="162">
+                <tbody><tr>
+                    <td valign="top" class="mcnTextContent">
+                        <div style="text-align: center;"><%= product.productName %> (<span style="line-height:20.7999992370605px"><%= product.seller %></span>)<br>
+<br>
+&nbsp;</div>
+
+<div style="text-align: center;"><span style="font-size:20px"><strong>Rs. <%= product.currentPrice %>/-<br>
+<span style="text-decoration:line-through;color:#b3bfcb"><span style="font-size:14px">Rs. <%= product.storedPrice %>/-</span></span></strong></span></div>
+	<div style="text-align: center;">
+		<a class="mcnButton " title="BUY NOW" href="<%= product.productURL %>" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;border: 2px solid #5BC0DE;border-top-left-radius: 5px;border-top-right-radius: 5px;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;background-color: #5BC0DE; padding: 16px;">BUY NOW</a>
+	</div>
+	<div style="text-align: center;">
+		<a class="mcnButton " title="Manage your alerts" href="<%= user.dashboardURL %>" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;border: 2px solid #1ABC9C;border-top-left-radius: 5px;border-top-right-radius: 5px;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;background-color: #1ABC9C; padding: 16px;">Manage your alerts</a>
+	</div>
+
+                    </td>
+                </tr>
+            </tbody></table>
+        </td>
+    </tr>
+</tbody></table>
+
+
+
+
+            </td>
+        </tr>
+    </tbody>
+</table></td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                            <td align="center" valign="top" width="200" class="sectionContainer">
+                                                <table border="0" cellpadding="0" cellspacing="0" width="100%" id="templateSidebar">
+                                                	<tr>
+                                                    	<td align="right" valign="top">
+                                                        	<table border="0" cellpadding="0" cellspacing="0" width="100%" id="templateSidebarInner">
+                                                            	<tr>
+                                                                	<td valign="top" class="sidebarContainer"><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnCaptionBlock">
+    <tbody class="mcnCaptionBlockOuter">
+        <tr>
+            <td class="mcnCaptionBlockInner" valign="top" style="padding:9px;">
+                
+
+
+
+<table align="left" border="0" cellpadding="0" cellspacing="0" class="mcnCaptionTopContent" width="false">
+    <tbody><tr>
+        <td class="mcnTextContent" valign="top" style="padding:0 9px 0 9px;" width="168">
+            <div style="text-align: center;"><span style="font-size:16px"><span style="color:#e74c3c"><strong>LIVE DEALS</strong></span></span></div>
+
+        </td>
+    </tr>
+    <tr>
+        <td class="mcnCaptionTopImageContent" align="left" valign="top" style="padding:9px 9px 0 9px;">
+        
+            
+
+            <img alt="" src="https://gallery.mailchimp.com/8f82924a01c5bcd58324fe5a2/images/fd1c97d1-9db8-49e3-b245-2ea56eced34a.png" width="168" style="max-width:300px;" class="mcnImage">
+
+            
+        
+        </td>
+    </tr>
+</tbody></table>
+
+
+
+            </td>
+        </tr>
+    </tbody>
+</table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnCaptionBlock">
+    <tbody class="mcnCaptionBlockOuter">
+        <tr>
+            <td class="mcnCaptionBlockInner" valign="top" style="padding:9px;">
+                
+
+
+
+<table align="left" border="0" cellpadding="0" cellspacing="0" class="mcnCaptionTopContent" width="false">
+    <tbody><tr>
+        <td class="mcnTextContent" valign="top" style="padding:0 9px 0 9px;" width="168">
+            
+        </td>
+    </tr>
+    <tr>
+        <td class="mcnCaptionTopImageContent" align="left" valign="top" style="padding:9px 9px 0 9px;">
+        
+            
+
+            <img alt="" src="https://gallery.mailchimp.com/8f82924a01c5bcd58324fe5a2/images/fd1c97d1-9db8-49e3-b245-2ea56eced34a.png" width="168" style="max-width:300px;" class="mcnImage">
+
+            
+        
+        </td>
+    </tr>
+</tbody></table>
+
+
+
+            </td>
+        </tr>
+    </tbody>
+</table>
+</td>
+                                                                </tr>
+                                                            </table>
+                                                        </td>
+                                                    </tr>
+                                                </table>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <!-- // END BODY -->
+                                </td>
+                            </tr>
+                            <tr>
+                                <td align="center" valign="top">
+                                    <!-- BEGIN FOOTER // -->
+                                    <table border="0" cellpadding="0" cellspacing="0" width="600" id="templateFooter">
+                                        <tr>
+                                            <td valign="top" class="footerContainer" style="padding-bottom:9px;"><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnDividerBlock">
     <tbody class="mcnDividerBlockOuter">
         <tr>
             <td class="mcnDividerBlockInner" style="padding: 18px;">
@@ -684,9 +853,8 @@
                         <tbody><tr>
                             <td class="mcnImageContent" valign="top" style="padding-right: 9px; padding-left: 9px; padding-top: 0; padding-bottom: 0; text-align:center;">
                                 
-                                    <a href="<%= product.deal.url %>" >
-	                                    <img align="center" alt="Live Deal on <%= product.seller %>" src="<%= product.deal.image %>" width="100%" style="max-width:680px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
-                                    </a>
+                                    
+                                        <img align="center" alt="" src="https://gallery.mailchimp.com/8f82924a01c5bcd58324fe5a2/images/4d2eff61-b6ed-418b-9887-8ee17a21f8de.png" width="564" style="max-width:680px; padding-bottom: 0; display: inline !important; vertical-align: bottom;" class="mcnImage">
                                     
                                 
                             </td>
@@ -694,36 +862,6 @@
                     </tbody></table>
                 </td>
             </tr>
-    </tbody>
-</table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnDividerBlock">
-    <tbody class="mcnDividerBlockOuter">
-        <tr>
-            <td class="mcnDividerBlockInner" style="padding: 18px;">
-                <table class="mcnDividerContent" border="0" cellpadding="0" cellspacing="0" width="100%" style="border-top-width: 1px;border-top-style: solid;border-top-color: #999999;">
-                    <tbody><tr>
-                        <td>
-                            <span></span>
-                        </td>
-                    </tr>
-                </tbody></table>
-            </td>
-        </tr>
-    </tbody>
-</table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnButtonBlock">
-    <tbody class="mcnButtonBlockOuter">
-        <tr>
-            <td style="padding-top:0; padding-right:18px; padding-bottom:18px; padding-left:18px;" valign="top" align="center" class="mcnButtonBlockInner">
-                <table border="0" cellpadding="0" cellspacing="0" class="mcnButtonContentContainer" style="border-collapse: separate !important;border: 2px solid #1ABC9C;border-top-left-radius: 5px;border-top-right-radius: 5px;border-bottom-right-radius: 5px;border-bottom-left-radius: 5px;background-color: #1ABC9C;">
-                    <tbody>
-                        <tr>
-                            <td align="center" valign="middle" class="mcnButtonContent" style="font-family: Arial; font-size: 16px; padding: 16px;">
-                                <a class="mcnButton " title="Manage your alerts" href="<%= user.dashboardURL %>" target="_blank" style="font-weight: bold;letter-spacing: normal;line-height: 100%;text-align: center;text-decoration: none;color: #FFFFFF;">Manage your alerts</a>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </td>
-        </tr>
     </tbody>
 </table><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnFollowBlock">
     <tbody class="mcnFollowBlockOuter">
@@ -845,35 +983,6 @@
     </tr>
 </tbody></table>
 
-            </td>
-        </tr>
-    </tbody>
-</table></td>
-                                        </tr>
-                                    </table>
-                                    <!-- // END BODY -->
-                                </td>
-                            </tr>
-                            <tr>
-                                <td align="center" valign="top">
-                                    <!-- BEGIN FOOTER // -->
-                                    <table border="0" cellpadding="0" cellspacing="0" width="600" id="templateFooter">
-                                        <tr>
-                                            <td valign="top" class="footerContainer" style="padding-bottom:9px;"><table border="0" cellpadding="0" cellspacing="0" width="100%" class="mcnTextBlock">
-    <tbody class="mcnTextBlockOuter">
-        <tr>
-            <td valign="top" class="mcnTextBlockInner">
-                
-                <table align="left" border="0" cellpadding="0" cellspacing="0" width="600" class="mcnTextContentContainer">
-                    <tbody><tr>
-                        
-                        <td valign="top" class="mcnTextContent" style="padding-top:9px; padding-right: 18px; padding-bottom: 9px; padding-left: 18px;">
-                        
-                            <em>Copyright © 2014 | Cheapass India | All rights reserved.</em>
-                        </td>
-                    </tr>
-                </tbody></table>
-                
             </td>
         </tr>
     </tbody>
