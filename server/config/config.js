@@ -26,37 +26,16 @@ var commonConfig = {
     FACEBOOK_APP_ID: '244555115743180',
     FACEBOOK_APP_SECRET: 'c36b7d49a79ecdae990a6a41077eae51',
     adminsFacebookEmailIds: ['aakash.lpin@gmail.com'],
+    AWS_ACCESS_KEY_ID: 'AKIAIFTVMHU7YXZR6HUQ',
+    AWS_SECRET_ACCESS_KEY: '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',
+    AWS_BUCKET_PREFIX: 'http://cheapass-india.s3.amazonaws.com/',
+    processDealsInterval: {
+        'development': '3-59/5 * * * *',
+        'production': '3-59/15 * * * *'
+    },
     processAllProductsInterval: {
         'development': '0-59/5 * * * *',
-        'production': '0-59/10 * * * *'
-    },
-    youtubeDLSites: ['8tracks.com', '9gag.com', '9gag.tv', 'bandcamp.com',
-     'blip.tv', 'collegehumor.com', 'cc.com', 'dailymotion.com',
-     'discovery.com', 'engadget.com', 'extremetube.com', 'funnyordie.com',
-     'imdb.com', 'justin.tv', 'twitch.tv', 'keezmovies.com', 'khanacademy.org',
-     'kickstarter.com', 'lynda.com', 'metacafe.com', 'mtv.com', 'pornhub.com',
-     'pornhd.com', 'pornotube.com', 'rottentomatoes.com', 'soundcloud.com',
-     'spankwire.com', 'ted.com', 'tube8.com', 'udemy.com', 'vh1.com',
-     'vimeo.com', 'vuclip.com', 'xtube.com', 'youtube.com'],
-    videoSites: {
-        hornbunny: {
-            url: 'hornbunny.com'
-        },
-        xvideos: {
-            url: 'xvideos.com'
-        },
-        youporn: {
-            url: 'youporn.com'
-        },
-        xhamster: {
-            url: 'xhamster.com'
-        },
-        xnxx: {
-            url: 'xnxx.com'
-        },
-        redtube: {
-            url: 'redtube.com'
-        }
+        'production': '2-59/10 * * * *'
     },
     sellers: {
         flipkart: {
@@ -161,6 +140,34 @@ var commonConfig = {
                 'development': '4-59/5 * * * *',
                 'production': '30 1-23/3 * * *'
             }
+        }
+    },
+    youtubeDLSites: ['8tracks.com', '9gag.com', '9gag.tv', 'bandcamp.com',
+     'blip.tv', 'collegehumor.com', 'cc.com', 'dailymotion.com',
+     'discovery.com', 'engadget.com', 'extremetube.com', 'funnyordie.com',
+     'imdb.com', 'justin.tv', 'twitch.tv', 'keezmovies.com', 'khanacademy.org',
+     'kickstarter.com', 'lynda.com', 'metacafe.com', 'mtv.com', 'pornhub.com',
+     'pornhd.com', 'pornotube.com', 'rottentomatoes.com', 'soundcloud.com',
+     'spankwire.com', 'ted.com', 'tube8.com', 'udemy.com', 'vh1.com',
+     'vimeo.com', 'vuclip.com', 'xtube.com', 'youtube.com'],
+    videoSites: {
+        hornbunny: {
+            url: 'hornbunny.com'
+        },
+        xvideos: {
+            url: 'xvideos.com'
+        },
+        youporn: {
+            url: 'youporn.com'
+        },
+        xhamster: {
+            url: 'xhamster.com'
+        },
+        xnxx: {
+            url: 'xnxx.com'
+        },
+        redtube: {
+            url: 'redtube.com'
         }
     }
 };

@@ -8,6 +8,7 @@ var gcm = require('node-gcm');
 var mongoose = require('mongoose');
 var UserModel = mongoose.model('User');
 var sellerUtils = require('../utils/seller');
+var background = require('./background');
 
 function removeJob(job) {
     job.remove(function(err) {
@@ -19,44 +20,55 @@ function removeJob(job) {
     });
 }
 
+function extendProductDataWithDeal (productData, callback) {
+    background.getCurrentDeal(function (err, deal) {
+        if (deal) {
+            productData.deal = deal;
+        }
+        callback(err, productData);
+    });
+}
+
 function sendNotifications(emailUser, emailProduct) {
     UserModel.findOne({email: emailUser.email}).lean().exec(function(err, userDoc) {
         emailUser._id = userDoc._id;
 
         //send notification email for price change
-        Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
-            if (err) {
-                logger.log('error', 'while sending notifier email', {err: err});
-            } else {
-                logger.log('info', 'successfully sent notifier email', {message: message});
-                //update the emails counter
-                sellerUtils.increaseCounter('emailsSent');
+        extendProductDataWithDeal(emailProduct, function (err, emailProduct) {
+            Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
+                if (err) {
+                    logger.log('error', 'while sending notifier email', {err: err});
+                } else {
+                    logger.log('info', 'successfully sent notifier email', {message: message});
+                    //update the emails counter
+                    sellerUtils.increaseCounter('emailsSent');
+                }
+            });
+
+            if (userDoc && userDoc.deviceIds && userDoc.deviceIds.length) {
+                var priceChangeMessage = 'Price of ' + emailProduct.productName + ' has ' + emailProduct.measure + ' to ' + 'Rs.' + emailProduct.currentPrice + '/-';
+                var message = new gcm.Message({
+                    data: {
+                        'price_drop': priceChangeMessage,
+                        'product_url': emailProduct.productURL
+                    }
+                });
+
+                var sender = new gcm.Sender(config.googleServerAPIKey);
+                var registrationIds = userDoc.deviceIds;
+
+                /**
+                 * Params: message-literal, registrationIds-array, No. of retries, callback-function
+                 **/
+                sender.send(message, registrationIds, 4, function (err, result) {
+                    if (err) {
+                        logger.log('error', 'error sending push notification', err);
+                    } else {
+                        logger.log('info', 'mobile notification sent', result);
+                    }
+                });
             }
         });
-
-        if (userDoc && userDoc.deviceIds && userDoc.deviceIds.length) {
-            var priceChangeMessage = 'Price of ' + emailProduct.productName + ' has ' + emailProduct.measure + ' to ' + 'Rs.' + emailProduct.currentPrice + '/-';
-            var message = new gcm.Message({
-                data: {
-                    'price_drop': priceChangeMessage,
-                    'product_url': emailProduct.productURL
-                }
-            });
-
-            var sender = new gcm.Sender(config.googleServerAPIKey);
-            var registrationIds = userDoc.deviceIds;
-
-            /**
-             * Params: message-literal, registrationIds-array, No. of retries, callback-function
-             **/
-            sender.send(message, registrationIds, 4, function (err, result) {
-                if (err) {
-                    logger.log('error', 'error sending push notification', err);
-                } else {
-                    logger.log('info', 'mobile notification sent', result);
-                }
-            });
-        }
     });
 }
 

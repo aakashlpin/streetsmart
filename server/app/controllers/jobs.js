@@ -189,9 +189,21 @@ function createCronTabForAllProducts () {
     //set up cron job
     new CronJob({
         cronTime: config.processAllProductsInterval[env],
-        onTick: function() {
-            bgTask.processAllProducts();
-        },
+        onTick: bgTask.processAllProducts,
+        start: true,
+        timeZone: 'Asia/Kolkata'
+    });
+}
+
+function createCronTabForDeals () {
+    var env = process.env.NODE_ENV || 'development';
+
+    bgTask.refreshDeal();
+
+    //set up cron job
+    new CronJob({
+        cronTime: config.processDealsInterval[env],
+        onTick: bgTask.refreshDeal,
         start: true,
         timeZone: 'Asia/Kolkata'
     });
@@ -200,6 +212,8 @@ function createCronTabForAllProducts () {
 function init() {
     //for request from home page, pre-process all products and keep the data in memory
     createCronTabForAllProducts();
+    //for sending price drop emails, keep deals ready
+    createCronTabForDeals();
 
     if (!config.isCronActive) {
         logger.log('info', '=========== Cron Jobs are disabled =============');
