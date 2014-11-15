@@ -11,7 +11,7 @@ function Deal(seller, adType) {
 	var pageUrl, selectors, screenshotName;
 
 	if (seller === 'amazon') {
-		pageUrl = 'http://www.amazon.in/gp/goldbox/ref=nav_topnav_deals';
+		pageUrl = 'http://www.amazon.in/gp/goldbox/ref=nav_topnav_deals?' + config.sellers.amazon.key + '=' + config.sellers.amazon.value;
 		if (adType === 'banner') {
 			selectors = [
 				{
