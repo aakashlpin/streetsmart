@@ -8,6 +8,8 @@ var moment = require('moment');
 var logger = require('../../logger').logger;
 var initialBatchSize = 50;
 var futureBatchSize = 20;
+var Deal = require('../lib/deals').Deal;
+var currentDeal;
 
 var processedData = [];
 var totalPages = 0;
@@ -18,6 +20,24 @@ function getLeastPriceFromHistory (history) {
 	}
 
 	return _.sortBy(history, 'price')[0];
+}
+
+function refreshDeal (callback) {
+	callback = callback || function() {};
+
+	var deal = new Deal('amazon', 'banner');
+	deal.getDeal(function (err, dealObj) {
+		if (!err) {
+			console.log(err, dealObj)
+			currentDeal = dealObj;
+			callback(null, currentDeal);
+			deal = null;
+
+		} else {
+			callback(err, null);
+			deal = null;
+		}
+	});
 }
 
 module.exports = {
@@ -93,5 +113,13 @@ module.exports = {
 	},
 	getTotalPages: function () {
 		return totalPages;
-	}
+	},
+	getCurrentDeal: function (callback) {
+		if (currentDeal) {
+			callback(null, currentDeal);
+		} else {
+			refreshDeal(callback);
+		}
+	},
+	refreshDeal: refreshDeal
 };

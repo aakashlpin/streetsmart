@@ -10,3 +10,4 @@ server/newrelic_agent.log
 .idea
 server/scripts/backup
 blog/content/data/ghost-dev.db
+server/screenshots
