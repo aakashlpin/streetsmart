@@ -22,9 +22,7 @@ function removeJob(job) {
 
 function extendProductDataWithDeal (productData, callback) {
     background.getCurrentDeal(function (err, deal) {
-        if (deal) {
-            productData.deal = deal;
-        }
+        productData.deal = deal || {};
         callback(err, productData);
     });
 }
