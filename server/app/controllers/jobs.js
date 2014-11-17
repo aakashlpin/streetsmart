@@ -102,12 +102,15 @@ function processURL(url, callback, isBackgroundTask) {
         } else {
             handleURLFailure(requestOptions, seller, error, response, body, callback);
         }
+
+        if (isBackgroundTask) {
+            latestJobProcessedAt = moment();
+        }
     });
 }
 
 function queueProcess() {
     queue.process(function (job, done) {
-        latestJobProcessedAt = moment();
         processURL(job.data.productURL, done, true /*isBackgroundTask*/);
     });
 }
