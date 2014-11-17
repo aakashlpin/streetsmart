@@ -18,9 +18,9 @@ var args = [
 	'--output', screenShotName,
 ];
 
-args.push('--selector', '.SINGLE-DEAL-LARGE');
-// args.push('--selector', '.RIGHT-COL-SDL');
-args.push('--javascript-file', __dirname + '/amazon_hide.js');
+// args.push('--selector', '.SINGLE-DEAL-LARGE');
+args.push('--selector', '.ONETHIRTYFIVE-HERO .gbwshoveler ul');
+// args.push('--javascript-file', __dirname + '/amazon_hide.js');
 
 var screenShotProcess = spawn('capturejs', args, {
 	cwd: __dirname + '/screenshots'

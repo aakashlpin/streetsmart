@@ -4,6 +4,7 @@ var spawn = require('child_process').spawn;
 var moment = require('moment');
 var config = require('../../config/config');
 var logger = require('../../logger').logger;
+var _ = require('underscore');
 
 function Deal(seller, adType) {
 	var userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36';
@@ -17,6 +18,10 @@ function Deal(seller, adType) {
 				{
 					fileId: 1,
 					cssSelector: '.SINGLE-DEAL-LARGE'		//680x310
+				},
+				{
+					cssSelector: '.ONETHIRTYFIVE-HERO .gbwshoveler ul',
+					viewportSize: '700x500'
 				}
 			];
 		} else if (adType === 'small') {
@@ -47,11 +52,13 @@ function Deal(seller, adType) {
 
 	screenshotName = adType + '_' + seller + '_' + moment().format('YYMMDDHHmm') + '.png';
 
-	var chosenSelector = selectors[0];	//TODO make it random
+	var chosenSelector = selectors[_.sample(_.range(selectors.length))];
 	var javascriptFilename;
 	if (chosenSelector.fileId) {
 		javascriptFilename = __dirname + '/helpers/' + adType + '_' + seller + '_' + chosenSelector.fileId + '.js';
 	}
+
+	viewportSize = chosenSelector.viewportSize || viewportSize;
 
 	this.args = [
 		'--uri', pageUrl,

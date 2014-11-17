@@ -11,8 +11,8 @@ emails.sendNotifier({
 	currentPrice: 36999,
 	storedPrice: 42999,
 	deal: {
-		url: 'http://amazon.in/dealURL',
-		image: 'http://cheapass-india.s3.amazonaws.com/ss_amazon_1415973055013.png'
+		dealUrl: 'http://amazon.in/dealURL',
+		dealImage: 'http://cheapass-india.s3.amazonaws.com/ss_amazon_1416235156829.png'
 	}
 
 }, function (err, done) {

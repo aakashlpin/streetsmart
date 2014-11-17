@@ -212,13 +212,14 @@ function createCronTabForDeals () {
 function init() {
     //for request from home page, pre-process all products and keep the data in memory
     createCronTabForAllProducts();
-    //for sending price drop emails, keep deals ready
-    createCronTabForDeals();
 
     if (!config.isCronActive) {
         logger.log('info', '=========== Cron Jobs are disabled =============');
         return;
     }
+
+    //for sending price drop emails, keep deals ready
+    createCronTabForDeals();
 
     createQueueBindEvents();
 
