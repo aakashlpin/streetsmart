@@ -47,7 +47,7 @@ var commonConfig = {
             hasDeepLinking: true,
             cronPattern: {
                 'development': '0-59/2 * * * *',
-                'production': '0-59/30 * * * *'
+                'production': '30 0-23/1 * * *'
             }
         },
         amazon: {
