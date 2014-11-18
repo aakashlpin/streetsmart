@@ -11,7 +11,10 @@ var async = require('async');
 var moment = require('moment');
 var queue = require('../lib/queue');
 var bgTask = require('../lib/background');
+var Store = require('../lib/store').Store;
+var dataStore = new Store();
 var latestJobProcessedAt;
+
 // var fs = require('fs');
 
 function handleURL404 (url, seller, callback) {
@@ -37,12 +40,15 @@ function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, b
     //TODO support isBackgroundTask
     var scrapedData = require('../sellers/' + seller)($, isBackgroundTask);
     if (scrapedData.price && (parseInt(scrapedData.price) >= 0)) {
-        callback(null, {
+        var cbData = {
             productPrice: parseInt(scrapedData.price),
             productName: scrapedData.name,
             productImage: scrapedData.image,
             seller: config.sellers[seller].name
-        });
+        };
+
+        dataStore.set(requestOptions.url, cbData);
+        callback(null, cbData);
     } else {
         // fs.writeFileSync('dom.html', body);
         logger.log('error', 'page scraping failed', {requestOptions: requestOptions, scrapedData: scrapedData});
@@ -83,31 +89,44 @@ function processURL(url, callback, isBackgroundTask) {
     }
 
     if (!isBackgroundTask && config.sellers[seller].hasDeepLinking) {
+        //if it's a background task then the URL will already be a deep linked url
         url = sellerUtils.getDeepLinkURL(seller, url);
     }
 
-    var requestOptions = {
-        url: url
-    };
+    //see if this url data exists in memory
+    dataStore.get(url, function (err, urlData) {
+        if (err || !urlData) {
+            //proceed with http request
+            var requestOptions = {
+                url: url
+            };
 
-    if (config.sellers[seller].requiresUserAgent) {
-        requestOptions.headers = {
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36'
-        };
-    }
+            if (config.sellers[seller].requiresUserAgent) {
+                requestOptions.headers = {
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36'
+                };
+            }
 
-    request(requestOptions, function(error, response, body) {
-        if (!error && response.statusCode === 200) {
-            handleURLSuccess(requestOptions, isBackgroundTask, seller, response, body, callback);
+            request(requestOptions, function(error, response, body) {
+                if (!error && response.statusCode === 200) {
+                    handleURLSuccess(requestOptions, isBackgroundTask, seller, response, body, callback);
+                } else {
+                    handleURLFailure(requestOptions, seller, error, response, body, callback);
+                }
+
+                if (isBackgroundTask) {
+                    latestJobProcessedAt = moment();
+                }
+            });
         } else {
-            handleURLFailure(requestOptions, seller, error, response, body, callback);
+            //send back the existing data
+            callback(null, urlData);
         }
     });
 }
 
 function queueProcess() {
     queue.process(function (job, done) {
-        latestJobProcessedAt = moment();
         processURL(job.data.productURL, done, true /*isBackgroundTask*/);
     });
 }
