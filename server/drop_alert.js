@@ -2,7 +2,7 @@
 
 var emails = require('./app/controllers/emails');
 emails.sendNotifier({
-	email: 'aakash@cheapass.in'
+	email: 'pranav.lpin@gmail.com'
 }, {
 	seller: 'amazon',
 	productName: 'Apple iPhone 5s',
