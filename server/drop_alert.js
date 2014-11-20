@@ -2,10 +2,10 @@
 
 var emails = require('./app/controllers/emails');
 emails.sendNotifier({
-	email: 'aakashlpin@gmail.com'
+	email: 'juhi12.mail@gmail.com'
 }, {
 	seller: 'amazon',
-	productName: 'Apple iPhone 5s',
+	productName: 'Apple iPhone 5s 2',
 	productURL: 'https://amazon.in/productURL',
 	productImage: 'http://img6a.flixcart.com/image/mobile/z/h/f/apple-iphone-5s-400x400-imadpppc54zfpj9c.jpeg',
 	currentPrice: 36999,
