@@ -48,16 +48,51 @@ function getDeepLinkURL(seller, url) {
         // http://nodejs.org/api/url.html
         // signature: url.parse(urlStr, [parseQueryString], [slashesDenoteHost])
         var parsedURL = urlLib.parse(url, true);
-        var pidQueryString = (parsedURL.query.pid && (parsedURL.query.pid !== undefined)) ? ('?pid=' + parsedURL.query.pid + '&') : '?';
+        var pidQueryString = (parsedURL.query.pid && (parsedURL.query.pid !== undefined)) ? ('?pid=' + parsedURL.query.pid) : '';
         var affiliateHost = parsedURL.host;
         if (parsedURL.pathname.indexOf('/dl') !== 0) {
             parsedURL.pathname = '/dl' + parsedURL.pathname;
         }
         affiliateHost = affiliateHost.replace('www.flipkart.com', 'dl.flipkart.com');
-        var normalizedURL = parsedURL.protocol + '//' + affiliateHost + parsedURL.pathname + pidQueryString + config.sellers.flipkart.key + '=' + config.sellers.flipkart.value;
+        var normalizedURL = parsedURL.protocol + '//' + affiliateHost + parsedURL.pathname + pidQueryString;
         return normalizedURL;
+
+    } else if (seller === 'snapdeal') {
+        //snapdeal has a few junk chars in `hash`
+        //"#bcrumbSearch:AF-S%20Nikkor%2050mm%20f/1.8G"
+        //so lets ignore the hash altogether and return url until pathname
+        var pUrl = urlLib.parse(url, true);
+        return (pUrl.protocol + '//' + pUrl.host + pUrl.pathname);
     }
 
+    return url;
+}
+
+function getURLWithAffiliateId(url) {
+    var urlSymbol = url.indexOf('?') > 0 ? '&': '?';
+    var seller = getSellerFromURL(url);
+    var sellerKey = config.sellers[seller].key,
+    sellerValue = config.sellers[seller].value,
+    sellerExtraParams = config.sellers[seller].extraParams;
+
+    if (sellerKey && sellerValue) {
+        var stringToMatch = sellerKey + '=' + sellerValue;
+        var urlWithAffiliate;
+        if (url.indexOf(stringToMatch) > 0) {
+            urlWithAffiliate = url;
+        } else {
+            urlWithAffiliate = url + urlSymbol + stringToMatch;
+        }
+
+        //for snapdeal, they have a offer id param as well
+        //in the config file, I've put it as a query string
+        //so simply appending it here would work
+        if (sellerExtraParams) {
+            return urlWithAffiliate + sellerExtraParams;
+        } else {
+            return urlWithAffiliate;
+        }
+    }
     return url;
 }
 
@@ -77,6 +112,7 @@ module.exports = {
     getDeepLinkURL: getDeepLinkURL,
     getVideoSiteFromURL: getVideoSiteFromURL,
     increaseCounter: increaseCounter,
+    getURLWithAffiliateId: getURLWithAffiliateId,
     getSellerJobModelInstance: function(seller) {
         var jobSellerModelName = seller + '_job';
         return mongoose.model(jobSellerModelName);

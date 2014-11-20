@@ -14,33 +14,6 @@ var async = require('async');
 var bgTask = require('../lib/background');
 var request = require('request');
 
-function getURLWithAffiliateId(url) {
-    var urlSymbol = url.indexOf('?') > 0 ? '&': '?';
-    var seller = sellerUtils.getSellerFromURL(url);
-    var sellerKey = config.sellers[seller].key,
-    sellerValue = config.sellers[seller].value,
-    sellerExtraParams = config.sellers[seller].extraParams;
-    if (sellerKey && sellerValue) {
-        var stringToMatch = sellerKey + '=' + sellerValue;
-        var urlWithAffiliate;
-        if (url.indexOf(stringToMatch) > 0) {
-            urlWithAffiliate = url;
-        } else {
-            urlWithAffiliate = url + urlSymbol + stringToMatch;
-        }
-
-        //for snapdeal, they have a offer id param as well
-        //in the config file, I've put it as a query string
-        //so simply appending it here would work
-        if (sellerExtraParams) {
-            return urlWithAffiliate + sellerExtraParams;
-        } else {
-            return urlWithAffiliate;
-        }
-    }
-    return url;
-}
-
 function illegalRequest(res) {
     res.redirect('/500');
 }
@@ -183,7 +156,7 @@ module.exports = {
         }
 
         productData.seller = seller;
-        productData.productURL = getURLWithAffiliateId(productData.productURL);
+        productData.productURL = sellerUtils.getURLWithAffiliateId(productData.productURL);
         productData.email = user.inputEmail;
         if (isJSONPRequested(req.query)) {
             productData.source = 'bookmarklet';
@@ -445,7 +418,7 @@ module.exports = {
     },
     redirectToSeller: function(req, res) {
         if (req.query.url) {
-            var url = getURLWithAffiliateId(decodeURIComponent(req.query.url));
+            var url = sellerUtils.getURLWithAffiliateId(decodeURIComponent(req.query.url));
             res.redirect(url);
 
         } else {
