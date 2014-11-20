@@ -16,7 +16,7 @@ module.exports = function($) {
 		imageDOM = $('[itemprop="image"]');
 		image = imageDOM.attr('src');
 
-		nameDOM = $('[itemprop="name"]');
+		nameDOM = $('.productTitle [itemprop="name"]');
 		name = nameDOM.text().replace(/^\s+|\s+$/g, '');
 
 		response = {

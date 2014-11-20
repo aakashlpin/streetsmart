@@ -71,7 +71,7 @@ module.exports = function(app) {
 	app.get('/api/dashboard/sendDashboardLink', dashboard.sendDashboardLink);
 
 	//1 time migration scripts
-	app.get('/migrate', migrations.smartFlipkartURLs);
+	app.get('/migrate', migrations.sanitizeSnapdealUrls);
 
 	//Mobile APIs
 	var mobile = require('../app/controllers/mobile');

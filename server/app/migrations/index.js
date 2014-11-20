@@ -5,6 +5,7 @@ var _ = require('underscore');
 var sellerUtils = require('../utils/seller');
 var config = require('../../config/config');
 var async = require('async');
+var urlLib = require('url');
 
 module.exports = {
     shardJobs: function(req, res) {
@@ -43,7 +44,6 @@ module.exports = {
         });
     },
     normalizeFlipkartURLs: function(req, res) {
-        var seller = 'flipkart';
         var mongooseModelForFlipkart = sellerUtils.getSellerJobModelInstance('flipkart');
         mongooseModelForFlipkart.normalizeURL(function(err){
             if (err) {
@@ -72,7 +72,7 @@ module.exports = {
                     totalUsers: results[0],
                     itemsTracked: results[1],
                     emailsSent: 9524   //from Postmark since 2nd July 2014
-                }, function(err, doc) {
+                }, function(err) {
                     if (err) {
                         console.log('error in initializing counters');
                     } else {
@@ -100,19 +100,34 @@ module.exports = {
         });
     },
     smartFlipkartURLs: function(req, res) {
-        var seller = 'flipkart';
         var mongooseModelForFlipkart = sellerUtils.getSellerJobModelInstance('flipkart');
         mongooseModelForFlipkart.find({}).lean().exec(function(err, docs) {
             docs.forEach(function(doc) {
                 var existingURL = doc.productURL;
                 var newURL = existingURL.replace('www.flipkart', 'dl.flipkart');
-                mongooseModelForFlipkart.update({_id: doc._id}, {productURL: newURL}, {}, function(err, updatedDoc) {
+                mongooseModelForFlipkart.update({_id: doc._id}, {productURL: newURL}, {}, function(err) {
                     if (err) {
                         console.log(err);
                     }
                 });
             });
-        })
+        });
+        res.json({status: 'ok'});
+    },
+    sanitizeSnapdealUrls: function (req, res) {
+        var mongooseModelForSnapdeal = sellerUtils.getSellerJobModelInstance('snapdeal');
+        mongooseModelForSnapdeal.find({}).lean().exec(function(err, docs) {
+            docs.forEach(function(doc) {
+                var pUrl = urlLib.parse(doc.productURL, true);
+                var newURL = (pUrl.protocol + '//' + pUrl.host + pUrl.pathname);
+                var newAffUrl = sellerUtils.getURLWithAffiliateId(newURL);
+                mongooseModelForSnapdeal.update({_id: doc._id}, {productURL: newAffUrl}, {}, function(err) {
+                    if (err) {
+                        console.log(err);
+                    }
+                });
+            });
+        });
         res.json({status: 'ok'});
     }
 };
