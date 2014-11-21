@@ -17,6 +17,7 @@ function Deal(seller, adType) {
 			selectors = [
 				{
 					fileId: 1,
+					viewportSize: '2000x768',
 					cssSelector: '.SINGLE-DEAL-LARGE'		//680x310
 				},
 				{

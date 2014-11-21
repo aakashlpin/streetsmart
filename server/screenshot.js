@@ -13,14 +13,14 @@ var client = s3.createClient({
 
 var args = [
 	'--uri', 'http://www.amazon.in/gp/goldbox/ref=nav_topnav_deals',
-	'--user-agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/35.0.1916.153 Safari/537.36',
-	'--viewportsize', '1024x768',
+	'--user-agent', 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/38.0.2125.122 Safari/537.36',
+	'--viewportsize', '2000x768',
 	'--output', screenShotName,
 ];
 
-// args.push('--selector', '.SINGLE-DEAL-LARGE');
-args.push('--selector', '.ONETHIRTYFIVE-HERO .gbwshoveler ul');
-// args.push('--javascript-file', __dirname + '/amazon_hide.js');
+args.push('--selector', '.SINGLE-DEAL-LARGE');
+// args.push('--selector', '.ONETHIRTYFIVE-HERO .gbwshoveler ul');
+args.push('--javascript-file', __dirname + '/amazon_hide.js');
 
 var screenShotProcess = spawn('capturejs', args, {
 	cwd: __dirname + '/screenshots'
