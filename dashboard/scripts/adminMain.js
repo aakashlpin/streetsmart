@@ -13,4 +13,10 @@
         Users.bindAllEvents();
     });
 
+    setInterval(function () {
+    	Users.getStats(Users.drawStats.bind(Users));
+    }, 60000);
+
+    Users.getStats(Users.drawStats.bind(Users));
+
 })(cheapassApp);
