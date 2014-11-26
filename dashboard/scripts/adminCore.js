@@ -17,13 +17,25 @@ cheapassApp.Helpers.remote = function(url, payload, callback) {
 
 cheapassApp.Users = function() {
     this.get = cheapassApp.Helpers.remote;
+    this.statsUserCountDOM = document.querySelector('#ca-counters-users');
+    this.statsAlertCountDOM = document.querySelector('#ca-counters-alerts');
+    this.statsItemCountDOM = document.querySelector('#ca-counters-products');
 };
 
 cheapassApp.Users.prototype.getAllUsers = function(callback) {
     var remoteURL = '/admin/dashboard/users';
-    this.get(remoteURL, function(response) {
-        callback(response);
-    });
+    this.get(remoteURL, callback);
+};
+
+cheapassApp.Users.prototype.getStats = function (callback) {
+    var remoteURL = '/stats';
+    this.get(remoteURL, callback);
+};
+
+cheapassApp.Users.prototype.drawStats = function (stats) {
+    this.statsUserCountDOM.innerHTML = stats.totalUsers;
+    this.statsAlertCountDOM.innerHTML = stats.emailsSent;
+    this.statsItemCountDOM.innerHTML = stats.itemsTracked;
 };
 
 cheapassApp.Users.prototype.drawUserItem = function(userData) {
