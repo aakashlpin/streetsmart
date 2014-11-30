@@ -31,7 +31,7 @@ Store.prototype.set = function (url, data) {
 	var hsetKey = getKey(this.ns, url);
 	for (var key in data) {
 		if (data.hasOwnProperty(key)) {
-			this.client.hset(hsetKey, key, data[key]);
+			this.client.hset(hsetKey, key, data[key], function (err, reply) {});
 		}
 	}
 
