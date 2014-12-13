@@ -1,7 +1,7 @@
 'use strict';
 var config = require('../../config/config');
 var _ =  require('underscore');
-var domain = 'mg.cheapass.in';
+var domain = 'cheapass.in';
 var mailgun = require('mailgun-js')({ apiKey: config.mailgunAPIKey, domain: domain });
 var MailComposer = require('mailcomposer').MailComposer;
 var mailcomposer = new MailComposer();
@@ -9,7 +9,7 @@ var mailcomposer = new MailComposer();
 module.exports = {
     sendEmail: function (payload, callback) {
         var message = {
-            'from': payload.from || 'Cheapass India <notifications@mg.cheapass.in>',
+            'from': payload.from || 'Cheapass India <notifications@cheapass.in>',
             'to': payload.to,
             'html': payload.html,
             'subject': payload.subject,
