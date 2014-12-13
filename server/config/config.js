@@ -15,11 +15,12 @@ var commonConfig = {
     server: 'https://cheapass.in',
     postmarkAPIKey: '158085c4-5a95-4c9f-a9b7-f600e218c017',
     mandrillAPIKey: 'HLv4dCzPFJy7mA8Xw8j25A',
+    mailgunAPIKey: 'key-3aebcaba9791934933932eed487d5b4d',
     googleServerAPIKey: 'AIzaSyBLmBJdysKJY7RWqsh_3Ku4YChcqLB7u6I',
     googleProjectNumber: '596203593464',
     sellerCronWorkerLog: 'seller cron',
     jobRemovedLog: 'job removed',
-    emailService: 'postmark',   //postmark or mandrill
+    emailService: 'mailgun',   //postmark or mandrill
     QoSCheckInterval: 30,   //in minutes
     TWITTER_CONSUMER_KEY: 'mPlfFk9ALcWHfCWoZFm5HrwvV',
     TWITTER_CONSUMER_SECRET: 'vermpfs0YmIfDrXU4ebZiuNEOASIvOYFExqtpN1bf1aeFbmkqd',
@@ -175,7 +176,7 @@ var commonConfig = {
 
 var config = {
     development: {
-        db: 'mongodb://localhost:27018/streetsmart-development',
+        db: 'mongodb://localhost:27017/streetsmart-development',
         isCronActive: false  //use this to control running of cron jobs
     },
 

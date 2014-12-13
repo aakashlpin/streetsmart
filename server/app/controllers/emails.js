@@ -7,93 +7,10 @@ emailTemplates = require('email-templates'),
 _              = require('underscore'),
 config         = require('../../config/config');
 
-var postmark = require('postmark')(config.postmarkAPIKey);
-var mandrill = require('mandrill-api/mandrill');
-var mandrillClient = new mandrill.Mandrill(config.mandrillAPIKey);
-
 var emailService = config.emailService;
 
-var defaultMandrillOptions = {
-    'from_email': 'notifications@cheapass.in',
-    'from_name': 'Cheapass India',
-    'headers': {
-        'Reply-To': 'aakash@cheapass.in'
-    },
-    'important': true,
-    'track_opens': true,
-    'track_clicks': true,
-    'auto_text': true,
-    'auto_html': false,
-    'inline_css': true,
-    'url_strip_qs': true,
-    'preserve_recipients': true,
-    'view_content_link': false,
-    'merge': false
-};
-
-function sendEmail(service, payload, callback) {
-    var message;
-    if (service === 'postmark') {
-        message = {
-            'From': 'Cheapass India <notifications@cheapass.in>',
-            'To': payload.to,
-            'HtmlBody': payload.html,
-            'Subject': payload.subject,
-            'ReplyTo' : 'aakash@cheapass.in'
-        };
-
-        if (payload.bcc) {
-            _.extend(message, {
-                'Bcc': payload.bcc
-            });
-        }
-
-        if (payload.from) {
-            _.extend(message, {
-                'From': payload.from
-            });
-        }
-
-        postmark.send(message, function(err, responseStatus) {
-            if (err) {
-                callback(err);
-            } else {
-                callback(null, responseStatus);
-            }
-        });
-
-    } else if (service === 'mandrill') {
-        message = _.extend({
-            'html': payload.html,
-            'subject': payload.subject,
-            'to': [
-                {
-                    'email': payload.to,
-                    'type': 'to'
-                }
-            ]
-        }, defaultMandrillOptions);
-
-        if (payload.bcc) {
-            _.extend(message, {
-                'bcc_address': payload.bcc
-            });
-        }
-
-        if (payload.from) {
-            _.extend(message, {
-                'from_email': payload.from
-            });
-        }
-
-        mandrillClient.messages.send({
-            'message': message
-        }, function(result) {
-            callback(null, result);
-        }, function(e) {
-            callback(e);
-        });
-    }
+function sendEmail(payload, callback) {
+    require('./' + emailService).sendEmail(payload, callback);
 }
 
 module.exports = {
@@ -119,7 +36,7 @@ module.exports = {
                     if (err) {
                         callback(err);
                     } else {
-                        sendEmail(emailService, {
+                        sendEmail({
                             'subject': 'Cheapass | Verify your email id',
                             'html': html,
                             'bcc': 'aakash@cheapass.in',
@@ -165,7 +82,7 @@ module.exports = {
                     if (err) {
                         callback(err);
                     } else {
-                        sendEmail(emailService, {
+                        sendEmail({
                             'subject': 'Price Drop Alert | ' + locals.product.seller + ' | ' + locals.product.productName,
                             'html': html,
                             'to': locals.user.email
@@ -199,7 +116,7 @@ module.exports = {
                     if (err) {
                         callback(err);
                     } else {
-                        sendEmail(emailService, {
+                        sendEmail({
                             'subject': 'Price Alert Set | ' + locals.product.seller + ' | ' + locals.product.productName,
                             'html': html,
                             'to': locals.user.email
@@ -225,7 +142,7 @@ module.exports = {
                     if (err) {
                         callback(err);
                     } else {
-                        sendEmail(emailService, {
+                        sendEmail({
                             'subject': 'Cheapass | Verify your email id',
                             'html': html,
                             'to': locals.user.email
@@ -251,7 +168,7 @@ module.exports = {
                     if (err) {
                         callback(err);
                     } else {
-                        sendEmail(emailService, {
+                        sendEmail({
                             'subject': 'Cheapass | What happened.. ???',
                             'html': html,
                             'to': locals.user.email,
@@ -274,7 +191,7 @@ module.exports = {
                     if (err) {
                         callback(err);
                     } else {
-                        sendEmail(emailService, {
+                        sendEmail({
                             'subject': 'Cheapass | Device verification code',
                             'html': html,
                             'to': locals.email,
@@ -298,7 +215,7 @@ module.exports = {
                             asyncEachCb(err);
 
                         } else {
-                            sendEmail(emailService, {
+                            sendEmail({
                                 'subject': 'Introducing Your Personal Dashboard!',
                                 'html': html,
                                 'to': user.email
