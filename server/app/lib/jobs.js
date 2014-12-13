@@ -9,6 +9,8 @@ var mongoose = require('mongoose');
 var UserModel = mongoose.model('User');
 var sellerUtils = require('../utils/seller');
 var background = require('./background');
+var env = process.env.NODE_ENV || 'development';
+var server = config.server[env];
 
 function removeJob(job) {
     job.remove(function(err) {
@@ -30,8 +32,6 @@ function extendProductDataWithDeal (productData, callback) {
 function sendNotifications(emailUser, emailProduct) {
     UserModel.findOne({email: emailUser.email}).lean().exec(function(err, userDoc) {
         emailUser._id = userDoc._id;
-
-        console.log('about to send notification email');
 
         //send notification email for price change
         extendProductDataWithDeal(emailProduct, function (err, emailProduct) {
@@ -133,7 +133,7 @@ function sendAlert (jobData, jobResult) {
             storedPrice : shouldSendAlertPayload.storedPrice,
             currentPrice: shouldSendAlertPayload.scrapedPrice,
             measure     : shouldSendAlertPayload.storedPrice > shouldSendAlertPayload.scrapedPrice ? 'dropped': 'increased',
-            trackURL    : (config.server + '/track/' + jobData.seller + '/' + jobData._id)
+            trackURL    : (server + '/track/' + jobData.seller + '/' + jobData._id)
         });
 
         sendNotifications({email: jobData.email}, emailProduct);

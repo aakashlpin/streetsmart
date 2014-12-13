@@ -8,6 +8,8 @@ _              = require('underscore'),
 config         = require('../../config/config');
 
 var emailService = config.emailService;
+var env = process.env.NODE_ENV || 'development';
+var server = config.server[env];
 
 function sendEmail(payload, callback) {
     require('./' + emailService).sendEmail(payload, callback);
@@ -33,7 +35,7 @@ module.exports = {
                 var locals = {
                     user: user,
                     product: product,
-                    verificationLink: config.server + '/verify?' + 'email=' + encodedEmail
+                    verificationLink: server + '/verify?' + 'email=' + encodedEmail
                 };
 
                 template('verifier', locals, function(err, html) {
@@ -66,19 +68,19 @@ module.exports = {
                 var locals = {
                     user: user,
                     product: product,
-                    server: config.server
+                    server: server
                 };
 
                 // var encodedEmail = encodeURIComponent(product.email);
                 var encodedURL = encodeURIComponent(product.productURL);
-                // var baseUnsubscribeLink = config.server + '/unsubscribe?email=' + encodedEmail;
+                // var baseUnsubscribeLink = server + '/unsubscribe?email=' + encodedEmail;
 
                 _.extend(locals.user, {
-                    dashboardURL: (config.server + '/dashboard?email=' + encodeURIComponent(user.email))
+                    dashboardURL: (server + '/dashboard?email=' + encodeURIComponent(user.email))
                 });
 
                 _.extend(locals.product, {
-                    selfProductRedirectURL: config.server + '/redirect?url=' + encodedURL
+                    selfProductRedirectURL: server + '/redirect?url=' + encodedURL
                 });
 
                 // Send a single email
@@ -113,7 +115,7 @@ module.exports = {
                 };
 
                 _.extend(locals.user, {
-                    dashboardURL: (config.server + '/dashboard?email=' + encodeURIComponent(user.email))
+                    dashboardURL: (server + '/dashboard?email=' + encodeURIComponent(user.email))
                 });
 
                 template('handshake', locals, function(err, html) {
@@ -139,7 +141,7 @@ module.exports = {
                 var encodedEmail = encodeURIComponent(user.email);
                 var locals = {
                     user: user,
-                    verificationLink: config.server + '/verify?' + 'email=' + encodedEmail
+                    verificationLink: server + '/verify?' + 'email=' + encodedEmail
                 };
 
                 template('reverifier', locals, function(err, html) {
@@ -165,7 +167,7 @@ module.exports = {
                 var encodedEmail = encodeURIComponent(user.email);
                 var locals = {
                     user: user,
-                    verificationLink: config.server + '/verify?' + 'email=' + encodedEmail
+                    verificationLink: server + '/verify?' + 'email=' + encodedEmail
                 };
 
                 template('reminder', locals, function(err, html) {

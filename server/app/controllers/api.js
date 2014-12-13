@@ -13,6 +13,8 @@ var sellerUtils = require('../utils/seller');
 var async = require('async');
 var bgTask = require('../lib/background');
 var request = require('request');
+var env = process.env.NODE_ENV || 'development';
+var server = config.server[env];
 
 function illegalRequest(res) {
     res.redirect('/500');
@@ -55,8 +57,6 @@ function createJob (data, callback) {
             emailObject = { email: data.email },
             responseMessage = '',
             responseCode;
-
-        console.log('about to send email');
 
         if (!isEmailVerified) {
             logger.log('info', 'new user unverified', {email: data.email});
@@ -103,8 +103,6 @@ function createJob (data, callback) {
                 status: responseMessage,
                 code: responseCode
             });
-
-            console.log('about to send email');
 
             if (isEmailVerified) {
                 Emails.sendHandshake(emailObject, data, function(err, status) {
@@ -180,7 +178,7 @@ module.exports = {
         }
 
         var inputRequestParams = {
-            url: config.server + '/inputurl',
+            url: server + '/inputurl',
             json: true,
             qs: payload //only `url` is needed though
         };
@@ -198,7 +196,7 @@ module.exports = {
             //at this step, we are sure that there is crawled information
             var crawledData = body;
             var queueRequestParams = {
-                url: config.server + '/queue',
+                url: server + '/queue',
                 json: true,
                 //sanitize the data as expected by /queue
                 qs: _.extend({}, crawledData, {

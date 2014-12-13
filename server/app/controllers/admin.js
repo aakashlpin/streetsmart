@@ -9,6 +9,8 @@ var async = require('async');
 var request = require('request');
 var config = require('../../config/config');
 var moment = require('moment');
+var env = process.env.NODE_ENV || 'development';
+var server = config.server[env];
 
 module.exports = {
 	index: function (req, res) {
@@ -53,7 +55,7 @@ module.exports = {
 					}
 
 					request.get({
-						url: (config.server + '/api/dashboard/tracks/' + user.email),
+						url: (server + '/api/dashboard/tracks/' + user.email),
 						json: true
 					}, function(err, response, tracksArray) {
 						if (err) {

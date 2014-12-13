@@ -12,7 +12,10 @@ var commonConfig = {
     },
     port: 6000,
     kuePort: 6001,
-    server: 'https://cheapass.in',
+    server: {
+        development: 'http://local.cheapass.in',
+        production: 'https://cheapass.in'
+    },
     postmarkAPIKey: '158085c4-5a95-4c9f-a9b7-f600e218c017',
     mandrillAPIKey: 'HLv4dCzPFJy7mA8Xw8j25A',
     mailgunAPIKey: 'key-3aebcaba9791934933932eed487d5b4d',
@@ -176,10 +179,9 @@ var commonConfig = {
 
 var config = {
     development: {
-        db: 'mongodb://localhost:27017/streetsmart-development',
+        db: 'mongodb://localhost:27018/streetsmart-development',
         isCronActive: false  //use this to control running of cron jobs
     },
-
     production: {
         db: 'mongodb://localhost/streetsmart-production',
         isCronActive: true
