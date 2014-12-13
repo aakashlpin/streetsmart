@@ -157,7 +157,7 @@ function handleJobComplete (job) {
     sellerUtils
     .getSellerJobModelInstance(jobData.seller)
     .findById(jobData._id, function(err, storedJob) {
-        if (err) {
+        if (err || !storedJob || (storedJob && !storedJob.productPriceHistory)) {
             logger.log('error', 'error getting seller job id #%d for seller %s when job complete', jobData._id, jobData.seller);
             removeJob(job);
 
