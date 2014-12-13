@@ -20,6 +20,10 @@ module.exports = {
                 callback(err);
 
             } else {
+                if (!user.email || (user.email && !user.email.length)) {
+                    return callback('Recipient not found');
+                }
+
                 var encodedEmail = encodeURIComponent(user.email);
                 if (product.seller) {
                     //human readable seller name

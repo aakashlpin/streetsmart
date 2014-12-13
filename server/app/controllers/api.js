@@ -56,6 +56,8 @@ function createJob (data, callback) {
             responseMessage = '',
             responseCode;
 
+        console.log('about to send email');
+
         if (!isEmailVerified) {
             logger.log('info', 'new user unverified', {email: data.email});
             responseMessage = 'Please verify your email id to activate this alert.';
@@ -102,6 +104,8 @@ function createJob (data, callback) {
                 code: responseCode
             });
 
+            console.log('about to send email');
+
             if (isEmailVerified) {
                 Emails.sendHandshake(emailObject, data, function(err, status) {
                     if (err) {
@@ -138,7 +142,7 @@ module.exports = {
     processQueue: function(req, res) {
         var productData = _.pick(req.query, ['currentPrice', 'productName',
         'productURL', 'productImage']);
-        var user = _.pick(req.query, ['inputEmail']);
+        var user = _.pick(req.query, ['email']);
         var resMethod = getResponseMethodAndManipulateHeaders(req.query, res);
 
         //Determine the seller here instead of UI
@@ -157,7 +161,7 @@ module.exports = {
 
         productData.seller = seller;
         productData.productURL = sellerUtils.getURLWithAffiliateId(productData.productURL);
-        productData.email = user.inputEmail;
+        productData.email = user.email;
         if (isJSONPRequested(req.query)) {
             productData.source = 'bookmarklet';
         } else {
@@ -198,8 +202,8 @@ module.exports = {
                 json: true,
                 //sanitize the data as expected by /queue
                 qs: _.extend({}, crawledData, {
+                    email: payload.email,
                     productURL: payload.url,
-                    inputEmail: payload.email,
                     currentPrice: body.productPrice
                 })
             };

@@ -31,6 +31,8 @@ function sendNotifications(emailUser, emailProduct) {
     UserModel.findOne({email: emailUser.email}).lean().exec(function(err, userDoc) {
         emailUser._id = userDoc._id;
 
+        console.log('about to send notification email');
+
         //send notification email for price change
         extendProductDataWithDeal(emailProduct, function (err, emailProduct) {
             Emails.sendNotifier(emailUser, emailProduct, function(err, message) {

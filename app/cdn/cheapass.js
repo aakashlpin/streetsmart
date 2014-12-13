@@ -162,7 +162,7 @@
                     '<input type="hidden" name="jsonp" value="1" />' +
                     '<div class="caFormGroup">' +
                     '<label for="caFormUserEmail">Email</label>' +
-                    '<input required autofocus type="email" name="inputEmail" placeholder="Email" />' +
+                    '<input required autofocus type="email" class="email" name="email" placeholder="Email" />' +
                     '</div>' +
                     '<div class="caFormGroup">' +
                     '<input type="submit" value="Keep me notified" />' +
@@ -174,6 +174,13 @@
                     domBottom;
 
                     $('body').append(dom);
+
+                    if ('localStorage' in window) {
+                        var userEmail = localStorage.getItem('cheapassUserEmail');
+                        if (userEmail) {
+                            $('#caQueueForm').find('.email').val(userEmail).focus();
+                        }
+                    }
 
                     $('#caQueueForm').on('submit', handleQueueFormSubmit);
                     $('#caClose').on('click', caClose);
@@ -187,6 +194,12 @@
                         dataType: 'jsonp',
                         success: queueSuccessHandler
                     });
+
+                    if ('localStorage' in window) {
+                        var email = $('#caQueueForm').find('.email').val();
+                        localStorage.setItem('cheapassUserEmail', email);
+                    }
+
                     $('#caQueueForm input').attr('disabled', 'disabled');
                 }
 
