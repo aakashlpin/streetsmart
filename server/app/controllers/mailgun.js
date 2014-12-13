@@ -1,15 +1,15 @@
 'use strict';
 var config = require('../../config/config');
-var _ =  require('underscore');
-var domain = 'cheapass.in';
-var mailgun = require('mailgun-js')({ apiKey: config.mailgunAPIKey, domain: domain });
 var MailComposer = require('mailcomposer').MailComposer;
-var mailcomposer = new MailComposer();
+var env = process.env.NODE_ENV || 'development';
+var domain = env === 'production' ? 'cheapass.in' : 'sandboxa85e8ce51a1d442bb8182d7364f8f761.mailgun.org';
+var mailgun = require('mailgun-js')({ apiKey: config.mailgunAPIKey, domain: domain });
 
 module.exports = {
     sendEmail: function (payload, callback) {
+        var mailcomposer = new MailComposer();
         var message = {
-            'from': payload.from || 'Cheapass India <notifications@cheapass.in>',
+            'from': payload.from || ('Cheapass India <notifications@'+ domain +'>'),
             'to': payload.to,
             'html': payload.html,
             'subject': payload.subject,
