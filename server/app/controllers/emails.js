@@ -12,6 +12,13 @@ var env = process.env.NODE_ENV || 'development';
 var server = config.server[env];
 
 function sendEmail(payload, callback) {
+    //ESP Throttling happening for hotmail emails
+    //so sending via postmark for now
+    if (payload.to.indexOf('@hotmail.') > 0 || payload.to.indexOf('@live.') > 0) {
+        require('./postmark').sendEmail(payload, callback);
+        return;
+    }
+
     require('./' + emailService).sendEmail(payload, callback);
 }
 
