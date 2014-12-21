@@ -12,7 +12,8 @@
     "jquery.lazyload": "~1.9.3",
     "jquery-sticky": "*",
     "60fps-scroll": "~0.1.1",
-    "eventemitter2": "~0.4.14"
+    "eventemitter2": "~0.4.14",
+    "react": "~0.12.2"
   },
   "devDependencies": {
     "jquery-mockjax": "~1.5.3"

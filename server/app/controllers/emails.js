@@ -78,16 +78,8 @@ module.exports = {
                     server: server
                 };
 
-                // var encodedEmail = encodeURIComponent(product.email);
-                var encodedURL = encodeURIComponent(product.productURL);
-                // var baseUnsubscribeLink = server + '/unsubscribe?email=' + encodedEmail;
-
                 _.extend(locals.user, {
-                    dashboardURL: (server + '/dashboard?email=' + encodeURIComponent(user.email))
-                });
-
-                _.extend(locals.product, {
-                    selfProductRedirectURL: server + '/redirect?url=' + encodedURL
+                    dashboardURL: (server + '/dashboard/' + user._id)
                 });
 
                 // Send a single email
@@ -122,7 +114,8 @@ module.exports = {
                 };
 
                 _.extend(locals.user, {
-                    dashboardURL: (server + '/dashboard?email=' + encodeURIComponent(user.email))
+                    dashboardURL: (server + '/dashboard/' + user._id),
+                    dashboardProductURL: (server + '/dashboard/' + user._id + '?productId=' + product._id)
                 });
 
                 template('handshake', locals, function(err, html) {

@@ -69,6 +69,7 @@ module.exports = function(app) {
 	app.get('/api/dashboard/tracks/:userEmail', dashboard.getTracks);
 	app.get('/api/dashboard/preferences/:userEmail', dashboard.setPreferences);
 	app.get('/api/dashboard/sendDashboardLink', dashboard.sendDashboardLink);
+	app.get('/api/dashboard/targetPrice', dashboard.setTargetPrice);
 
 	//1 time migration scripts
 	app.get('/migrate', migrations.sanitizeSnapdealUrls);

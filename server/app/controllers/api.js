@@ -105,6 +105,7 @@ function createJob (data, callback) {
             });
 
             if (isEmailVerified) {
+                emailObject._id = userQueryResult._id;
                 Emails.sendHandshake(emailObject, data, function(err, status) {
                     if (err) {
                         logger.log('error', 'error sending acceptance email', {error: err, email: emailObject.email});
@@ -445,7 +446,11 @@ module.exports = {
                     logger.log('error', 'error unsubscribing for data', dbQuery);
                     return;
                 }
-                res.redirect('/unsubscribed');
+                if (req.xhr) {
+                    res.json({status: 'ok'});
+                } else {
+                    res.redirect('/unsubscribed');
+                }
                 logger.log('info', 'unsubscribed user', dbQuery);
             });
 
@@ -464,15 +469,27 @@ module.exports = {
                 });
             }, function(err) {
                 if (err) {
-                    res.redirect('/500');
+                    if (req.xhr) {
+                        res.json({error: 'A request has been sent to admin to unsubscribe this product. Sorry for the inconvenience.'});
+                    } else {
+                        res.redirect('/500');
+                    }
                     logger.log('error', 'error unsubscribing for data', dbQuery);
                     return;
                 }
-                res.redirect('/unsubscribed');
+                if (req.xhr) {
+                    res.json({status: 'ok'});
+                } else {
+                    res.redirect('/unsubscribed');
+                }
             });
 
         } else {
-            res.redirect('/500');
+            if (req.xhr) {
+                res.json({error: 'Invalid Request'});
+            } else {
+                res.redirect('/500');
+            }
             return;
         }
 

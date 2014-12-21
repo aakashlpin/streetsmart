@@ -9,5 +9,6 @@ server/public
 server/newrelic_agent.log
 .idea
 #server/scripts/backup
+server/scripts/backup/streetsmart-development/
 blog/content/data/ghost-dev.db
 server/screenshots

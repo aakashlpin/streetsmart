@@ -78,6 +78,10 @@ function handleURLFailure (requestOptions, seller, error, response, body, callba
 }
 
 function processURL(url, callback, isBackgroundTask) {
+    if (!url) {
+        return callback('Sorry! This website is not supported at the moment.');
+    }
+
     logger.log('info', 'scrape url', {url: url});
     isBackgroundTask = _.isUndefined(isBackgroundTask) ? false : true;
 
