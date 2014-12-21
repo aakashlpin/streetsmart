@@ -348,7 +348,15 @@ module.exports = function (grunt) {
                 'copy:styles',
                 'imagemin'
             ]
-        }
+        },
+
+        react: {
+            single_file_output: {
+                files: {
+                    './dashboard/scripts/compiled-jsx/core-react.js': './dashboard/scripts/core-react.js'
+                }
+            },
+        },
     });
 
 
@@ -394,6 +402,7 @@ module.exports = function (grunt) {
         'concat',
         'cssmin',
         'uglify',
+        'react',
         'copy:dist',
         'rev',
         'usemin',
