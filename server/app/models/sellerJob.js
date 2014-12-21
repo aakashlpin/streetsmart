@@ -18,6 +18,7 @@ var SellerJobSchema = new Schema({
     productName: String,
     productImage: String,
     currentPrice: Number,
+    targetPrice: Number,
     alertToPrice: Number,
     alertFromPrice: Number,
     productPriceHistory: [ProductPriceHistorySchema]

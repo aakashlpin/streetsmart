@@ -162,8 +162,11 @@ a {
     box-shadow: 0 2px 2px rgba(0,0,0,0.3);
 }
 
-#db-col1 {
-    width: 50%;
+.db-col1 {
+    width: 40%;
+}
+.db-col2 {
+    width: 220px;
 }
 
 .mb-30 {
@@ -499,6 +502,15 @@ a {
             }
         }
     }
+}
+
+.css-target-price-text {
+    // font-weight: bold;
+    margin-right: 10px;
+}
+
+.css-target-price-input {
+    width: 85px!important;
 }
 
 /*---------------*/

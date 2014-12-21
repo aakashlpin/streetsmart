@@ -11,8 +11,8 @@
     <meta name="og_site_name" property="og:site_name" content="Cheapass.in"/>
     <meta name="og_url" property="og:url" content="http://cheapass.in" />
     <base href="https://cheapass.in/">
-    <script type="text/javascript" src="//use.typekit.net/avk0lqt.js"></script>
-    <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
+     <script type="text/javascript" src="//use.typekit.net/avk0lqt.js"></script>
+     <script type="text/javascript">try{Typekit.load();}catch(e){}</script>
     <!-- build:css styles/vendor.css -->
     <!-- bower:css -->
     <!-- endbower -->
@@ -38,11 +38,6 @@
                     <div class="pull-left">
                         <p class="text-right" style="margin-top: 5px;">Dashboard for <strong><%= email %></strong></p>
                     </div>
-<!--                     <div class="pull-right">
-                        <label class="checkbox">
-                            <input type="checkbox" id="toggleDropAlerts"> Don't send me alerts when prices go up
-                        </label>
-                    </div> -->
                 </div>
             </div>
 
@@ -57,7 +52,6 @@
         <script src="../bower_components/underscore/underscore.js"></script>
         <!-- endbower -->
         <!-- endbuild -->
-
         <!-- Google Analytics -->
         <script>
         (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
@@ -71,12 +65,12 @@
 
         <script>
             cheapassObj = {};
-            cheapassObj.userId = "<%= _id %>";
-            cheapassObj.userEmailId = "<%= email %>";
-            cheapassObj.dropOnlyAlerts = "<%= dropOnlyAlerts %>";
+            cheapassObj.id = "<%= _id %>";
+            cheapassObj.email = "<%= email %>";
         </script>
 
-        <script src="dashboard/scripts/core.js"></script>
-        <script src="dashboard/scripts/main.js"></script>
+        <script src="dashboard/scripts/react.js"></script>
+        <script src="dashboard/scripts/JSXTransformer.js"></script>
+        <script type="text/jsx" src="dashboard/scripts/core-react.js"></script>
     </body>
     </html>

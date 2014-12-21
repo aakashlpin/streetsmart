@@ -86,7 +86,37 @@ module.exports = {
         dropOnlyAlerts = req.query.dropOnlyAlerts;
 
         User.update({email: email}, {dropOnlyAlerts: dropOnlyAlerts}, {}, function(err, updatedDoc) {
-            if (err) {
+            if (err || !updatedDoc) {
+                res.json({error: err});
+            } else {
+                res.json({status: 'ok'});
+            }
+        });
+    },
+    setTargetPrice: function (req, res) {
+        var seller = req.query.seller,
+        _id = req.query._id,
+        targetPrice = req.query.targetPrice;
+
+        if (!targetPrice) {
+            return res.json({error: 'Expected targetPrice'});
+        }
+
+        var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
+
+        if (parseInt(targetPrice) === -1) {
+            SellerJobModel.update({_id: _id}, {$unset: {targetPrice: 1}}, function (err, updatedDoc) {
+                if (err || !updatedDoc) {
+                    res.json({error: err});
+                } else {
+                    res.json({status: 'ok'});
+                }
+            });
+            return;
+        }
+
+        SellerJobModel.update({_id: _id}, {targetPrice: targetPrice}, function (err, updatedDoc) {
+            if (err || !updatedDoc) {
                 res.json({error: err});
             } else {
                 res.json({status: 'ok'});

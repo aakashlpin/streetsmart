@@ -81,6 +81,16 @@ function shouldSendAlert(data) {
     if (data.storedPrice < data.scrapedPrice) {
         return false;
     }
+    //consider target price if it's set for this item
+    if (data.targetPrice) {
+        logger.log('info', 'targetPrice set');
+        if (data.scrapedPrice <= data.targetPrice) {
+            logger.log('info', 'targetPrice met. Sending alert');
+            return true;
+        }
+        logger.log('info', 'not sending alert because targetPrice not met');
+        return false;
+    }
 
     //if price is lower, maybe
     var priceRange = data.storedPrice;
@@ -125,7 +135,8 @@ function sendAlert (jobData, jobResult) {
         storedPrice     : jobData.currentPrice,
         scrapedPrice    : jobResult.productPrice,
         alertToPrice    : jobData.alertToPrice,
-        alertFromPrice  : jobData.alertFromPrice
+        alertFromPrice  : jobData.alertFromPrice,
+        targetPrice     : jobData.targetPrice
     };
 
     if (shouldSendAlert(shouldSendAlertPayload)) {
