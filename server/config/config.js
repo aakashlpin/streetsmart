@@ -25,6 +25,7 @@ var commonConfig = {
     jobRemovedLog: 'job removed',
     emailService: 'mailgun',   //postmark or mandrill
     QoSCheckInterval: 30,   //in minutes
+    cpuClusterSize: 2,
     TWITTER_CONSUMER_KEY: 'mPlfFk9ALcWHfCWoZFm5HrwvV',
     TWITTER_CONSUMER_SECRET: 'vermpfs0YmIfDrXU4ebZiuNEOASIvOYFExqtpN1bf1aeFbmkqd',
     FACEBOOK_APP_ID: '244555115743180',
