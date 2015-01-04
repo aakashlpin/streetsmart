@@ -2,6 +2,7 @@
 var kue = require('kue');
 var logger = require('../../logger').logger;
 var jobUtils = require('./jobs.js');
+var config = require('../../config/config');
 var queue;
 
 function queueGetJobById (id, callback) {
@@ -24,7 +25,7 @@ function queueGracefulShutDown(callback) {
 }
 
 function queueProcess(callback) {
-    queue.process('scraper', callback);
+    queue.process('scraper', config.cpuClusterSize, callback);
 }
 
 function handleJobError (id) {
