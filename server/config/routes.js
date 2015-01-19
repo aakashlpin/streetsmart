@@ -8,6 +8,9 @@ function ensureAuthenticated(req, res, next) {
 		return next();
 	}
 	else {
+		if (req.xhr) {
+			return res.json({error: "Where's the daddy?"});
+		}
 		res.redirect('/admin');
 	}
 }
