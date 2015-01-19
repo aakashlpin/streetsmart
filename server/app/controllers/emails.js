@@ -175,10 +175,10 @@ module.exports = {
                         callback(err);
                     } else {
                         sendEmail({
-                            'subject': 'Cheapass | What happened.. ???',
+                            'subject': 'Cheapass | What happened?',
                             'html': html,
                             'to': locals.user.email,
-                            'from': 'aakash@cheapass.in'
+                            'from': 'Aakash Goel <aakash@cheapass.in>'
                         }, callback);
                     }
                 });
