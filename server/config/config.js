@@ -65,7 +65,7 @@ var commonConfig = {
             hasDeepLinking: true,
             cronPattern: {
                 'development': '0-59/3 * * * *',
-                'production': '15 0-23/2 * * *'
+                'production': '15 0-23/1 * * *'
             }
         },
         myntra: {
@@ -76,7 +76,7 @@ var commonConfig = {
             requiresUserAgent: false,
             cronPattern: {
                 'development': '2-59/5 * * * *',
-                'production': '0 0-23/3 * * *'
+                'production': '45 0-23/3 * * *'
             }
         },
         jabong: {
@@ -87,7 +87,7 @@ var commonConfig = {
             requiresUserAgent: true,
             cronPattern: {
                 'development': '3-59/5 * * * *',
-                'production': '15 0-23/3 * * *'
+                'production': '25 0-23/3 * * *'
             }
         },
         fabfurnish: {
@@ -109,7 +109,7 @@ var commonConfig = {
             requiresUserAgent: false,
             cronPattern: {
                 'development': '1-59/5 * * * *',
-                'production': '45 0-23/3 * * *'
+                'production': '5 0-23/3 * * *'
             }
         },
         bajaao: {
@@ -120,7 +120,7 @@ var commonConfig = {
             requiresUserAgent: false,
             cronPattern: {
                 'development': '2-59/5 * * * *',
-                'production': '0 1-23/3 * * *'
+                'production': '20 1-23/3 * * *'
             }
         },
         pepperfry: {
@@ -144,7 +144,7 @@ var commonConfig = {
             hasDeepLinking: true,
             cronPattern: {
                 'development': '4-59/5 * * * *',
-                'production': '30 1-23/3 * * *'
+                'production': '40 1-23/3 * * *'
             }
         }
     },
