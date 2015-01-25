@@ -16,8 +16,8 @@ module.exports = function($) {
 
     try {
         // put '#kindle_meta_binding_winner' after '#actualPriceValue' for kindle books
-        priceDOMs = ['#priceblock_ourprice', '#priceblock_saleprice',
-        '#priceblock_dealprice', '#buyingPriceValue', '#actualPriceValue',
+        priceDOMs = ['#priceblock_ourprice', '#priceblock_dealprice',
+        '#priceblock_saleprice', '#buyingPriceValue', '#actualPriceValue',
         '#priceBlock', '#price', '#buyNewSection .offer-price'];
         nameDOMs = ['#productTitle', '#btAsinTitle > span', '#btAsinTitle'];
         imageDOMs = ['#landingImage', '#prodImage', '#kib-ma-container-0 > img', '#imgBlkFront'];
