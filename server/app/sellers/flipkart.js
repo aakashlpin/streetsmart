@@ -21,7 +21,7 @@ module.exports = function($) {
         price = $(priceDOM).html();
 
 		if (price) {
-			price = parseInt(price.replace('Rs. ', ''), 10);
+			price = parseInt(price.replace('Rs. ', '').replace(',', ''), 10);
 		}
 
 		if (_.isNaN(price)) {
