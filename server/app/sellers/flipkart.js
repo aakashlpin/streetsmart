@@ -1,8 +1,14 @@
 'use strict';
 var _ = require('underscore');
+function getActualDOM($, domOptions) {
+    return _.find(domOptions, function(maybeDOM) {
+        return $(maybeDOM).length;
+    });
+}
 
 module.exports = function($) {
-    var nameDOM, imageDOM, priceDOM, name, image, price, response = {};
+    var priceDOMs;
+    var nameDOM, imageDOM, priceDOM, name, image, price, response;
     try {
         nameDOM = $('[itemprop="name"]');
         if (nameDOM.length > 1) {
@@ -10,11 +16,12 @@ module.exports = function($) {
         }
         name = nameDOM.text().replace(/^\s+|\s+$/g, '');
 
-        priceDOM = $('.price-wrap meta[itemprop="price"]');
-        price = priceDOM.attr('content') || false;
+        priceDOMs = ['.pricing .selling-price'];
+        priceDOM = getActualDOM($, priceDOMs);
+        price = $(priceDOM).html();
 
 		if (price) {
-			price = parseInt(price.replace(',', ''), 10);
+			price = parseInt(price.replace('Rs. ', ''), 10);
 		}
 
 		if (_.isNaN(price)) {
