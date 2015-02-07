@@ -49,6 +49,7 @@ var commonConfig = {
             key: 'affid',
             value: 'aakashlpi',
             requiresUserAgent: true,
+            requiresCookies: false,
             hasDeepLinking: true,
             cronPattern: {
                 'development': '0-59/1 * * * *',
