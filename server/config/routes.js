@@ -1,8 +1,8 @@
 'use strict';
 var home = require('../app/controllers/home');
-var migrations = require('../app/migrations/index');
+// var migrations = require('../app/migrations/index');
 var passport = require('passport');
-var background = require('../app/lib/background');
+// var background = require('../app/lib/background');
 
 function ensureAuthenticated(req, res, next) {
 	if (req.isAuthenticated()) {
@@ -76,7 +76,7 @@ module.exports = function(app) {
 	app.get('/api/dashboard/targetPrice', dashboard.setTargetPrice);
 
 	//1 time migration scripts
-	app.get('/migrate', background.getFullContactByEmail);
+	// app.get('/migrate', background.getFullContactByEmail);
 
 	//Mobile APIs
 	var mobile = require('../app/controllers/mobile');

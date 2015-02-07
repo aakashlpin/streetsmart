@@ -36,6 +36,10 @@ var commonConfig = {
     AWS_ACCESS_KEY_ID: 'AKIAIFTVMHU7YXZR6HUQ',
     AWS_SECRET_ACCESS_KEY: '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',
     AWS_BUCKET_PREFIX: 'http://cheapass-india.s3.amazonaws.com/',
+    processFullContactInterval: {
+        'development': '0 0-23/1 * * *',
+        'production': '0 2-23/6 * * *'
+    },
     processDealsInterval: {
         'development': '3-59/5 * * * *',
         'production': '3-59/15 * * * *'
