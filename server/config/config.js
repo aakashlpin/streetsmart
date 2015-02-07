@@ -16,6 +16,8 @@ var commonConfig = {
         development: 'http://local.cheapass.in',
         production: 'https://cheapass.in'
     },
+    fullContactRateLimit: 1,    //1 per second
+    fullContactAPIKeys: ['17b39c61bcc37305', '16c1d7a0cca17043', 'cfbf80b8698b27e3', 'b4cebe257f1fff8a'],
     postmarkAPIKey: '158085c4-5a95-4c9f-a9b7-f600e218c017',
     mandrillAPIKey: 'HLv4dCzPFJy7mA8Xw8j25A',
     mailgunAPIKey: 'key-3aebcaba9791934933932eed487d5b4d',

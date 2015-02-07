@@ -9,11 +9,13 @@ var UserSchema = new Schema({
     email: String,
     dropOnlyAlerts: Boolean,
     verificationCodes: [String],
-    deviceIds: [String]
+    deviceIds: [String],
+    fullContact: Schema.Types.Mixed,
+    fullContactAttempts: Number
 });
 
 UserSchema.statics.post = function(req, callback) {
-    var data = _.pick(req.query, ['email']),
+    var data = _.pick(req.query, ['email', 'fullContact', 'fullContactAttempts']),
     User;
 
     this.findOne({email: data.email}, function(err, user) {
