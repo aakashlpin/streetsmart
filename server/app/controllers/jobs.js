@@ -39,6 +39,13 @@ function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, b
 
     //TODO support isBackgroundTask
     var scrapedData = require('../sellers/' + seller)($, isBackgroundTask);
+    if (_.isUndefined(scrapedData.name) ||
+     _.isUndefined(scrapedData.price ||
+     _.isUndefined(scrapedData.image))) {
+        logger.log('error', 'page scraping failed', {requestOptions: requestOptions, scrapedData: scrapedData});
+        return callback('Sorry! We were unable to process this page!');
+    }
+
     if (scrapedData.price && (parseInt(scrapedData.price) >= 0)) {
         var cbData = {
             productPrice: parseInt(scrapedData.price),
@@ -102,7 +109,8 @@ function processURL(url, callback, isBackgroundTask) {
         if (err || !urlData) {
             //proceed with http request
             var requestOptions = {
-                url: url
+                url: url,
+                timeout: 5000
             };
 
             if (config.sellers[seller].requiresUserAgent) {
@@ -121,6 +129,8 @@ function processURL(url, callback, isBackgroundTask) {
                 if (isBackgroundTask) {
                     latestJobProcessedAt = moment();
                 }
+            }).on('error', function (e) {
+                handleURLFailure(requestOptions, seller, e, false, false, callback);
             });
         } else {
             //send back the existing data
