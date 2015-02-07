@@ -9,6 +9,9 @@ var logger = require('../../logger').logger;
 var initialBatchSize = 50;
 var futureBatchSize = 20;
 var Deal = require('../lib/deals').Deal;
+var mongoose = require('mongoose');
+var UserModel = mongoose.model('User');
+var UserLookup = require('./userLookup');
 var currentDeal;
 
 var processedData = [];
@@ -28,7 +31,6 @@ function refreshDeal (callback) {
 	var deal = new Deal('amazon', 'banner');
 	deal.getDeal(function (err, dealObj) {
 		if (!err) {
-			console.log(err, dealObj)
 			currentDeal = dealObj;
 			callback(null, currentDeal);
 			deal = null;
@@ -41,6 +43,41 @@ function refreshDeal (callback) {
 }
 
 module.exports = {
+	getFullContactByEmail: function () {
+		UserModel.findAll(function (err, users) {
+			if (err) {
+				return logger.log('error', 'error getting all users to get full contact', err);
+			}
+			async.eachSeries(users, function (user, asyncSeriesCb) {
+				setTimeout(function () {
+					if (user.fullContact && _.keys(user.fullContact).length) {
+						return asyncSeriesCb();
+					}
+					UserLookup.get(user, function (err, userData) {
+						var updateWith;
+						if (!err && userData) {
+							updateWith = {
+								fullContact: userData
+							};
+						} else {
+							updateWith = {
+								fullContactAttempts: user.fullContactAttempts + 1
+							};
+						}
+						UserModel.update({email: user.email}, updateWith, {}, function () {
+							return asyncSeriesCb();
+						});
+					});
+				}, config.fullContactRateLimit * 1000);
+			});
+		}, function (err) {
+			if (err) {
+				logger.log('error', 'error in getFullContactByEmail', err);
+			} else {
+				logger.log('info', 'finished doing getFullContactByEmail');
+			}
+		});
+	},
 	processAllProducts: function () {
 		logger.log('info', 'processing all products for home page', {at: moment().format('MMMM Do YYYY, h:mm:ss a')});
 		var allTracks = [];

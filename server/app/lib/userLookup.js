@@ -1,0 +1,28 @@
+'use strict';
+var config = require('../../config/config');
+var request = require('request');
+var _ = require('underscore');
+
+var fullContactAPIKeys = config.fullContactAPIKeys;
+
+function getRequestUri(email) {
+    return ('https://api.fullcontact.com/v2/person.json?email=' + email + '&apiKey=' + fullContactAPIKeys[0]);
+}
+
+module.exports = {
+    get: function (email, callback) {
+        request.get({url: getRequestUri(email), json: true}, function (e, r, user) {
+            if (e) {
+                return callback(e, null);
+            }
+            if (r.statusCode === 200) {
+                callback(null, user);
+            } else if (r.statusCode === 403) {
+                fullContactAPIKeys.shift();
+                callback(403, null);
+            } else {
+                callback(r.statusCode, null);
+            }
+        });
+    }
+};
