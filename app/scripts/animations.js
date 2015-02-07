@@ -52,30 +52,34 @@
 	var SocialProof = {
 		$el: $('#social-proof'),
 		init: function () {
-			twttr.events.bind(
-				'loaded',
-				function () {
-					var handler = SocialProof.$el.find('>li');
-					var windowWidth = $(window).width();
+			try {
+				twttr.events.bind(
+					'loaded',
+					function () {
+						var handler = SocialProof.$el.find('>li');
+						var windowWidth = $(window).width();
 
-					if (windowWidth < 700) {
-						return;
-					}
+						if (windowWidth < 700) {
+							return;
+						}
 
-					handler.each(function() {
-						//hack for safari (width returned as 0)
-						$(this).css({
-							height: $(this).height() + 'px',
-							width: ($(this).width() || 330) + 'px'
+						handler.each(function() {
+							//hack for safari (width returned as 0)
+							$(this).css({
+								height: $(this).height() + 'px',
+								width: ($(this).width() || 330) + 'px'
+							});
 						});
-					});
 
-					handler.wookmark({
-						container: SocialProof.$el,
-						autoResize: true
-					});
-				}
-			);
+						handler.wookmark({
+							container: SocialProof.$el,
+							autoResize: true
+						});
+					}
+				);
+			} catch(e) {
+				console.log('error', e);
+			}
 		}
 	};
 
