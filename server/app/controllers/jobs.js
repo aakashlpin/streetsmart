@@ -129,8 +129,6 @@ function processURL(url, callback, isBackgroundTask) {
                 if (isBackgroundTask) {
                     latestJobProcessedAt = moment();
                 }
-            }).on('error', function (e) {
-                handleURLFailure(requestOptions, seller, e, false, false, callback);
             });
         } else {
             //send back the existing data
