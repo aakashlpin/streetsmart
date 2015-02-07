@@ -13,8 +13,10 @@ module.exports = {
     get: function (email, callback) {
         request.get({url: getRequestUri(email), json: true}, function (e, r, user) {
             if (e) {
+                logger.log('error', 'fullcontact for email ', + email, e);
                 return callback(e, null);
             }
+            logger.log('info', 'fullcontact for email ' + email, user);
             if (r.statusCode === 200) {
                 callback(null, user);
             } else if (r.statusCode === 403) {
