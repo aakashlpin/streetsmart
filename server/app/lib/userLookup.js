@@ -1,7 +1,7 @@
 'use strict';
 var config = require('../../config/config');
 var request = require('request');
-var _ = require('underscore');
+var logger = require('../../logger').logger;
 
 var fullContactAPIKeys = config.fullContactAPIKeys;
 
