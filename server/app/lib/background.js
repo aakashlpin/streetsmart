@@ -53,7 +53,7 @@ module.exports = {
 					if (user.fullContact && _.keys(user.fullContact).length) {
 						return asyncSeriesCb();
 					}
-					UserLookup.get(user, function (err, userData) {
+					UserLookup.get(user.email, function (err, userData) {
 						var updateWith;
 						if (!err && userData) {
 							updateWith = {
