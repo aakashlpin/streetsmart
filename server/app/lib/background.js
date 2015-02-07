@@ -44,7 +44,7 @@ function refreshDeal (callback) {
 
 module.exports = {
 	getFullContactByEmail: function () {
-		UserModel.findAll(function (err, users) {
+		UserModel.find(function (err, users) {
 			if (err) {
 				return logger.log('error', 'error getting all users to get full contact', err);
 			}
