@@ -1,4 +1,4 @@
-/*globals noty*/
+/*globals noty, _*/
 
 'use strict';
 
@@ -84,14 +84,66 @@ cheapassApp.Users.prototype.drawUserItem = function(userData) {
         }
     }
 
-    var dashboardDOM = userData.isActive ? ('<a target="_blank" href="'+userDashboardLink+'">'+ userData.email +'</a>') : userData.email;
+    var dashboardDOM = userData.isActive ? ('<a data-toggle="popover">'+ userData.email +'</a>') : userData.email;
+    var fc = userData.fullContact || {};
+    var fcPrimaryPhoto = _.find(fc.photos, function (photo) {
+        return photo.isPrimary;
+    });
+    var fcPhotoStream = '';
+    _.each(fc.photos, function (photo) {
+        fcPhotoStream += '<li><img src="'+ photo.url +'" class="css-fc-thumbnail img-rounded"></li>';
+    });
+    var fcWebsites = '';
+    _.each(fc.contactInfo ? fc.contactInfo.websites || [], function (website) {
+        fcWebsites += '<li><a target="_blank" href="'+website.url+'">'+ website.url +'</a></li>';
+    });
+    var fcOrganisations = '';
+    _.each(fc.organizations, function (organization) {
+        fcOrganisations += '<li><p><strong>'+ (organization.name ? (organization.name + '<br>') : '')  +'</strong>'+ organization.title+'</p></li>';
+    });
+    var fcSocialProfiles = '';
+    _.each(fc.socialProfiles, function (socialProfile) {
+        fcSocialProfiles += '<li><p><a target="_blank" href="'+ socialProfile.url+'"><strong>'+socialProfile.typeName+'</strong></a>'+ (socialProfile.bio ? (' - "' +socialProfile.bio + '"') : "") +'</p></li>';
+    });
+
+    var userCard =
+    '<div class="js-fc-popover css-fc-popover">'+
+        '<div class="row">' +
+            '<div class="col-md-7">' +
+                '<h3><a target="_blank" href="'+ userDashboardLink +'">' + (fc.contactInfo ? fc.contactInfo.fullName : userData.email) + '</a></h3>' +
+                '<ul class="list-unstyled">'+
+                    fcSocialProfiles +
+                '</ul>'+
+            '</div>'+
+            '<div class="col-md-5">' +
+                (fcPrimaryPhoto ? (
+                '<div class="mb-30">'+
+                    '<img class="js-fcPhoto img-thumbnail" src="'+ fcPrimaryPhoto.url +'">'+
+                '</div>'
+                ) : '')+
+                '<div class="row">'+
+                    '<ul class="list-inline list-unstyled">'+
+                        fcPhotoStream +
+                    '</ul>'+
+                    '<ul class="list-unstyled">'+
+                        fcOrganisations +
+                    '</ul>'+
+                    '<ul class="list-unstyled">'+
+                        fcWebsites +
+                    '</ul>'+
+                '</div>'+
+            '</div>'+
+        '</div>'+
+    '</div>'
+    ;
+
     var reminderDOM = '';
     if (reminder) {
         reminderDOM = '<a '+reminder.attrs+' class="btn '+reminder.class+'" target="_blank" href="'+reminder.link+'">'+reminder.text+'</a>';
     }
     var userDOM =
     '<tr>'+
-        '<td>'+ dashboardDOM +'</td>'+
+        '<td>'+ dashboardDOM + userCard + '</td>'+
         '<td>'+ userData.currentTracks +'</td>'+
         '<td>'+ userData.since +'</td>'+
         '<td>'+ userData.lifetimeTracks +'</td>'+
@@ -149,6 +201,15 @@ cheapassApp.Users.prototype.bindAllEvents = function() {
             } else {
                 target.attr('disabled', 'disabled');
             }
+        });
+    });
+
+    $('[data-toggle="popover"]').each(function () {
+        var $this = $(this);
+        $this.popover({
+            html: true,
+            container: 'body',
+            content: $this.next('.js-fc-popover')
         });
     });
 };
