@@ -513,6 +513,24 @@ a {
     width: 85px!important;
 }
 
+.css-fc-thumbnail {
+    height: 25px;
+    width: auto;
+}
+
+.css-fc-popover {
+    display: none;
+}
+
+.popover-content {
+    .css-fc-popover {
+        display: block;
+    }
+}
+.popover{
+    max-width: 100%; // Max Width of the popover (depending on the container!)
+}
+
 /*---------------*/
 /***** Zoe *****/
 /*---------------*/
