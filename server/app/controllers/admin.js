@@ -76,7 +76,7 @@ module.exports = {
 
 						user.currentTracks = currentTracks;
 						user.lifetimeTracks = lifetimeTracks.length;
-						user.fullContact = userFromDb.fullContact;
+						user.fullContact = userFromDb ? userFromDb.fullContact : {};
 						asyncEachCb();
 					});
 				});
