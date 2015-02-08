@@ -94,7 +94,7 @@ cheapassApp.Users.prototype.drawUserItem = function(userData) {
         fcPhotoStream += '<li><img src="'+ photo.url +'" class="css-fc-thumbnail img-rounded"></li>';
     });
     var fcWebsites = '';
-    _.each(fc.contactInfo ? fc.contactInfo.websites || [], function (website) {
+    _.each(fc.contactInfo ? fc.contactInfo.websites : [], function (website) {
         fcWebsites += '<li><a target="_blank" href="'+website.url+'">'+ website.url +'</a></li>';
     });
     var fcOrganisations = '';
