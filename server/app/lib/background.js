@@ -50,7 +50,10 @@ module.exports = {
 			}
 			async.eachSeries(users, function (user, asyncSeriesCb) {
 				setTimeout(function () {
-					if (user.fullContact && _.keys(user.fullContact).length) {
+					if (
+						(user.fullContact && _.keys(user.fullContact).length) ||
+						(user.fullContactAttempts && user.fullContactAttempts >= 4)
+					) {
 						return asyncSeriesCb();
 					}
 					UserLookup.get(user.email, function (err, userData) {
