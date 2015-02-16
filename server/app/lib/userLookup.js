@@ -19,9 +19,6 @@ module.exports = {
             logger.log('info', 'fullcontact for email ' + email, user);
             if (r.statusCode === 200) {
                 callback(null, user);
-            } else if (r.statusCode === 403) {
-                fullContactAPIKeys.shift();
-                callback(403, null);
             } else {
                 callback(r.statusCode, null);
             }

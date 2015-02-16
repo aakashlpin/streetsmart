@@ -52,17 +52,18 @@ module.exports = {
 				setTimeout(function () {
 					if (
 						(user.fullContact && _.keys(user.fullContact).length) ||
-						(user.fullContactAttempts && user.fullContactAttempts >= 4)
+						(user.fullContactAttempts && user.fullContactAttempts >= 3)
 					) {
 						return asyncSeriesCb();
 					}
 					UserLookup.get(user.email, function (err, userData) {
 						var updateWith;
-						if (!err && userData) {
+						if (userData !== null) {
 							updateWith = {
 								fullContact: userData
 							};
 						} else {
+							user.fullContactAttempts = user.fullContactAttempts || 0;
 							updateWith = {
 								fullContactAttempts: user.fullContactAttempts + 1
 							};
