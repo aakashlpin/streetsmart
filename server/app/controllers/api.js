@@ -6,6 +6,7 @@ var _ = require('underscore');
 _.str = require('underscore.string');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
+var UserLookup = require('../lib/userLookup');
 var Job = mongoose.model('Job');
 var config = require('../../config/config');
 var logger = require('../../logger').logger;
@@ -395,16 +396,20 @@ module.exports = {
                 //send the emailVerified template to client
                 res.redirect('/gameon');
 
-                //put this email in the users collection
-                User.post(userQuery, function(err, userQueryResponse) {
-                    if (err) {
-                        logger.log('error', 'error putting user info in db', {error: err});
-                    }
-                    if (userQueryResponse) {
-                        // logger.log('info', 'user with email ', email, ' put in the verified email collection');
-                        //update the users counter
-                        sellerUtils.increaseCounter('totalUsers');
-                    }
+                UserLookup.get(email, function (err, data) {
+                    //put this email in the users collection
+                    userQuery.query.fullContact = err ? {} : data;
+                    userQuery.query.fullContactAttempts = 1;
+                    User.post(userQuery, function(err, userQueryResponse) {
+                        if (err) {
+                            logger.log('error', 'error putting user info in db', {error: err});
+                        }
+                        if (userQueryResponse) {
+                            // logger.log('info', 'user with email ', email, ' put in the verified email collection');
+                            //update the users counter
+                            sellerUtils.increaseCounter('totalUsers');
+                        }
+                    });
                 });
 
                 //update isActive for all jobs for this email to be true

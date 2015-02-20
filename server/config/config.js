@@ -16,6 +16,8 @@ var commonConfig = {
         development: 'http://local.cheapass.in',
         production: 'https://cheapass.in'
     },
+    fullContactRateLimit: 1,    //1 per second
+    fullContactAPIKeys: ['72583672489b86d6'],
     postmarkAPIKey: '158085c4-5a95-4c9f-a9b7-f600e218c017',
     mandrillAPIKey: 'HLv4dCzPFJy7mA8Xw8j25A',
     mailgunAPIKey: 'key-3aebcaba9791934933932eed487d5b4d',
@@ -34,6 +36,10 @@ var commonConfig = {
     AWS_ACCESS_KEY_ID: 'AKIAIFTVMHU7YXZR6HUQ',
     AWS_SECRET_ACCESS_KEY: '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',
     AWS_BUCKET_PREFIX: 'http://cheapass-india.s3.amazonaws.com/',
+    processFullContactInterval: {
+        'development': '0 0-23/1 * * *',
+        'production': '0 2-23/6 * * *'
+    },
     processDealsInterval: {
         'development': '3-59/5 * * * *',
         'production': '3-59/15 * * * *'

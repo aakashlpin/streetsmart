@@ -14,6 +14,7 @@ var bgTask = require('../lib/background');
 var Store = require('../lib/store').Store;
 var dataStore = new Store();
 var latestJobProcessedAt;
+var env = process.env.NODE_ENV || 'development';
 
 // var fs = require('fs');
 
@@ -39,7 +40,8 @@ function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, b
 
     //TODO support isBackgroundTask
     var scrapedData = require('../sellers/' + seller)($, isBackgroundTask);
-    if (_.isUndefined(scrapedData.name) ||
+    if (_.isUndefined(scrapedData) ||
+     _.isUndefined(scrapedData.name) ||
      _.isUndefined(scrapedData.price ||
      _.isUndefined(scrapedData.image))) {
         logger.log('error', 'page scraping failed', {requestOptions: requestOptions, scrapedData: scrapedData});
@@ -198,7 +200,6 @@ function cronWorker(seller, SellerJobModel) {
 function createWorkerForSeller (seller, asyncEachCallback) {
     var sellerData = config.sellers[seller];
     var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
-    var env = process.env.NODE_ENV || 'development';
     new CronJob({
         cronTime: sellerData.cronPattern[env],
         onTick: function() {
@@ -216,8 +217,6 @@ function createWorkerForSeller (seller, asyncEachCallback) {
 }
 
 function createCronTabForAllProducts () {
-    var env = process.env.NODE_ENV || 'development';
-
     //immediately process all items
     bgTask.processAllProducts();
 
@@ -231,7 +230,6 @@ function createCronTabForAllProducts () {
 }
 
 function createCronTabForDeals () {
-    var env = process.env.NODE_ENV || 'development';
 
     bgTask.refreshDeal();
 
@@ -239,6 +237,18 @@ function createCronTabForDeals () {
     new CronJob({
         cronTime: config.processDealsInterval[env],
         onTick: bgTask.refreshDeal,
+        start: true,
+        timeZone: 'Asia/Kolkata'
+    });
+}
+
+function createSearchForFullContacts () {
+    bgTask.getFullContactByEmail();
+
+    //set up cron job
+    new CronJob({
+        cronTime: config.processFullContactInterval[env],
+        onTick: bgTask.getFullContactByEmail,
         start: true,
         timeZone: 'Asia/Kolkata'
     });
@@ -257,6 +267,8 @@ function init() {
     createCronTabForDeals();
 
     createQueueBindEvents();
+
+    createSearchForFullContacts();
 
     //foreach seller, create a cron job
     async.each(_.keys(config.sellers), createWorkerForSeller, queueProcess);
