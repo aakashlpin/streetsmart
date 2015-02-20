@@ -40,7 +40,8 @@ function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, b
 
     //TODO support isBackgroundTask
     var scrapedData = require('../sellers/' + seller)($, isBackgroundTask);
-    if (_.isUndefined(scrapedData.name) ||
+    if (_.isUndefined(scrapedData) ||
+     _.isUndefined(scrapedData.name) ||
      _.isUndefined(scrapedData.price ||
      _.isUndefined(scrapedData.image))) {
         logger.log('error', 'page scraping failed', {requestOptions: requestOptions, scrapedData: scrapedData});
