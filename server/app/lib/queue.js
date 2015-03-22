@@ -12,7 +12,6 @@ function queueGetJobById (id, callback) {
 function queueJob (jobData) {
     //title is a field necessary for the kue lib
     jobData.title = 'Processing ' + jobData.productName;
-    delete jobData.productPriceHistory;
 
     queue
     .create('scraper', jobData)
