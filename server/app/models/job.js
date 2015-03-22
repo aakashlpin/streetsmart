@@ -3,10 +3,11 @@
 var mongoose = require('mongoose'),
 Schema = mongoose.Schema,
 _ = require('underscore'),
-SellerUtils = require('../utils/seller');
+SellerUtils = require('../utils/seller'),
+logger = require('../../logger').logger;
 
 var JobSchema = new Schema({
-    email: String,
+    email: {type: String, index: true},
     seller: String,
     productURL: String,
     productName: String,

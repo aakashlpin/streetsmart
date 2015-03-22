@@ -6,7 +6,7 @@ _ = require('underscore');
 var UserSchema = new Schema({
     facebookId: String,
     twitterId: String,
-    email: String,
+    email: {type: String, index: true},
     dropOnlyAlerts: Boolean,
     verificationCodes: [String],
     deviceIds: [String],
