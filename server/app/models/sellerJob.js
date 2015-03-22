@@ -4,7 +4,7 @@ var mongoose = require('mongoose'),
 Schema = mongoose.Schema,
 _ = require('underscore'),
 config = require('../../config/config');
-var sellerUtils = require('../utils/seller.js');
+// var sellerUtils = require('../utils/seller.js');
 
 var ProductPriceHistorySchema = new Schema({
     date: Date,
@@ -12,7 +12,7 @@ var ProductPriceHistorySchema = new Schema({
 }, {_id: false});
 
 var SellerJobSchema = new Schema({
-    email: String,
+    email: {type: String, index: true},
     source: String,
     productURL: String,
     productName: String,
@@ -23,6 +23,8 @@ var SellerJobSchema = new Schema({
     alertFromPrice: Number,
     productPriceHistory: [ProductPriceHistorySchema]
 });
+
+SellerJobSchema.index({email: 1, productURL: 1});
 
 SellerJobSchema.statics.removeJob = function(query, callback) {
     this.find(query).remove(callback);
