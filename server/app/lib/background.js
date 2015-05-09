@@ -87,40 +87,50 @@ module.exports = {
 		var allTracks = [];
 		var hotCache = {};
 		async.each(_.keys(config.sellers), function (seller, asyncEachCb) {
-			sellerUtils
-			.getSellerJobModelInstance(seller)
-			.find({}, {email: 0, isActive: 0})
+			var sellerModel = sellerUtils.getSellerJobModelInstance(seller);
+
+			sellerModel
+			.find({}, {isActive: 0, productPriceHistory: 0})
 			.lean()
 			.exec(function(err, sellerJobs) {
-				_.each(sellerJobs, function (sellerJob) {
-					var dataInCache = hotCache[sellerJob.productURL] || false;
-					var leastPriceForJob;
-					if (dataInCache) {
-						dataInCache.eyes += 1;
-						//compare with the productPriceHistory of this simiar track
-						//if lesser price is found, update the entry
-						leastPriceForJob = getLeastPriceFromHistory(sellerJob.productPriceHistory);
-						if (leastPriceForJob && (leastPriceForJob.price < dataInCache.ltp)) {
-							dataInCache.ltp = leastPriceForJob.price;
-							dataInCache._id = leastPriceForJob._id ? leastPriceForJob._id.toHexString(): dataInCache._id;
+				async.each(sellerJobs, function (sellerJob, sellerJobAsyncCb) {
+					sellerModel
+					.findOne({email: sellerJob.email, productUrl: sellerJob.productUrl}, {productPriceHistory: 1})
+					.lean()
+					.exec(function (err, sellerJobWithPriceHistory) {
+						var dataInCache = hotCache[sellerJob.productURL] || false;
+						var leastPriceForJob;
+						if (dataInCache) {
+							dataInCache.eyes += 1;
+							//compare with the productPriceHistory of this simiar track
+							//if lesser price is found, update the entry
+							leastPriceForJob = getLeastPriceFromHistory(sellerJobWithPriceHistory.productPriceHistory);
+							if (leastPriceForJob && (leastPriceForJob.price < dataInCache.ltp)) {
+								dataInCache.ltp = leastPriceForJob.price;
+								dataInCache._id = leastPriceForJob._id ? leastPriceForJob._id.toHexString(): dataInCache._id;
+							}
+
+						} else {
+							sellerJob.eyes = 1;
+							sellerJob.seller = seller;
+							leastPriceForJob = getLeastPriceFromHistory(sellerJobWithPriceHistory.productPriceHistory);
+							sellerJob.ltp = leastPriceForJob ? leastPriceForJob.price : sellerJob.currentPrice;
+							delete sellerJob.productPriceHistory;
+							hotCache[sellerJob.productURL] = sellerJob;
 						}
 
-					} else {
-						sellerJob.eyes = 1;
-						sellerJob.seller = seller;
-						leastPriceForJob = getLeastPriceFromHistory(sellerJob.productPriceHistory);
-						sellerJob.ltp = leastPriceForJob ? leastPriceForJob.price : sellerJob.currentPrice;
-						delete sellerJob.productPriceHistory;
-						hotCache[sellerJob.productURL] = sellerJob;
-					}
+						sellerJobAsyncCb();
+					});
+				}, function () {
+					allTracks.push(_.values(hotCache));
+					hotCache = {};
+					asyncEachCb(err);
 				});
-
-				allTracks.push(_.values(hotCache));
-				hotCache = {};
-				asyncEachCb(err);
 			});
+
 		}, function () {
-			processedData = _.sortBy(_.flatten(allTracks, true), 'eyes').reverse();
+			// processedData = _.sortBy(_.flatten(allTracks, true), 'eyes').reverse();
+			processedData = _.shuffle(_.flatten(allTracks, true));
 			//1st page = initialBatchSize
 			//next page onwards = futureBatchSize
 			if (processedData.length < initialBatchSize) {
