@@ -59,7 +59,7 @@ var commonConfig = {
             hasDeepLinking: true,
             cronPattern: {
                 'development': '0-59/1 * * * *',
-                'production': '0 0-23/1 * * *'
+                'production': '0 0-23/2 * * *'
             }
         },
         amazon: {
@@ -72,7 +72,7 @@ var commonConfig = {
             hasDeepLinking: true,
             cronPattern: {
                 'development': '0-59/3 * * * *',
-                'production': '15 0-23/1 * * *'
+                'production': '30 0-23/2 * * *'
             }
         },
         myntra: {
