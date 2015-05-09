@@ -114,7 +114,7 @@ module.exports = {
 							sellerJob.eyes = 1;
 							sellerJob.seller = seller;
 							leastPriceForJob = getLeastPriceFromHistory(sellerJobWithPriceHistory.productPriceHistory);
-							sellerJob.ltp = leastPriceForJob ? leastPriceForJob.price : sellerJob.currentPrice;
+							sellerJob.ltp = leastPriceForJob ? ( leastPriceForJob.price < sellerJob.currentPrice ? leastPriceForJob.price : sellerJob.currentPrice ) : sellerJob.currentPrice;
 							delete sellerJob.productPriceHistory;
 							hotCache[sellerJob.productURL] = sellerJob;
 						}
