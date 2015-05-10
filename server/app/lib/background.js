@@ -95,28 +95,29 @@ module.exports = {
 			.exec(function(err, sellerJobs) {
 				async.each(sellerJobs, function (sellerJob, sellerJobAsyncCb) {
 					sellerModel
-					.findOne({email: sellerJob.email, productUrl: sellerJob.productUrl}, {productPriceHistory: 1})
+					.findOne({email: sellerJob.email, productURL: sellerJob.productURL}, {email: 0, alertFromPrice: 0, alertToPrice: 0, source: 0})
 					.lean()
-					.exec(function (err, sellerJobWithPriceHistory) {
-						var dataInCache = hotCache[sellerJob.productURL] || false;
+					.exec(function (err, sjph) {
+						var dataInCache = hotCache[sjph.productURL] || false;
 						var leastPriceForJob;
 						if (dataInCache) {
 							dataInCache.eyes += 1;
 							//compare with the productPriceHistory of this simiar track
 							//if lesser price is found, update the entry
-							leastPriceForJob = getLeastPriceFromHistory(sellerJobWithPriceHistory.productPriceHistory);
+							leastPriceForJob = getLeastPriceFromHistory(sjph.productPriceHistory);
 							if (leastPriceForJob && (leastPriceForJob.price < dataInCache.ltp)) {
 								dataInCache.ltp = leastPriceForJob.price;
 								dataInCache._id = leastPriceForJob._id ? leastPriceForJob._id.toHexString(): dataInCache._id;
 							}
 
+
 						} else {
-							sellerJob.eyes = 1;
-							sellerJob.seller = seller;
-							leastPriceForJob = getLeastPriceFromHistory(sellerJobWithPriceHistory.productPriceHistory);
-							sellerJob.ltp = leastPriceForJob ? ( leastPriceForJob.price < sellerJob.currentPrice ? leastPriceForJob.price : sellerJob.currentPrice ) : sellerJob.currentPrice;
-							delete sellerJob.productPriceHistory;
-							hotCache[sellerJob.productURL] = sellerJob;
+							sjph.eyes = 1;
+							sjph.seller = seller;
+							leastPriceForJob = getLeastPriceFromHistory(sjph.productPriceHistory);
+							sjph.ltp = leastPriceForJob ? ( leastPriceForJob.price < sjph.currentPrice ? leastPriceForJob.price : sjph.currentPrice ) : sjph.currentPrice;
+							delete sjph.productPriceHistory;
+							hotCache[sjph.productURL] = sjph;
 						}
 
 						sellerJobAsyncCb();
@@ -141,6 +142,8 @@ module.exports = {
 					totalPages += 1;
 				}
 			}
+
+			logger.log('info', 'completed processing all products for home page', {at: moment().format('MMMM Do YYYY, h:mm:ss a')});
 		});
 	},
 	getPagedProducts: function (page) {
