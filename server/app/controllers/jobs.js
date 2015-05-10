@@ -221,12 +221,12 @@ function createCronTabForAllProducts () {
     bgTask.processAllProducts();
 
     //set up cron job
-    new CronJob({
-        cronTime: config.processAllProductsInterval[env],
-        onTick: bgTask.processAllProducts,
-        start: true,
-        timeZone: 'Asia/Kolkata'
-    });
+    // new CronJob({
+    //     cronTime: config.processAllProductsInterval[env],
+    //     onTick: bgTask.processAllProducts,
+    //     start: true,
+    //     timeZone: 'Asia/Kolkata'
+    // });
 }
 
 function createCronTabForDeals () {
