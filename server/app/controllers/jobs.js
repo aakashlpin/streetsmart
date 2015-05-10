@@ -218,7 +218,7 @@ function createWorkerForSeller (seller, asyncEachCallback) {
 
 function createCronTabForAllProducts () {
     //immediately process all items
-    bgTask.processAllProducts();
+    // bgTask.processAllProducts();
 
     //set up cron job
     // new CronJob({
