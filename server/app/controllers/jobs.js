@@ -218,15 +218,15 @@ function createWorkerForSeller (seller, asyncEachCallback) {
 
 function createCronTabForAllProducts () {
     //immediately process all items
-    // bgTask.processAllProducts();
+    bgTask.processAllProducts();
 
-    //set up cron job
-    // new CronJob({
-    //     cronTime: config.processAllProductsInterval[env],
-    //     onTick: bgTask.processAllProducts,
-    //     start: true,
-    //     timeZone: 'Asia/Kolkata'
-    // });
+    // set up cron job
+    new CronJob({
+        cronTime: config.processAllProductsInterval[env],
+        onTick: bgTask.processAllProducts,
+        start: true,
+        timeZone: 'Asia/Kolkata'
+    });
 }
 
 function createCronTabForDeals () {
@@ -256,7 +256,7 @@ function createSearchForFullContacts () {
 
 function init() {
     //for request from home page, pre-process all products and keep the data in memory
-    createCronTabForAllProducts();
+    // createCronTabForAllProducts();
 
     if (!config.isCronActive) {
         logger.log('info', '=========== Cron Jobs are disabled =============');
