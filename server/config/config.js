@@ -46,7 +46,7 @@ var commonConfig = {
     },
     processAllProductsInterval: {
         'development': '0-59/5 * * * *',
-        'production': '2-59/10 * * * *'
+        'production': '50 0-23/1 * * *'
     },
     sellers: {
         flipkart: {

@@ -134,6 +134,11 @@ module.exports = {
 			processedData = _.shuffle(_.flatten(allTracks, true));
 			//1st page = initialBatchSize
 			//next page onwards = futureBatchSize
+
+			//make them available for GC
+			allTracks = null;
+			hotCache = null;
+
 			if (processedData.length < initialBatchSize) {
 				totalPages = 1;
 			} else {
