@@ -5,7 +5,22 @@ var _ = require('underscore');
 var sellerUtils = require('../utils/seller');
 var config = require('../../config/config');
 var async = require('async');
+var logger = require('../../logger').logger;
 var urlLib = require('url');
+
+function spliceArray (arr, batchSize) {
+    var processedArr = [];
+    var processedArrLength = Math.ceil( arr.length / batchSize );
+    for ( var i = 0 ; i < processedArrLength ; i++ ) {
+        if (i < processedArrLength - 1) {
+            processedArr.push(arr.slice(i * batchSize, (i * batchSize) + batchSize));
+        } else {
+            processedArr.push(arr.splice(i * batchSize, arr.length));
+        }
+    }
+
+    return processedArr;
+}
 
 module.exports = {
     shardJobs: function(req, res) {
@@ -129,5 +144,69 @@ module.exports = {
             });
         });
         res.json({status: 'ok'});
+    },
+    unwindProductPriceHistory: function (req, res) {
+        var sellers = _.keys(config.sellers);
+        var maxBatchSize = 1000;
+        async.eachSeries(sellers, function(seller, asyncCb) {
+            var sellerModel = sellerUtils.getSellerJobModelInstance(seller);
+            var sellerProductPriceHistoryModel = sellerUtils.getSellerProductPriceHistoryModelInstance(seller);
+            sellerModel
+            .find({}, {productPriceHistory: 1, email: 1, productURL: 1})
+            .lean()
+            .exec(function (err, docs) {
+                var unwindedDocs = [];
+                unwindedDocs = docs.map(function (doc) {
+                    return doc.productPriceHistory.map(function (pphItem) {
+                        return {
+                            date: pphItem.date,
+                            price: pphItem.price,
+                            email: doc.email,
+                            jobId: doc._id,
+                            productURL: doc.productURL
+                        };
+                    });
+                });
+
+                unwindedDocs = _.flatten(unwindedDocs);
+
+                if (!unwindedDocs.length) {
+                    return asyncCb();
+                }
+
+                sellerProductPriceHistoryModel.collection.remove(function (err) {
+                    if (err) {
+                        return asyncCb('Error with removing collection' + JSON.stringify(err));
+                    }
+
+                    logger.log('info', 'seller %s - total docs - %d begin at %s', seller, unwindedDocs.length, (new Date()).toString());
+
+                    var batchedUnwindedDocs = spliceArray(unwindedDocs, maxBatchSize);
+                    logger.log('info', 'batchedUnwindedDocs length - %d', batchedUnwindedDocs.length);
+                    var count = 0;
+                    unwindedDocs = null;
+                    async.each(batchedUnwindedDocs, function (batchedDocs, batchedDocsAsyncCb) {
+                        sellerProductPriceHistoryModel.collection.insert(batchedDocs, function (err, insertedDocs) {
+                            if (err) {
+                                logger.log('error', err);
+                                return batchedDocsAsyncCb('Error with inserting in collection' + JSON.stringify(err));
+                            }
+                            logger.log('info', 'seller %s - docs inserted - %d at %s count %d', seller, insertedDocs && insertedDocs.length || 0, (new Date()).toString(), ++count);
+                            // insertedDocs = null;
+                            batchedDocsAsyncCb();
+                        });
+                    }, function (err) {
+                        asyncCb(err);
+                        count = 0;
+                    });
+                });
+            });
+        }, function(err) {
+            if (err) {
+                res.json({error: err});
+            } else {
+                res.json({status: 'ok'});
+            }
+        });
     }
 };

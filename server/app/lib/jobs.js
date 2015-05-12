@@ -176,6 +176,10 @@ function handleJobComplete (job) {
             // update params
             var updateWith = {};
 
+            /*TODO
+            unwind all the array entries and create a new document out of each object
+            store it a new collection called <seller_code>product_price_history
+            */
             storedJob.productPriceHistory.push({
                 date: new Date(),
                 price: scrapedPrice

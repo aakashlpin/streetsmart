@@ -117,6 +117,9 @@ module.exports = {
         var jobSellerModelName = seller + '_job';
         return mongoose.model(jobSellerModelName);
     },
+    getSellerProductPriceHistoryModelInstance: function (seller) {
+        return mongoose.model(seller + '_product_price_history');
+    },
     getProcessingMode: function(url) {
         //2 modes. 'seller' or 'site'
         if (getVideoSiteFromURL(url)) {
