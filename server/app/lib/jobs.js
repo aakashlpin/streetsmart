@@ -164,31 +164,19 @@ function handleJobComplete (job) {
 
     var scrapedPrice = jobResult.productPrice;
 
-    //modify the DB's currentPrice field and productPriceHistory array
+    //modify the DB's currentPrice field
     sellerUtils
     .getSellerJobModelInstance(jobData.seller)
-    .findById(jobData._id, function(err, storedJob) {
-        if (err || !storedJob || (storedJob && !storedJob.productPriceHistory)) {
+    .findById(jobData._id, {productPriceHistory: 0}, function(err, storedJob) {
+        if (err || !storedJob) {
             logger.log('error', 'error getting seller job id #%d for seller %s when job complete', jobData._id, jobData.seller);
             removeJob(job);
 
         } else {
             // update params
-            var updateWith = {};
-
-            /*TODO
-            unwind all the array entries and create a new document out of each object
-            store it a new collection called <seller_code>product_price_history
-            */
-            storedJob.productPriceHistory.push({
-                date: new Date(),
-                price: scrapedPrice
-            });
-
-            _.extend(updateWith, {
-                currentPrice: scrapedPrice,
-                productPriceHistory: storedJob.productPriceHistory
-            });
+            var updateWith = {
+                currentPrice: scrapedPrice
+            };
 
             if (sendAlert(jobData, jobResult)) {
                 //if going to send an aler, update relevant params
@@ -205,6 +193,24 @@ function handleJobComplete (job) {
                     logger.log('error', 'error updating price in db', {error: err});
                 }
                 removeJob(job);
+            });
+
+            sellerUtils
+            .getSellerProductPriceHistoryModelInstance(jobData.seller)
+            .collection
+            .insert({
+                jobId: jobData._id,
+                price: scrapedPrice,
+                email: storedJob.email,
+                productURL: storedJob.productURL,
+                date: new Date()
+            }, function (err, pphDoc) {
+                if (err) {
+                    logger.log('error', 'error inserting new product price history doc in db', {error: err});
+                }
+                if (pphDoc) {
+                    logger.log('info', 'inserted new product price history doc in db', pphDoc);
+                }
             });
         }
     });

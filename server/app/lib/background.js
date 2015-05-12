@@ -17,14 +17,6 @@ var currentDeal;
 var processedData = [];
 var totalPages = 0;
 
-function getLeastPriceFromHistory (history) {
-	if (!history.length) {
-		return null;
-	}
-
-	return _.sortBy(history, 'price')[0];
-}
-
 function refreshDeal (callback) {
 	callback = callback || function() {};
 
@@ -85,50 +77,61 @@ module.exports = {
 	processAllProducts: function () {
 		logger.log('info', 'processing all products for home page', {at: moment().format('MMMM Do YYYY, h:mm:ss a')});
 		var allTracks = [];
-		var hotCache = {};
-		async.each(_.keys(config.sellers), function (seller, asyncEachCb) {
+		async.each(_.keys(config.sellers), function (seller, sellerAsyncCb) {
 			var sellerModel = sellerUtils.getSellerJobModelInstance(seller);
+			var sellerModelProductPriceHistory = sellerUtils.getSellerProductPriceHistoryModelInstance(seller);
 
-			sellerModel
-			.find({}, {isActive: 0, productPriceHistory: 0})
-			.lean()
-			.exec(function(err, sellerJobs) {
-				async.each(sellerJobs, function (sellerJob, sellerJobAsyncCb) {
-					sellerModel
-					.findOne({email: sellerJob.email, productURL: sellerJob.productURL}, {email: 0, alertFromPrice: 0, alertToPrice: 0, source: 0})
-					.lean()
-					.exec(function (err, sjph) {
-						var dataInCache = hotCache[sjph.productURL] || false;
-						var leastPriceForJob;
-						if (dataInCache) {
-							dataInCache.eyes += 1;
-							//compare with the productPriceHistory of this simiar track
-							//if lesser price is found, update the entry
-							leastPriceForJob = getLeastPriceFromHistory(sjph.productPriceHistory);
-							if (leastPriceForJob && (leastPriceForJob.price < dataInCache.ltp)) {
-								dataInCache.ltp = leastPriceForJob.price;
-								dataInCache._id = leastPriceForJob._id ? leastPriceForJob._id.toHexString(): dataInCache._id;
+			sellerModelProductPriceHistory
+			.aggregate(
+				[
+					{
+						$group:
+							{
+								_id: '$jobId',
+								min: { $min: '$price' }
+							}
+					}
+				], function (err, aggregatedResults) {
+					console.log(aggregatedResults);
+					async.each(aggregatedResults, function (aggregatedResult, aggregatedResultAsynCb) {
+						sellerModel
+						.findOne(
+							{
+								_id: aggregatedResult._id
+							},
+							{
+								productURL 		: 1,
+								productName		: 1,
+								productImage 	: 1,
+								currentPrice 	: 1
+							}
+						)
+						.lean()
+						.exec(function (err, storedJob) {
+							if (err) {
+								return aggregatedResultAsynCb(err);
 							}
 
+							_.extend(storedJob, {
+								ltp 			: aggregatedResult.min,
+								seller 			: seller
+							});
 
-						} else {
-							sjph.eyes = 1;
-							sjph.seller = seller;
-							leastPriceForJob = getLeastPriceFromHistory(sjph.productPriceHistory);
-							sjph.ltp = leastPriceForJob ? ( leastPriceForJob.price < sjph.currentPrice ? leastPriceForJob.price : sjph.currentPrice ) : sjph.currentPrice;
-							delete sjph.productPriceHistory;
-							hotCache[sjph.productURL] = sjph;
+							allTracks.push(storedJob);
+
+							aggregatedResultAsynCb();
+
+						});
+
+					}, function (err) {
+						if (err) {
+							return sellerAsyncCb(err);
 						}
 
-						sellerJobAsyncCb();
+						sellerAsyncCb();
 					});
-				}, function () {
-					allTracks.push(_.values(hotCache));
-					hotCache = {};
-					asyncEachCb(err);
-				});
-			});
-
+				}
+			);
 		}, function () {
 			// processedData = _.sortBy(_.flatten(allTracks, true), 'eyes').reverse();
 			processedData = _.shuffle(_.flatten(allTracks, true));
@@ -137,7 +140,6 @@ module.exports = {
 
 			//make them available for GC
 			allTracks = null;
-			hotCache = null;
 
 			if (processedData.length < initialBatchSize) {
 				totalPages = 1;

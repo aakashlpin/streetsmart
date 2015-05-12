@@ -256,7 +256,7 @@ function createSearchForFullContacts () {
 
 function init() {
     //for request from home page, pre-process all products and keep the data in memory
-    // createCronTabForAllProducts();
+    createCronTabForAllProducts();
 
     if (!config.isCronActive) {
         logger.log('info', '=========== Cron Jobs are disabled =============');
