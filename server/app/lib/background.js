@@ -92,7 +92,6 @@ module.exports = {
 							}
 					}
 				], function (err, aggregatedResults) {
-					console.log(aggregatedResults);
 					async.each(aggregatedResults, function (aggregatedResult, aggregatedResultAsynCb) {
 						sellerModel
 						.findOne(
