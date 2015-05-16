@@ -192,7 +192,7 @@ var config = {
     },
     production: {
         db: 'mongodb://localhost/streetsmart-production',
-        isCronActive: false
+        isCronActive: true
     }
 };
 

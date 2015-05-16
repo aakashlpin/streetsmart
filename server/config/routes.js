@@ -76,7 +76,7 @@ module.exports = function(app) {
 	app.get('/api/dashboard/targetPrice', dashboard.setTargetPrice);
 
 	//1 time migration scripts
-	app.get('/migrate', migrations.unwindProductPriceHistory);
+	// app.get('/migrate', migrations.unwindProductPriceHistory);
 
 	//Mobile APIs
 	var mobile = require('../app/controllers/mobile');
