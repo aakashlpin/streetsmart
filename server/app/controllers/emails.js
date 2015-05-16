@@ -14,12 +14,12 @@ var server = config.server[env];
 function sendEmail(payload, callback) {
     //ESP Throttling happening for hotmail and yahoo emails
     //so sending via postmark for now
-    if (_.find(['@hotmail.', '@live.', '@ymail.', '@yahoo.'], function (provider) {
-        return payload.to.indexOf(provider) > 0;
-    })) {
-        require('./postmark').sendEmail(payload, callback);
-        return;
-    }
+    // if (_.find(['@hotmail.', '@live.', '@ymail.', '@yahoo.'], function (provider) {
+    //     return payload.to.indexOf(provider) > 0;
+    // })) {
+    //     require('./postmark').sendEmail(payload, callback);
+    //     return;
+    // }
 
     require('./' + emailService).sendEmail(payload, callback);
 }

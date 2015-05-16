@@ -17,14 +17,6 @@ var currentDeal;
 var processedData = [];
 var totalPages = 0;
 
-function getLeastPriceFromHistory (history) {
-	if (!history.length) {
-		return null;
-	}
-
-	return _.sortBy(history, 'price')[0];
-}
-
 function refreshDeal (callback) {
 	callback = callback || function() {};
 
@@ -85,44 +77,69 @@ module.exports = {
 	processAllProducts: function () {
 		logger.log('info', 'processing all products for home page', {at: moment().format('MMMM Do YYYY, h:mm:ss a')});
 		var allTracks = [];
-		var hotCache = {};
-		async.each(_.keys(config.sellers), function (seller, asyncEachCb) {
-			sellerUtils
-			.getSellerJobModelInstance(seller)
-			.find({}, {email: 0, isActive: 0})
-			.lean()
-			.exec(function(err, sellerJobs) {
-				_.each(sellerJobs, function (sellerJob) {
-					var dataInCache = hotCache[sellerJob.productURL] || false;
-					var leastPriceForJob;
-					if (dataInCache) {
-						dataInCache.eyes += 1;
-						//compare with the productPriceHistory of this simiar track
-						//if lesser price is found, update the entry
-						leastPriceForJob = getLeastPriceFromHistory(sellerJob.productPriceHistory);
-						if (leastPriceForJob && (leastPriceForJob.price < dataInCache.ltp)) {
-							dataInCache.ltp = leastPriceForJob.price;
-							dataInCache._id = leastPriceForJob._id ? leastPriceForJob._id.toHexString(): dataInCache._id;
+		async.each(_.keys(config.sellers), function (seller, sellerAsyncCb) {
+			var sellerModel = sellerUtils.getSellerJobModelInstance(seller);
+			var sellerModelProductPriceHistory = sellerUtils.getSellerProductPriceHistoryModelInstance(seller);
+
+			sellerModelProductPriceHistory
+			.aggregate(
+				[
+					{
+						$group:
+							{
+								_id: '$jobId',
+								min: { $min: '$price' }
+							}
+					}
+				], function (err, aggregatedResults) {
+					async.each(aggregatedResults, function (aggregatedResult, aggregatedResultAsynCb) {
+						sellerModel
+						.findOne(
+							{
+								_id: aggregatedResult._id
+							},
+							{
+								productURL 		: 1,
+								productName		: 1,
+								productImage 	: 1,
+								currentPrice 	: 1
+							}
+						)
+						.lean()
+						.exec(function (err, storedJob) {
+							if (err) {
+								return aggregatedResultAsynCb(err);
+							}
+
+							_.extend(storedJob, {
+								ltp 			: aggregatedResult.min,
+								seller 			: seller
+							});
+
+							allTracks.push(storedJob);
+
+							aggregatedResultAsynCb();
+
+						});
+
+					}, function (err) {
+						if (err) {
+							return sellerAsyncCb(err);
 						}
 
-					} else {
-						sellerJob.eyes = 1;
-						sellerJob.seller = seller;
-						leastPriceForJob = getLeastPriceFromHistory(sellerJob.productPriceHistory);
-						sellerJob.ltp = leastPriceForJob ? leastPriceForJob.price : sellerJob.currentPrice;
-						delete sellerJob.productPriceHistory;
-						hotCache[sellerJob.productURL] = sellerJob;
-					}
-				});
-
-				allTracks.push(_.values(hotCache));
-				hotCache = {};
-				asyncEachCb(err);
-			});
+						sellerAsyncCb();
+					});
+				}
+			);
 		}, function () {
-			processedData = _.sortBy(_.flatten(allTracks, true), 'eyes').reverse();
+			// processedData = _.sortBy(_.flatten(allTracks, true), 'eyes').reverse();
+			processedData = _.shuffle(_.flatten(allTracks, true));
 			//1st page = initialBatchSize
 			//next page onwards = futureBatchSize
+
+			//make them available for GC
+			allTracks = null;
+
 			if (processedData.length < initialBatchSize) {
 				totalPages = 1;
 			} else {
@@ -131,6 +148,8 @@ module.exports = {
 					totalPages += 1;
 				}
 			}
+
+			logger.log('info', 'completed processing all products for home page', {at: moment().format('MMMM Do YYYY, h:mm:ss a')});
 		});
 	},
 	getPagedProducts: function (page) {

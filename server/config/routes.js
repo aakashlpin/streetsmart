@@ -1,6 +1,6 @@
 'use strict';
 var home = require('../app/controllers/home');
-// var migrations = require('../app/migrations/index');
+var migrations = require('../app/migrations/index');
 var passport = require('passport');
 // var background = require('../app/lib/background');
 
@@ -76,7 +76,7 @@ module.exports = function(app) {
 	app.get('/api/dashboard/targetPrice', dashboard.setTargetPrice);
 
 	//1 time migration scripts
-	// app.get('/migrate', background.getFullContactByEmail);
+	// app.get('/migrate', migrations.unwindProductPriceHistory);
 
 	//Mobile APIs
 	var mobile = require('../app/controllers/mobile');

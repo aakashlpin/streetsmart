@@ -509,19 +509,36 @@ module.exports = {
             return;
         }
 
-        var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
-        SellerJobModel.findById(id, function(err, doc) {
-            if (err || !doc) {
+        //fetch the price from productPriceHistory Collection
+        sellerUtils
+        .getSellerProductPriceHistoryModelInstance(seller)
+        .find({jobId: id}, {price: 1, date: 1})
+        .sort({date: 1})
+        .lean()
+        .exec(function (err, priceHistoryDocs) {
+            if (err) {
+                logger.log('error', 'error getting price history docs for %s', id);
                 res.redirect('/500');
                 return;
             }
 
-            var tmplData = _.pick(doc, ['productName', 'productURL',
-            'productPriceHistory', 'currentPrice', 'productImage']);
+            sellerUtils
+            .getSellerJobModelInstance(seller)
+            .findById(id, function(err, doc) {
+                if (err || !doc) {
+                    res.redirect('/500');
+                    return;
+                }
 
-            tmplData.productSeller = _.str.capitalize(seller);
+                var tmplData = _.pick(doc, ['productName', 'productURL',
+                'currentPrice', 'productImage']);
 
-            res.render('track.ejs', tmplData);
+                tmplData.productPriceHistory = priceHistoryDocs;
+
+                tmplData.productSeller = _.str.capitalize(seller);
+
+                res.render('track.ejs', tmplData);
+            });
         });
     },
     getStats: function(req, res) {

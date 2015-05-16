@@ -220,7 +220,7 @@ function createCronTabForAllProducts () {
     //immediately process all items
     bgTask.processAllProducts();
 
-    //set up cron job
+    // set up cron job
     new CronJob({
         cronTime: config.processAllProductsInterval[env],
         onTick: bgTask.processAllProducts,
