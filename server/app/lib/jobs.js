@@ -204,12 +204,9 @@ function handleJobComplete (job) {
                 email: storedJob.email,
                 productURL: storedJob.productURL,
                 date: new Date()
-            }, function (err, pphDoc) {
+            }, function (err) {
                 if (err) {
                     logger.log('error', 'error inserting new product price history doc in db', {error: err});
-                }
-                if (pphDoc) {
-                    logger.log('info', 'inserted new product price history doc in db', pphDoc);
                 }
             });
         }
