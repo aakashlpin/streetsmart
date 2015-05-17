@@ -111,12 +111,14 @@ module.exports = {
 								return aggregatedResultAsynCb(err);
 							}
 
-							_.extend(storedJob, {
-								ltp 			: aggregatedResult.min,
-								seller 			: seller
-							});
+							if (storedJob) {
+								_.extend(storedJob, {
+									ltp 			: aggregatedResult.min,
+									seller 			: seller
+								});
 
-							allTracks.push(storedJob);
+								allTracks.push(storedJob);
+							}
 
 							aggregatedResultAsynCb();
 
