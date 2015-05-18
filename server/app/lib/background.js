@@ -87,7 +87,7 @@ module.exports = {
 					{
 						$group:
 							{
-								_id: '$jobId',
+								_id: { productURL: '$productURL' },
 								min: { $min: '$price' }
 							}
 					}
@@ -96,7 +96,7 @@ module.exports = {
 						sellerModel
 						.findOne(
 							{
-								_id: aggregatedResult._id
+								productURL: aggregatedResult._id.productURL
 							},
 							{
 								productURL 		: 1,
