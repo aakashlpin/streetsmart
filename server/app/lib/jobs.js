@@ -197,8 +197,7 @@ function handleJobComplete (job) {
 
             sellerUtils
             .getSellerProductPriceHistoryModelInstance(jobData.seller)
-            .collection
-            .insert({
+            .create({
                 jobId: jobData._id,
                 price: scrapedPrice,
                 email: storedJob.email,
