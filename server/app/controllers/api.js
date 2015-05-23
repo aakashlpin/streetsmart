@@ -524,7 +524,7 @@ module.exports = {
 
             sellerUtils
             .getSellerJobModelInstance(seller)
-            .findById(id, function(err, doc) {
+            .findById(id, { productPriceHistory: 0 }, function(err, doc) {
                 if (err || !doc) {
                     res.redirect('/500');
                     return;
