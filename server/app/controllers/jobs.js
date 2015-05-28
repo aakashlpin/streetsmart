@@ -11,6 +11,7 @@ var async = require('async');
 var moment = require('moment');
 var queue = require('../lib/queue');
 var bgTask = require('../lib/background');
+var offloadStaticFiles = require('../lib/offloadStaticFiles');
 var Store = require('../lib/store').Store;
 var dataStore = new Store();
 var latestJobProcessedAt;
@@ -254,9 +255,23 @@ function createSearchForFullContacts () {
     });
 }
 
+function createCronTabForRemoteSync () {
+    offloadStaticFiles.sync();
+
+    //set up cron job
+    new CronJob({
+        cronTime: config.processRemoteSyncInterval[env],
+        onTick: offloadStaticFiles.sync,
+        start: true,
+        timeZone: 'Asia/Kolkata'
+    });
+}
+
 function init() {
     //for request from home page, pre-process all products and keep the data in memory
     createCronTabForAllProducts();
+
+    createCronTabForRemoteSync();
 
     if (!config.isCronActive) {
         logger.log('info', '=========== Cron Jobs are disabled =============');

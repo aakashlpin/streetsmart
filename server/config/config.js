@@ -44,6 +44,10 @@ var commonConfig = {
         'development': '3-59/5 * * * *',
         'production': '3-59/15 * * * *'
     },
+    processRemoteSyncInterval: {
+        'development': '19 0 * * *',
+        'production': '0 0 * * *'
+    },
     processAllProductsInterval: {
         'development': '0-59/5 * * * *',
         'production': '20 * * * *'
