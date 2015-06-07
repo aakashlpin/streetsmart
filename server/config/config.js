@@ -91,6 +91,18 @@ var commonConfig = {
                 'production': '40 0-23/3 * * *'
             }
         },
+        zivame: {
+            name: 'Zivame',
+            url: 'zivame.com',
+            key: null,
+            value: null,
+            requiresUserAgent: false,
+            hasProductAPI: false,
+            cronPattern: {
+                'development': '0-59/3 * * * *',
+                'production': '10 0-23/3 * * *'
+            }
+        },
         jabong: {
             name: 'Jabong',
             url: 'jabong.com',
@@ -124,28 +136,28 @@ var commonConfig = {
                 'production': '5 0-23/3 * * *'
             }
         },
-        bajaao: {
-            name: 'Bajaao',
-            url: 'bajaao.com',
-            key: null,
-            value: null,
-            requiresUserAgent: false,
-            cronPattern: {
-                'development': '2-59/5 * * * *',
-                'production': '20 1-23/3 * * *'
-            }
-        },
-        pepperfry: {
-            name: 'Pepperfry',
-            url: 'pepperfry.com',
-            key: null,
-            value: null,
-            requiresUserAgent: false,
-            cronPattern: {
-                'development': '3-59/5 * * * *',
-                'production': '15 1-23/3 * * *'
-            }
-        },
+        // bajaao: {
+        //     name: 'Bajaao',
+        //     url: 'bajaao.com',
+        //     key: null,
+        //     value: null,
+        //     requiresUserAgent: false,
+        //     cronPattern: {
+        //         'development': '2-59/5 * * * *',
+        //         'production': '20 1-23/3 * * *'
+        //     }
+        // },
+        // pepperfry: {
+        //     name: 'Pepperfry',
+        //     url: 'pepperfry.com',
+        //     key: null,
+        //     value: null,
+        //     requiresUserAgent: false,
+        //     cronPattern: {
+        //         'development': '3-59/5 * * * *',
+        //         'production': '15 1-23/3 * * *'
+        //     }
+        // },
         snapdeal: {
             name: 'Snapdeal',
             url: 'snapdeal.com',
