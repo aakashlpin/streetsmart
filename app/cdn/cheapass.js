@@ -136,8 +136,8 @@
                 function inputURLErrorHandler() {
                     var dom = domTop + domFinePrintSeller +
                     '<div id="caResponseNotification" class="caResponseNotification">'+
-                    '<p class="caTextError" style="margin-bottom: 15px;">Cheapass works only on product pages of Flipkart, Amazon India, Snapdeal, Infibeam, Jabong, Myntra, Peppefry, Fabfurnish and Bajaao</p>'+
-                    '<p>Is this a product page but I couldn\'t detect it? <a href="mailto:aakash@cheapass.in">Let me know</a>, please?</p>'+
+                    '<p class="caTextError" style="margin-bottom: 15px;">Duh! I couldn\'t process this page. Hit the button to try again, maybe?</p>'+
+                    '<p>BTW, Is that a product page? <a href="mailto:aakash@cheapass.in">Let me know</a>, please?</p>'+
                     '</div>'+
                     domBottom;
 
