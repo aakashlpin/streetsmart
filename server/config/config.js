@@ -79,15 +79,28 @@ var commonConfig = {
                 'production': '30 0-23/2 * * *'
             }
         },
-        myntra: {
-            name: 'Myntra',
-            url: 'myntra.com',
+        healthkart: {
+            name: 'HealthKart',
+            url: 'healthkart.com',
             key: null,
             value: null,
             requiresUserAgent: false,
+            hasProductAPI: false,
             cronPattern: {
-                'development': '2-59/5 * * * *',
-                'production': '45 0-23/3 * * *'
+                'development': '0-59/3 * * * *',
+                'production': '40 0-23/3 * * *'
+            }
+        },
+        zivame: {
+            name: 'Zivame',
+            url: 'zivame.com',
+            key: null,
+            value: null,
+            requiresUserAgent: false,
+            hasProductAPI: false,
+            cronPattern: {
+                'development': '0-59/3 * * * *',
+                'production': '10 0-23/3 * * *'
             }
         },
         jabong: {
@@ -123,28 +136,28 @@ var commonConfig = {
                 'production': '5 0-23/3 * * *'
             }
         },
-        bajaao: {
-            name: 'Bajaao',
-            url: 'bajaao.com',
-            key: null,
-            value: null,
-            requiresUserAgent: false,
-            cronPattern: {
-                'development': '2-59/5 * * * *',
-                'production': '20 1-23/3 * * *'
-            }
-        },
-        pepperfry: {
-            name: 'Pepperfry',
-            url: 'pepperfry.com',
-            key: null,
-            value: null,
-            requiresUserAgent: false,
-            cronPattern: {
-                'development': '3-59/5 * * * *',
-                'production': '15 1-23/3 * * *'
-            }
-        },
+        // bajaao: {
+        //     name: 'Bajaao',
+        //     url: 'bajaao.com',
+        //     key: null,
+        //     value: null,
+        //     requiresUserAgent: false,
+        //     cronPattern: {
+        //         'development': '2-59/5 * * * *',
+        //         'production': '20 1-23/3 * * *'
+        //     }
+        // },
+        // pepperfry: {
+        //     name: 'Pepperfry',
+        //     url: 'pepperfry.com',
+        //     key: null,
+        //     value: null,
+        //     requiresUserAgent: false,
+        //     cronPattern: {
+        //         'development': '3-59/5 * * * *',
+        //         'production': '15 1-23/3 * * *'
+        //     }
+        // },
         snapdeal: {
             name: 'Snapdeal',
             url: 'snapdeal.com',
@@ -166,27 +179,8 @@ var commonConfig = {
      'kickstarter.com', 'lynda.com', 'metacafe.com', 'mtv.com', 'pornhub.com',
      'pornhd.com', 'pornotube.com', 'rottentomatoes.com', 'soundcloud.com',
      'spankwire.com', 'ted.com', 'tube8.com', 'udemy.com', 'vh1.com',
-     'vimeo.com', 'vuclip.com', 'xtube.com', 'youtube.com'],
-    videoSites: {
-        hornbunny: {
-            url: 'hornbunny.com'
-        },
-        xvideos: {
-            url: 'xvideos.com'
-        },
-        youporn: {
-            url: 'youporn.com'
-        },
-        xhamster: {
-            url: 'xhamster.com'
-        },
-        xnxx: {
-            url: 'xnxx.com'
-        },
-        redtube: {
-            url: 'redtube.com'
-        }
-    }
+     'vimeo.com', 'vuclip.com', 'xtube.com', 'youtube.com', 'xvideos.com',
+     'hornbunny.com', 'youporn.com', 'xhamster.com', 'xnxx.com', 'redtube.com']
 };
 
 var config = {
