@@ -25,7 +25,7 @@ var commonConfig = {
     googleProjectNumber: '596203593464',
     sellerCronWorkerLog: 'seller cron',
     jobRemovedLog: 'job removed',
-    emailService: 'mailgun',   //postmark, mandrill, mailgun, ses
+    emailService: 'ses',   //postmark, mandrill, mailgun, ses
     QoSCheckInterval: 30,   //in minutes
     cpuClusterSize: 2,
     TWITTER_CONSUMER_KEY: 'mPlfFk9ALcWHfCWoZFm5HrwvV',
