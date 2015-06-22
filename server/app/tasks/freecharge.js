@@ -20,7 +20,7 @@ exports.sendMail = function(req, res) {
 };
 
 exports.sendMailer = function(req, res) {
-    UsersModel.getAll(function(err, users) {
+    UsersModel.find({}, {email: 1}, function(err, users) {
         Emails.sendMailer(users, function(err, msg) {
             if (err) {
                 logger.log('error', 'error in sending email', err);

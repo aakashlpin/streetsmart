@@ -217,13 +217,13 @@ module.exports = {
 
             } else {
                 async.each(users, function(user, asyncEachCb){
-                    template('dashboard', user, function(err, html) {
+                    template('anniversary', user, function(err, html) {
                         if (err) {
                             asyncEachCb(err);
 
                         } else {
                             sendEmail({
-                                'subject': 'Introducing Your Personal Dashboard!',
+                                'subject': 'Cheapass Turns One! A Small Thank You Note. :)',
                                 'html': html,
                                 'to': user.email
                             }, asyncEachCb);
