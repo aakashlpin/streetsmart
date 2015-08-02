@@ -52,6 +52,10 @@ var commonConfig = {
         'development': '0-59/5 * * * *',
         'production': '20 * * * *'
     },
+    createAndSendDailyReportInterval: {
+        'development': '0-59/5 * * * *',
+        'production': '0 0 * * *'
+    },
     sellers: {
         flipkart: {
             name: 'Flipkart',
