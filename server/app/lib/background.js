@@ -12,6 +12,7 @@ var Deal = require('../lib/deals').Deal;
 var mongoose = require('mongoose');
 var UserModel = mongoose.model('User');
 var UserLookup = require('./userLookup');
+var Emails = require('../controllers/emails');
 var currentDeal;
 
 var processedData = [];
@@ -182,6 +183,10 @@ module.exports = {
 		} else {
 			refreshDeal(callback);
 		}
+	},
+	createAndSendDailyReport: function () {
+		// fake some numbers right now.
+		Emails.sendDailyReport(_.random(900, 1200), function () {});
 	},
 	refreshDeal: refreshDeal
 };

@@ -267,6 +267,16 @@ function createCronTabForRemoteSync () {
     });
 }
 
+function createAndSendDailyReport () {
+    //set up cron job
+    new CronJob({
+        cronTime: config.createAndSendDailyReportInterval[env],
+        onTick: bgTask.createAndSendDailyReport,
+        start: true,
+        timeZone: 'Asia/Kolkata'
+    });
+}
+
 function init() {
     //for request from home page, pre-process all products and keep the data in memory
     createCronTabForAllProducts();
@@ -284,6 +294,8 @@ function init() {
     createQueueBindEvents();
 
     createSearchForFullContacts();
+
+    createAndSendDailyReport();
 
     //foreach seller, create a cron job
     async.each(_.keys(config.sellers), createWorkerForSeller, queueProcess);

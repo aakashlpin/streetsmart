@@ -5,7 +5,8 @@ async          = require('async'),
 templatesDir   = path.resolve(__dirname, '..', 'templates'),
 emailTemplates = require('email-templates'),
 _              = require('underscore'),
-config         = require('../../config/config');
+config         = require('../../config/config'),
+logger 		   = require('../../logger').logger;
 
 var emailService = config.emailService;
 var env = process.env.NODE_ENV || 'development';
@@ -235,5 +236,32 @@ module.exports = {
                 });
             }
         });
+    },
+    sendDailyReport: function(alerts, callback) {
+        emailTemplates(templatesDir, function(err, template) {
+            if (err) {
+                callback(err);
+
+            } else {
+                var locals = {
+                	alerts: alerts,
+                	email: 'pisceanaish@gmail.com'
+                };
+
+                template('report', locals, function(err, html) {
+                    if (err) {
+                        callback(err);
+                    } else {
+                        sendEmail({
+                            'subject': 'Cheapass - Pucchis Due Report',
+                            'html': html,
+                            'to': locals.email,
+                            'cc': 'aakash@cheapass.in'
+                        }, callback);
+                    }
+                });
+            }
+        });
     }
+
 };
