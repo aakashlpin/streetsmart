@@ -19,11 +19,11 @@ function Deal(seller, adType) {
 					fileId: 1,
 					viewportSize: '2000x768',
 					cssSelector: '.SINGLE-DEAL-LARGE'		//680x310
-				},
-				{
-					cssSelector: '.ONETHIRTYFIVE-HERO .gbwshoveler ul',
-					viewportSize: '700x500'
 				}
+				// {
+				// 	cssSelector: '.ONETHIRTYFIVE-HERO .gbwshoveler ul',
+				// 	viewportSize: '700x500'
+				// }
 			];
 		} else if (adType === 'small') {
 			//Work in progress
