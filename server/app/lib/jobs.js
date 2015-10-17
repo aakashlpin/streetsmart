@@ -81,12 +81,15 @@ function sendNotifications(emailUser, emailProduct) {
                       'X-Parse-REST-API-Key': config.PARSE.REST_KEY,
                       'Content-Type': 'application/json'
                   },
-                  body: JSON.stringify(_.extend({}, {
+                  body: JSON.stringify(data: _.extend({}, {
                     alert: iosNotificationMessage
                   }, emailProduct))
               })
               .then(function (response) {
                 return response.json();
+              })
+              .then(function (response) {
+                logger.log('info', 'push notification response from parse', response);
               })
               .catch(function (e) {
                 console.log('error sending push notification ', e);
