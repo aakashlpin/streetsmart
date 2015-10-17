@@ -1,4 +1,6 @@
 'use strict';
+require('es6-promise').polyfill();
+require('isomorphic-fetch');
 var Emails = require('./emails');
 var jobUtils = require('../lib/jobs');
 var _ = require('underscore');
@@ -6,7 +8,7 @@ _.str = require('underscore.string');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 // var Job = mongoose.model('Job');
-// var config = require('../../config/config');
+var config = require('../../config/config');
 // var logger = require('../../logger').logger;
 
 module.exports = {
@@ -89,7 +91,7 @@ module.exports = {
 	},
 	simulateNotification: function(req, res) {
 		var payload = _.pick(req.query, ['email']);
-		if (payload.email === 'aakash.lpin@gmail.com' || payload.email === 'plaban.nayak@gmail.com') {
+		if (payload.email === 'aakash.lpin@gmail.com') {
 			var emailUser = {
 				email: payload.email
 			};
@@ -110,5 +112,39 @@ module.exports = {
 		} else {
 			res.json({status: 'error', message: 'email id not a developer'});
 		}
+	},
+	storeIOSDeviceToken: function (req, res) {
+		var props = _.pick(req.body, ['email', 'parsePayload']);
+		if (!props.email || !props.parsePayload) {
+			return res.json({status: 'error', message: 'Invalid Request. Expected email and parsePayload'});
+		}
+
+		var url = 'https://api.parse.com';
+		url += '/1/installations';
+		fetch(url, {
+				method: 'post',
+				headers: {
+						'Accept': 'application/json',
+						'X-Parse-Application-Id': config.PARSE.APP_ID,
+						'X-Parse-REST-API-Key': config.PARSE.REST_KEY,
+						'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(props.parsePayload)
+		})
+		.then(function (response) {
+			return response.json();
+		})
+		.then(function (json) {
+			User.update({email: props.email}, {$push: {iOSDeviceTokens: props.deviceToken}}, {}, function(err, updatedDoc) {
+				if (err || !updatedDoc) {
+					res.json({status: 'error', message: 'Internal Server Error'});
+					return;
+				}
+				res.json({status: 'ok'});
+			});
+		})
+		.catch(function (e) {
+			res.json({status: 'error', message: 'Internal Server Error'});
+		});
 	}
 };

@@ -68,6 +68,30 @@ function sendNotifications(emailUser, emailProduct) {
                     }
                 });
             }
+
+            if (userDoc && userDoc.iOSDeviceTokens && userDoc.iOSDeviceTokens.length) {
+              var iosNotificationMessage = emailProduct.productName + ' is now available at Rs.' + emailProduct.currentPrice + '/-';
+
+              var url = 'https://api.parse.com/1/push';
+              fetch(url, {
+                  method: 'post',
+                  headers: {
+                      'Accept': 'application/json',
+                      'X-Parse-Application-Id': config.PARSE.APP_ID,
+                      'X-Parse-REST-API-Key': config.PARSE.REST_KEY,
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify(_.extend({}, {
+                    alert: iosNotificationMessage,
+                  }, emailProduct);
+              })
+              .then(function (response) {
+                return response.json();
+              })
+              .catch(function (e) {
+                console.log('error sending push notification ', e);
+              });
+            }
         });
     });
 }
