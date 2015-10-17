@@ -82,8 +82,8 @@ function sendNotifications(emailUser, emailProduct) {
                       'Content-Type': 'application/json'
                   },
                   body: JSON.stringify(_.extend({}, {
-                    alert: iosNotificationMessage,
-                  }, emailProduct);
+                    alert: iosNotificationMessage
+                  }, emailProduct))
               })
               .then(function (response) {
                 return response.json();
