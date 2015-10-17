@@ -134,20 +134,17 @@ module.exports = {
 				},
 				body: JSON.stringify(props.parsePayload)
 		})
-		.then(function (response) {
-			return response.json();
-		})
-		.then(function (json) {
+		.then(function () {
 			User.update({email: props.email}, {$push: {iOSDeviceTokens: props.deviceToken}}, {}, function(err, updatedDoc) {
 				if (err || !updatedDoc) {
-					res.json({status: 'error', message: 'Internal Server Error'});
+					res.json({status: 'error', message: 'Internal Server Error', error: err});
 					return;
 				}
 				res.json({status: 'ok'});
 			});
 		})
 		.catch(function (e) {
-			res.json({status: 'error', message: 'Internal Server Error'});
+			res.json({status: 'error', message: 'Internal Server Error in Catch', error: e});
 		});
 	}
 };
