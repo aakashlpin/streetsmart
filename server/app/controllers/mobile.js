@@ -127,13 +127,12 @@ module.exports = {
 		res.json({status: 'ok'});
 	},
 	storeIOSDeviceToken: function (req, res) {
-		logger.log('info', 'req.query', req.query);
 		var props = _.pick(req.body, ['email', 'parsePayload']);
 		if (!props.email || !props.parsePayload) {
 			return res.json({status: 'error', message: 'Invalid Request. Expected email and parsePayload'});
 		}
 
-		logger.log('info', 'data is ', props.email, props.parsePayload);
+		logger.log('info', 'installation data is ', props.email, props.parsePayload);
 
 		var url = 'https://api.parse.com';
 		url += '/1/installations';
@@ -151,14 +150,32 @@ module.exports = {
 			return response.json();
 		})
 		.then(function (response) {
-			logger.log('info', 'response from parse', response);
+			logger.log('info', 'response from Parse to POST request to create a new installation', response);
+			return fetch(response.Location, {
+				method: 'put',
+				headers: {
+					'Accept': 'application/json',
+					'X-Parse-Application-Id': config.PARSE.APP_ID,
+					'X-Parse-REST-API-Key': config.PARSE.REST_KEY,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					email: props.email
+				})
+			})
+		})
+		.then(function (response) {
+			return response.json();
+		})
+		.then(function (response) {
+			logger.log('info', 'response from parse PUT request to attach email to Installation', response);
 			User.update({email: props.email}, {$push: {iOSDeviceTokens: props.parsePayload.deviceToken}}, {}, function(err, updatedDoc) {
 				if (err || !updatedDoc) {
 					res.json({status: 'error', message: 'Internal Server Error', error: err});
 					return;
 				}
 				res.json({status: 'ok'});
-			});
+			})
 		})
 		.catch(function (e) {
 			res.json({status: 'error', message: 'Internal Server Error in Catch', error: e});

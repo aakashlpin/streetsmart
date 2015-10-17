@@ -81,9 +81,14 @@ function sendNotifications(emailUser, emailProduct) {
                       'X-Parse-REST-API-Key': config.PARSE.REST_KEY,
                       'Content-Type': 'application/json'
                   },
-                  body: JSON.stringify({data: _.extend({}, {
-                    alert: iosNotificationMessage
-                  }, emailProduct)})
+                  body: JSON.stringify({
+                    where: {
+                      email: emailUser.email
+                    },
+                    data: _.extend({}, {
+                      alert: iosNotificationMessage
+                    }, emailProduct)
+                  })
               })
               .then(function (response) {
                 return response.json();
