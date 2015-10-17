@@ -3,8 +3,8 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
-    "stop": "NODE_ENV=production forever stop app.js",
-    "start": "NODE_ENV=production forever start app.js"
+    "stop": "NODE_ENV=production forever -s stop app.js",
+    "start": "NODE_ENV=production forever -s start app.js"
   },
   "dependencies": {
     "cheerio": "^0.17.0",
