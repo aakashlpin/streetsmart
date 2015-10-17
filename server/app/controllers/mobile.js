@@ -121,6 +121,8 @@ module.exports = {
 			return res.json({status: 'error', message: 'Invalid Request. Expected email and parsePayload'});
 		}
 
+		logger.log(props.email, props.parsePayload);
+
 		var url = 'https://api.parse.com';
 		url += '/1/installations';
 		fetch(url, {
