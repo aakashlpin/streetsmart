@@ -119,7 +119,7 @@ module.exports = {
 			productURL: 'http://www.flipkart.com/apple-iphone-5s/p/itmdv6f75dyxhmt4?pid=MOBDPPZZDX8WSPAT',
 			currentPrice: 7990,
 			oldPrice: 9990,
-			seller: 'Amazon.in',
+			seller: 'amazon',
 			measure: 'dropped'
 		};
 
