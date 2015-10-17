@@ -115,13 +115,13 @@ module.exports = {
 	},
 	storeIOSDeviceToken: function (req, res) {
 		logger.log('info', 'req.query', req.query);
-		logger.log('info', 'req.body', req.body);
+		logger.log('info', 'req.body', JSON.parse(req.body));
 		var props = _.pick(JSON.parse(req.body), ['email', 'parsePayload']);
 		if (!props.email || !props.parsePayload) {
 			return res.json({status: 'error', message: 'Invalid Request. Expected email and parsePayload'});
 		}
 
-		logger.log(props.email, props.parsePayload);
+		logger.log('info', 'data is ', props.email, props.parsePayload);
 
 		var url = 'https://api.parse.com';
 		url += '/1/installations';
