@@ -134,7 +134,11 @@ module.exports = {
 				},
 				body: JSON.stringify(props.parsePayload)
 		})
-		.then(function () {
+		.then(function (response) {
+			return response.json();
+		})
+		.then(function (response) {
+			logger.log('info', 'response from parse', response);
 			User.update({email: props.email}, {$push: {iOSDeviceTokens: props.deviceToken}}, {}, function(err, updatedDoc) {
 				if (err || !updatedDoc) {
 					res.json({status: 'error', message: 'Internal Server Error', error: err});
