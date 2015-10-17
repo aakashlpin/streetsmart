@@ -151,7 +151,13 @@ module.exports = {
 		})
 		.then(function (response) {
 			logger.log('info', 'response from Parse to POST request to create a new installation', response);
-			return fetch(response.Location, {
+			var resourceURI;
+			if (response.Location) {
+				resourceURI = response.Location;
+			} else {
+				resourceURI = 'https://api.parse.com/1/installations/' + response.objectId;
+			}
+			return fetch(resourceURI, {
 				method: 'put',
 				headers: {
 					'Accept': 'application/json',
