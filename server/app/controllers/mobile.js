@@ -115,8 +115,7 @@ module.exports = {
 	},
 	storeIOSDeviceToken: function (req, res) {
 		logger.log('info', 'req.query', req.query);
-		logger.log('info', 'req.body', JSON.parse(req.body));
-		var props = _.pick(JSON.parse(req.body), ['email', 'parsePayload']);
+		var props = _.pick(req.body, ['email', 'parsePayload']);
 		if (!props.email || !props.parsePayload) {
 			return res.json({status: 'error', message: 'Invalid Request. Expected email and parsePayload'});
 		}
