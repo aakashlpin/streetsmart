@@ -113,6 +113,19 @@ module.exports = {
 			res.json({status: 'error', message: 'email id not a developer'});
 		}
 	},
+	simulateIOSNotification: function (req, res) {
+		var emailProduct = {
+			productName: 'Fitbit Charge Wireless Activity Tracker and Sleep Wristband, Large (Black)',
+			productURL: 'http://www.flipkart.com/apple-iphone-5s/p/itmdv6f75dyxhmt4?pid=MOBDPPZZDX8WSPAT',
+			currentPrice: 7990,
+			oldPrice: 9990,
+			seller: 'Amazon.in',
+			measure: 'dropped'
+		};
+
+		jobUtils.sendNotifications({email: 'aakash.lpin@gmail.com'}, emailProduct);
+		res.json({status: 'ok'});
+	},
 	storeIOSDeviceToken: function (req, res) {
 		logger.log('info', 'req.query', req.query);
 		var props = _.pick(req.body, ['email', 'parsePayload']);

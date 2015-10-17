@@ -45,32 +45,32 @@ function sendNotifications(emailUser, emailProduct) {
                 }
             });
 
-            if (userDoc && userDoc.deviceIds && userDoc.deviceIds.length) {
-                var priceChangeMessage = 'Price of ' + emailProduct.productName + ' has ' + emailProduct.measure + ' to ' + 'Rs.' + emailProduct.currentPrice + '/-';
-                var message = new gcm.Message({
-                    data: {
-                        'price_drop': priceChangeMessage,
-                        'product_url': emailProduct.productURL
-                    }
-                });
-
-                var sender = new gcm.Sender(config.googleServerAPIKey);
-                var registrationIds = userDoc.deviceIds;
-
-                /**
-                 * Params: message-literal, registrationIds-array, No. of retries, callback-function
-                 **/
-                sender.send(message, registrationIds, 4, function (err, result) {
-                    if (err) {
-                        logger.log('error', 'error sending push notification', err);
-                    } else {
-                        logger.log('info', 'mobile notification sent', result);
-                    }
-                });
-            }
+            // if (userDoc && userDoc.deviceIds && userDoc.deviceIds.length) {
+            //     var priceChangeMessage = 'Price of ' + emailProduct.productName + ' has ' + emailProduct.measure + ' to ' + 'Rs.' + emailProduct.currentPrice + '/-';
+            //     var message = new gcm.Message({
+            //         data: {
+            //             'price_drop': priceChangeMessage,
+            //             'product_url': emailProduct.productURL
+            //         }
+            //     });
+            //
+            //     var sender = new gcm.Sender(config.googleServerAPIKey);
+            //     var registrationIds = userDoc.deviceIds;
+            //
+            //     /**
+            //      * Params: message-literal, registrationIds-array, No. of retries, callback-function
+            //      **/
+            //     sender.send(message, registrationIds, 4, function (err, result) {
+            //         if (err) {
+            //             logger.log('error', 'error sending push notification', err);
+            //         } else {
+            //             logger.log('info', 'mobile notification sent', result);
+            //         }
+            //     });
+            // }
 
             if (userDoc && userDoc.iOSDeviceTokens && userDoc.iOSDeviceTokens.length) {
-              var iosNotificationMessage = emailProduct.productName + ' is now available at Rs.' + emailProduct.currentPrice + '/-';
+              var iosNotificationMessage = emailProduct.productName + ' is now available at Rs.' + emailProduct.currentPrice + '/- on ' + emailProduct.seller;
 
               var url = 'https://api.parse.com/1/push';
               fetch(url, {

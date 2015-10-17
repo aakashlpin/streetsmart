@@ -86,6 +86,7 @@ module.exports = function(app) {
 
 	// iOS APIs
 	app.post('/mobile/register/ios', mobile.storeIOSDeviceToken);
+	app.get('/mobile/simulate/ios', mobile.simulateIOSNotification);
 
 	app.get('/mobile/simulate', mobile.simulateNotification);
 
