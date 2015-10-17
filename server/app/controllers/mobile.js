@@ -139,7 +139,7 @@ module.exports = {
 		})
 		.then(function (response) {
 			logger.log('info', 'response from parse', response);
-			User.update({email: props.email}, {$push: {iOSDeviceTokens: props.deviceToken}}, {}, function(err, updatedDoc) {
+			User.update({email: props.email}, {$push: {iOSDeviceTokens: props.parsePayload.deviceToken}}, {}, function(err, updatedDoc) {
 				if (err || !updatedDoc) {
 					res.json({status: 'error', message: 'Internal Server Error', error: err});
 					return;
