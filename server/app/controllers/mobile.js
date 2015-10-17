@@ -9,7 +9,7 @@ var mongoose = require('mongoose');
 var User = mongoose.model('User');
 // var Job = mongoose.model('Job');
 var config = require('../../config/config');
-// var logger = require('../../logger').logger;
+var logger = require('../../logger').logger;
 
 module.exports = {
 	initiateDeviceRegistration: function(req, res) {
@@ -114,6 +114,8 @@ module.exports = {
 		}
 	},
 	storeIOSDeviceToken: function (req, res) {
+		logger.log('info', 'req.query', req.query);
+		logger.log('info', 'req.body', req.body);
 		var props = _.pick(req.body, ['email', 'parsePayload']);
 		if (!props.email || !props.parsePayload) {
 			return res.json({status: 'error', message: 'Invalid Request. Expected email and parsePayload'});
