@@ -77,7 +77,7 @@ var commonConfig = {
             }
         },
         amazon: {
-            name: 'Amazon India',
+            name: 'Amazon.in',
             url: 'amazon.in',
             key: 'tag',
             value: 'cheapass0a-21',

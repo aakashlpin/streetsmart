@@ -70,7 +70,7 @@ function sendNotifications(emailUser, emailProduct) {
             // }
 
             if (userDoc && userDoc.iOSDeviceTokens && userDoc.iOSDeviceTokens.length) {
-              var iosNotificationMessage = emailProduct.productName + ' is now available at Rs.' + emailProduct.currentPrice + '/- on ' + emailProduct.seller;
+              var iosNotificationMessage = emailProduct.productName + ' is now available at ₹' + emailProduct.currentPrice + '/- on ' + config.sellers[emailProduct.seller].name;
 
               var url = 'https://api.parse.com/1/push';
               fetch(url, {
