@@ -84,6 +84,10 @@ module.exports = function(app) {
 	app.all('/mobile/verify', mobile.verifyDeviceRegistration);
 	app.all('/mobile/register', mobile.finalizeDeviceRegistration);
 
+	// iOS APIs
+	app.post('/mobile/register/ios', mobile.storeIOSDeviceToken);
+	app.get('/mobile/simulate/ios', mobile.simulateIOSNotification);
+
 	app.get('/mobile/simulate', mobile.simulateNotification);
 
 	//Admin

@@ -10,6 +10,7 @@ var UserSchema = new Schema({
     dropOnlyAlerts: Boolean,
     verificationCodes: [String],
     deviceIds: [String],
+    iOSDeviceTokens: [String],
     fullContact: Schema.Types.Mixed,
     fullContactAttempts: Number
 });

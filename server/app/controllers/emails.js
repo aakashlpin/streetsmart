@@ -200,7 +200,7 @@ module.exports = {
                         callback(err);
                     } else {
                         sendEmail({
-                            'subject': 'Cheapass | Device verification code',
+                            'subject': 'Cheapass | App Login OTP | ' + locals.verificationCode,
                             'html': html,
                             'to': locals.email,
                             'bcc': 'aakash@cheapass.in'
