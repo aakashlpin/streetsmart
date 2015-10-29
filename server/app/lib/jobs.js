@@ -45,28 +45,60 @@ function sendNotifications(emailUser, emailProduct) {
                 }
             });
 
-            if (userDoc && userDoc.deviceIds && userDoc.deviceIds.length) {
-                var priceChangeMessage = 'Price of ' + emailProduct.productName + ' has ' + emailProduct.measure + ' to ' + 'Rs.' + emailProduct.currentPrice + '/-';
-                var message = new gcm.Message({
-                    data: {
-                        'price_drop': priceChangeMessage,
-                        'product_url': emailProduct.productURL
-                    }
-                });
+            // if (userDoc && userDoc.deviceIds && userDoc.deviceIds.length) {
+            //     var priceChangeMessage = 'Price of ' + emailProduct.productName + ' has ' + emailProduct.measure + ' to ' + 'Rs.' + emailProduct.currentPrice + '/-';
+            //     var message = new gcm.Message({
+            //         data: {
+            //             'price_drop': priceChangeMessage,
+            //             'product_url': emailProduct.productURL
+            //         }
+            //     });
+            //
+            //     var sender = new gcm.Sender(config.googleServerAPIKey);
+            //     var registrationIds = userDoc.deviceIds;
+            //
+            //     /**
+            //      * Params: message-literal, registrationIds-array, No. of retries, callback-function
+            //      **/
+            //     sender.send(message, registrationIds, 4, function (err, result) {
+            //         if (err) {
+            //             logger.log('error', 'error sending push notification', err);
+            //         } else {
+            //             logger.log('info', 'mobile notification sent', result);
+            //         }
+            //     });
+            // }
 
-                var sender = new gcm.Sender(config.googleServerAPIKey);
-                var registrationIds = userDoc.deviceIds;
+            if (userDoc && userDoc.iOSDeviceTokens && userDoc.iOSDeviceTokens.length) {
+              var iosNotificationMessage = emailProduct.productName + ' is now available at ₹' + emailProduct.currentPrice + '/- on ' + config.sellers[emailProduct.seller].name;
 
-                /**
-                 * Params: message-literal, registrationIds-array, No. of retries, callback-function
-                 **/
-                sender.send(message, registrationIds, 4, function (err, result) {
-                    if (err) {
-                        logger.log('error', 'error sending push notification', err);
-                    } else {
-                        logger.log('info', 'mobile notification sent', result);
-                    }
-                });
+              var url = 'https://api.parse.com/1/push';
+              fetch(url, {
+                  method: 'post',
+                  headers: {
+                      'Accept': 'application/json',
+                      'X-Parse-Application-Id': config.PARSE.APP_ID,
+                      'X-Parse-REST-API-Key': config.PARSE.REST_KEY,
+                      'Content-Type': 'application/json'
+                  },
+                  body: JSON.stringify({
+                    where: {
+                      email: emailUser.email
+                    },
+                    data: _.extend({}, {
+                      alert: iosNotificationMessage
+                    }, emailProduct)
+                  })
+              })
+              .then(function (response) {
+                return response.json();
+              })
+              .then(function (response) {
+                logger.log('info', 'push notification response from parse', response);
+              })
+              .catch(function (e) {
+                console.log('error sending push notification ', e);
+              });
             }
         });
     });

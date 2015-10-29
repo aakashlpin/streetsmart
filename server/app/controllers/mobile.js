@@ -1,4 +1,6 @@
 'use strict';
+require('es6-promise').polyfill();
+require('isomorphic-fetch');
 var Emails = require('./emails');
 var jobUtils = require('../lib/jobs');
 var _ = require('underscore');
@@ -6,8 +8,8 @@ _.str = require('underscore.string');
 var mongoose = require('mongoose');
 var User = mongoose.model('User');
 // var Job = mongoose.model('Job');
-// var config = require('../../config/config');
-// var logger = require('../../logger').logger;
+var config = require('../../config/config');
+var logger = require('../../logger').logger;
 
 module.exports = {
 	initiateDeviceRegistration: function(req, res) {
@@ -89,7 +91,7 @@ module.exports = {
 	},
 	simulateNotification: function(req, res) {
 		var payload = _.pick(req.query, ['email']);
-		if (payload.email === 'aakash.lpin@gmail.com' || payload.email === 'plaban.nayak@gmail.com') {
+		if (payload.email === 'aakash.lpin@gmail.com') {
 			var emailUser = {
 				email: payload.email
 			};
@@ -110,5 +112,79 @@ module.exports = {
 		} else {
 			res.json({status: 'error', message: 'email id not a developer'});
 		}
+	},
+	simulateIOSNotification: function (req, res) {
+		var emailProduct = {
+			productName: 'Fitbit Charge Wireless Activity Tracker and Sleep Wristband, Large (Black)',
+			productURL: 'http://www.flipkart.com/apple-iphone-5s/p/itmdv6f75dyxhmt4?pid=MOBDPPZZDX8WSPAT',
+			currentPrice: 7990,
+			oldPrice: 9990,
+			seller: 'amazon',
+			measure: 'dropped'
+		};
+
+		jobUtils.sendNotifications({email: 'aakash.lpin@gmail.com'}, emailProduct);
+		res.json({status: 'ok'});
+	},
+	storeIOSDeviceToken: function (req, res) {
+		var props = _.pick(req.body, ['email', 'parsePayload']);
+		if (!props.email || !props.parsePayload) {
+			return res.json({status: 'error', message: 'Invalid Request. Expected email and parsePayload'});
+		}
+
+		logger.log('info', 'installation data is ', props.email, props.parsePayload);
+
+		var url = 'https://api.parse.com';
+		url += '/1/installations';
+		fetch(url, {
+				method: 'post',
+				headers: {
+						'Accept': 'application/json',
+						'X-Parse-Application-Id': config.PARSE.APP_ID,
+						'X-Parse-REST-API-Key': config.PARSE.REST_KEY,
+						'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(props.parsePayload)
+		})
+		.then(function (response) {
+			return response.json();
+		})
+		.then(function (response) {
+			logger.log('info', 'response from Parse to POST request to create a new installation', response);
+			var resourceURI;
+			if (response.Location) {
+				resourceURI = response.Location;
+			} else {
+				resourceURI = 'https://api.parse.com/1/installations/' + response.objectId;
+			}
+			return fetch(resourceURI, {
+				method: 'put',
+				headers: {
+					'Accept': 'application/json',
+					'X-Parse-Application-Id': config.PARSE.APP_ID,
+					'X-Parse-REST-API-Key': config.PARSE.REST_KEY,
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					email: props.email
+				})
+			})
+		})
+		.then(function (response) {
+			return response.json();
+		})
+		.then(function (response) {
+			logger.log('info', 'response from parse PUT request to attach email to Installation', response);
+			User.update({email: props.email}, {$push: {iOSDeviceTokens: props.parsePayload.deviceToken}}, {}, function(err, updatedDoc) {
+				if (err || !updatedDoc) {
+					res.json({status: 'error', message: 'Internal Server Error', error: err});
+					return;
+				}
+				res.json({status: 'ok'});
+			})
+		})
+		.catch(function (e) {
+			res.json({status: 'error', message: 'Internal Server Error in Catch', error: e});
+		});
 	}
 };

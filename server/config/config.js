@@ -36,6 +36,12 @@ var commonConfig = {
     AWS_ACCESS_KEY_ID: 'AKIAIFTVMHU7YXZR6HUQ',
     AWS_SECRET_ACCESS_KEY: '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',
     AWS_BUCKET_PREFIX: 'http://cheapass-india.s3.amazonaws.com/',
+    PARSE: {
+        APP_ID: 'EnpAUwXNnLdWsPulrCQB1h0Y1ijqkHjFd1N1Ep6Q',
+        CLIENT_KEY: 'ZPCn3dme4W7EcRcNfIU70qipHfR5Stk1S3AeYNgs',
+        JAVASCRIPT_KEY: 'Dn6nmUKcPuygo6g8ncLRwCioUTfciPG0c5lzLHjB',
+        REST_KEY: 'flapt5SCbN0Qf0QfuhBpuEJVtsH828xY8FLSey0M'
+    },
     processFullContactInterval: {
         'development': '0 0-23/1 * * *',
         'production': '0 2-23/6 * * *'
@@ -71,7 +77,7 @@ var commonConfig = {
             }
         },
         amazon: {
-            name: 'Amazon India',
+            name: 'Amazon.in',
             url: 'amazon.in',
             key: 'tag',
             value: 'cheapass0a-21',
@@ -140,28 +146,6 @@ var commonConfig = {
                 'production': '5 0-23/3 * * *'
             }
         },
-        // bajaao: {
-        //     name: 'Bajaao',
-        //     url: 'bajaao.com',
-        //     key: null,
-        //     value: null,
-        //     requiresUserAgent: false,
-        //     cronPattern: {
-        //         'development': '2-59/5 * * * *',
-        //         'production': '20 1-23/3 * * *'
-        //     }
-        // },
-        // pepperfry: {
-        //     name: 'Pepperfry',
-        //     url: 'pepperfry.com',
-        //     key: null,
-        //     value: null,
-        //     requiresUserAgent: false,
-        //     cronPattern: {
-        //         'development': '3-59/5 * * * *',
-        //         'production': '15 1-23/3 * * *'
-        //     }
-        // },
         snapdeal: {
             name: 'Snapdeal',
             url: 'snapdeal.com',
@@ -189,8 +173,8 @@ var commonConfig = {
 
 var config = {
     development: {
-        db: 'mongodb://localhost:27019/streetsmart-development',
-        isCronActive: false  //use this to control running of cron jobs
+        db: 'mongodb://localhost/streetsmart-development',
+        isCronActive: true  //use this to control running of cron jobs
     },
     production: {
         db: 'mongodb://localhost/streetsmart-production',
