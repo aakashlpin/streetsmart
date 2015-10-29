@@ -36,6 +36,17 @@ var commonConfig = {
     AWS_ACCESS_KEY_ID: 'AKIAIFTVMHU7YXZR6HUQ',
     AWS_SECRET_ACCESS_KEY: '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',
     AWS_BUCKET_PREFIX: 'http://cheapass-india.s3.amazonaws.com/',
+    TWITTER_FEED: {
+      CONSUMER_KEY: 'cGdGa5jdWWqDczrxkMUVuR3oJ',
+      CONSUMER_SECRET: 'Q5OocHZnlIBKmLIhJgTwNGy7u9MH8zfWdkk82zt1wc14xGvFGe',
+      ACCESS_TOKEN: '4058882718-HG0Yr0IwxwGjSm28Mp9iDMDYd6VhgYdqbQ6VKCj',
+      ACCESS_TOKEN_SECRET: '1uTGLPiVBsepizWG2LPmDx6RolQCt47nWLkkPfmy9hwmV'
+    },
+    BITLY: {
+      CLIENT_ID: '166519637297f08da483c95c2066af6e8c25f2c3',
+      CLIENT_SECRENT: 'a8b2103d2a55e4455d19f1c35d76709e6b54e7e6',
+      ACCESS_TOKEN: '62741fff7968a4721e5f52dad73ab2e590df12ca'
+    },
     PARSE: {
         APP_ID: 'EnpAUwXNnLdWsPulrCQB1h0Y1ijqkHjFd1N1Ep6Q',
         CLIENT_KEY: 'ZPCn3dme4W7EcRcNfIU70qipHfR5Stk1S3AeYNgs',
@@ -59,7 +70,7 @@ var commonConfig = {
         'production': '20 * * * *'
     },
     createAndSendDailyReportInterval: {
-        'development': '0-59/5 * * * *',
+        'development': '0 0 * * *',
         'production': '0 0 * * *'
     },
     sellers: {
@@ -85,7 +96,7 @@ var commonConfig = {
             hasProductAPI: false,
             hasDeepLinking: true,
             cronPattern: {
-                'development': '0-59/3 * * * *',
+                'development': '39 0-23/1 * * *',
                 'production': '30 0-23/3 * * *'
             }
         },

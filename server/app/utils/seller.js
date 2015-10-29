@@ -99,6 +99,9 @@ function getURLWithAffiliateId(url) {
 function increaseCounter(counterName) {
     var counterModel = mongoose.model('Counter');
     counterModel.findOne().lean().exec(function(err, doc) {
+        if (!doc) {
+          return;
+        }
         var updateQuery = {_id: doc._id};
         var updateObject = {};
         var updateOptions = {};
