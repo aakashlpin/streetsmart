@@ -7,7 +7,7 @@ module.exports = function($) {
 		imageDOM = $('[itemprop="image"]');
 		nameDOM = $('[itemprop="name"]');
 
-		price = parseInt(priceDOM.text().split('Rs.')[1].replace(',', ''), 10);
+		price = parseInt(priceDOM.text().split('Rs.')[1].replace(/,/g, ''), 10);
 
 		if (_.isNaN(price)) {
 			price = false;
