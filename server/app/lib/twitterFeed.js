@@ -10,7 +10,7 @@ var Bitly = new BitlyAPI({
     client_secret: config.BITLY.CLIENT_SECRET
 });
 
-var Store = require('./Store').Store,
+var Store = require('./store').Store,
   TwitterFeedStore = new Store({
     ns: 'tweetFingerprint',
     ttlMins: 30
