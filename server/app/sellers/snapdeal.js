@@ -3,11 +3,13 @@ var _ = require('underscore');
 module.exports = function($) {
 	var priceDOM, imageDOM, nameDOM, price, name, image, response = {};
 	try {
-		priceDOM = $('.buyContainer [itemprop="price"]');
+		priceDOM = $('[itemprop="price"]');
 		price = priceDOM.text() || false;
 		if (price) {
 			price = parseInt(price.replace(',', ''), 10);
 		}
+
+		console.log('price', price);
 
 		if (_.isNaN(price)) {
 			price = false;
@@ -16,16 +18,21 @@ module.exports = function($) {
 		imageDOM = $('[itemprop="image"]');
 		image = imageDOM.attr('src');
 
-		nameDOM = $('.productTitle [itemprop="name"]');
+		console.log('image', image);
+
+		nameDOM = $($('#productOverview [itemprop="name"]')[0]);
 		name = nameDOM.text().replace(/^\s+|\s+$/g, '');
 
+		console.log('name', name);
 		response = {
 			price: price,
 			name: name,
 			image: image
 		};
 
-	} catch(e) {}
+	} catch(e) {
+		console.log(e);
+	}
 
 	return response;
 };
