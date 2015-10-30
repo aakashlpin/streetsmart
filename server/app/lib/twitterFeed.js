@@ -3,10 +3,18 @@ var Twit = require('twit');
 var base64 = require('node-base64-image');
 var kue = require('kue');
 var BitlyAPI = require('node-bitlyapi');
+var logger = require('../../logger').logger;
+
 var Bitly = new BitlyAPI({
     client_id: config.BITLY.CLIENT_ID,
     client_secret: config.BITLY.CLIENT_SECRET
 });
+
+var Store = require('./Store').Store,
+  TwitterFeedStore = new Store({
+    ns: 'tweetFingerprint',
+    ttlMins: 30
+  });
 
 Bitly.setAccessToken(config.BITLY.ACCESS_TOKEN);
 
@@ -49,6 +57,17 @@ TwitterQueue.process('twitterFeed', function (job, done) {
   });
 });
 
+function hashCode (str) {
+  var hash = 0, i, chr, len;
+  if (str.length == 0) return hash;
+  for (i = 0, len = str.length; i < len; i++) {
+    chr   = str.charCodeAt(i);
+    hash  = ((hash << 5) - hash) + chr;
+    hash |= 0; // Convert to 32bit integer
+  }
+  return hash;
+}
+
 function postStatus (alert) {
   var canProcess = true;
 
@@ -62,7 +81,24 @@ function postStatus (alert) {
     return;
   }
 
-  TwitterQueue.create('twitterFeed', alert).save();
+  var alertIdentifier = {
+    currentPrice: alert.currentPrice,
+    productName: alert.productName,
+    productURL: alert.productURL
+  };
+
+  var alertFingerprint = hashCode(JSON.stringify(alertIdentifier));
+  TwitterFeedStore.get(alertFingerprint, function (error, fingerprint) {
+    if (error) {
+      return logger.log('error', 'error in get on TwitterFeedStore', error);
+    }
+
+    if (!fingerprint) {
+      TwitterQueue.create('twitterFeed', alert).save();
+      TwitterFeedStore.set(alertFingerprint, {});
+    }
+  });
+
 }
 
 module.exports = {
