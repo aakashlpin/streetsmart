@@ -9,8 +9,6 @@ module.exports = function($) {
 			price = parseInt(price.replace(',', ''), 10);
 		}
 
-		console.log('price', price);
-
 		if (_.isNaN(price)) {
 			price = false;
 		}
@@ -18,12 +16,9 @@ module.exports = function($) {
 		imageDOM = $('[itemprop="image"]');
 		image = imageDOM.attr('src');
 
-		console.log('image', image);
-
 		nameDOM = $($('#productOverview [itemprop="name"]')[0]);
 		name = nameDOM.text().replace(/^\s+|\s+$/g, '');
 
-		console.log('name', name);
 		response = {
 			price: price,
 			name: name,
