@@ -3,7 +3,7 @@ var _ = require('underscore');
 module.exports = function($) {
 	var priceDOM, imageDOM, nameDOM, price, name, image, response = {};
 	try {
-		priceDOM = $('.buyContainer [itemprop="price"]');
+		priceDOM = $('[itemprop="price"]');
 		price = priceDOM.text() || false;
 		if (price) {
 			price = parseInt(price.replace(',', ''), 10);
@@ -16,7 +16,7 @@ module.exports = function($) {
 		imageDOM = $('[itemprop="image"]');
 		image = imageDOM.attr('src');
 
-		nameDOM = $('.productTitle [itemprop="name"]');
+		nameDOM = $($('#productOverview [itemprop="name"]')[0]);
 		name = nameDOM.text().replace(/^\s+|\s+$/g, '');
 
 		response = {
@@ -25,7 +25,9 @@ module.exports = function($) {
 			image: image
 		};
 
-	} catch(e) {}
+	} catch(e) {
+		console.log(e);
+	}
 
 	return response;
 };

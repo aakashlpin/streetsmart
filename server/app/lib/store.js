@@ -3,7 +3,8 @@
 var redis = require('redis'),
 	client = redis.createClient(),
 	moment = require('moment'),
-	logger = require('../../logger').logger;
+	logger = require('../../logger').logger,
+	_ = require('underscore');
 
 //A redis backed in memory store of recently processed URLs mapped to scraped results
 //should expose get and set functionality only keeping all other impl detail internal
@@ -11,11 +12,18 @@ var redis = require('redis'),
 //HSET is the data store of choice
 //set a TTL for each key to say 15 or 30 mins
 
-var Store = function () {
+var Store = function (options) {
+	var defaults = {
+		ns: 'productUrl',
+		ttlMins: 15
+	};
+
+	options = _.extend({}, defaults, options || {});
+
 	this.client = client;
-	this.ns = 'productUrl';	//hash set key namespace
 	this.createdAtKey = 'created_at_ts';
-	this.ttlMins = 15;
+	this.ns = options.ns;	//hash set key namespace
+	this.ttlMins = options.ttlMins;
 };
 
 function getKey(ns, url) {
@@ -35,7 +43,7 @@ Store.prototype.set = function (url, data) {
 		}
 	}
 
-	//assing the time at which we are inserting into redis
+	//associating the time at which we are inserting into redis
 	this.client.hset(hsetKey, this.createdAtKey, new Date().getTime());
 };
 
@@ -51,15 +59,16 @@ Store.prototype.get = function (url, callback) {
 			return callback(err);
 		}
 
-
 		if (!urlData) {
 			return callback(null, null);
 		}
 
 		if (urlData[this.createdAtKey] && !isDataStale(urlData[this.createdAtKey], this.ttlMins)) {
 			//if data is not stale
-			//remove the internal impl of staleness
-			delete urlData[this.createdAtKey];
+			// TODO not sure why was I doing this removal of createdAtKey. don't see any valid reason to do this
+			// TODO remove it if it doesn't wreak havoc
+			// remove the internal impl of staleness
+			// delete urlData[this.createdAtKey];
 			callback(null, urlData);
 
 		} else {

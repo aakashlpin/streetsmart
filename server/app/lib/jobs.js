@@ -9,6 +9,7 @@ var mongoose = require('mongoose');
 var UserModel = mongoose.model('User');
 var sellerUtils = require('../utils/seller');
 var background = require('./background');
+var TwitterFeed = require('./twitterFeed');
 var env = process.env.NODE_ENV || 'development';
 var server = config.server[env];
 
@@ -45,29 +46,7 @@ function sendNotifications(emailUser, emailProduct) {
                 }
             });
 
-            // if (userDoc && userDoc.deviceIds && userDoc.deviceIds.length) {
-            //     var priceChangeMessage = 'Price of ' + emailProduct.productName + ' has ' + emailProduct.measure + ' to ' + 'Rs.' + emailProduct.currentPrice + '/-';
-            //     var message = new gcm.Message({
-            //         data: {
-            //             'price_drop': priceChangeMessage,
-            //             'product_url': emailProduct.productURL
-            //         }
-            //     });
-            //
-            //     var sender = new gcm.Sender(config.googleServerAPIKey);
-            //     var registrationIds = userDoc.deviceIds;
-            //
-            //     /**
-            //      * Params: message-literal, registrationIds-array, No. of retries, callback-function
-            //      **/
-            //     sender.send(message, registrationIds, 4, function (err, result) {
-            //         if (err) {
-            //             logger.log('error', 'error sending push notification', err);
-            //         } else {
-            //             logger.log('info', 'mobile notification sent', result);
-            //         }
-            //     });
-            // }
+            TwitterFeed.postStatus(emailProduct);
 
             if (userDoc && userDoc.iOSDeviceTokens && userDoc.iOSDeviceTokens.length) {
               var iosNotificationMessage = emailProduct.productName + ' is now available at ₹' + emailProduct.currentPrice + '/- on ' + config.sellers[emailProduct.seller].name;
@@ -188,6 +167,10 @@ function sendAlert (jobData, jobResult) {
 }
 
 function handleJobComplete (job) {
+    if (job.type !== 'scraper') {
+        return removeJob(job);;
+    }
+
     var jobData = job.data,
         jobResult = job.result;
 
