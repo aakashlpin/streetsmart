@@ -7,7 +7,7 @@ module.exports = function($) {
 		price = priceDOM.text() || false;
 
 		if (price) {
-			price = parseInt(price.replace(',', ''), 10);
+			price = parseInt(price.replace(/,/g, ''), 10);
 		}
 
 		if (_.isNaN(price)) {
