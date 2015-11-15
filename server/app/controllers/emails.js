@@ -11,17 +11,24 @@ logger 		   = require('../../logger').logger;
 var emailService = config.emailService;
 var env = process.env.NODE_ENV || 'development';
 var server = config.server[env];
+var ses = require('./ses');
+var mandrill = require('./mandrill');
 
 function sendEmail(payload, callback) {
     //ESP Throttling happening for hotmail and yahoo emails
     if (_.find(['@hotmail.', '@live.', '@ymail.', '@yahoo.'], function (provider) {
         return payload.to.indexOf(provider) > 0;
     })) {
-        require('./ses').sendEmail(payload, callback);
+        ses.sendEmail(payload, callback);
         return;
     }
 
-    require('./' + (payload.provider || emailService)).sendEmail(payload, callback);
+    if (payload.provider && payload.provider === 'mandrill') {
+      mandrill.sendEmail(payload, callback);
+    }
+    else {
+      ses.sendEmail(payload, callback);
+    }
 }
 
 module.exports = {
