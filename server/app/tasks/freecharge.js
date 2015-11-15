@@ -32,4 +32,3 @@ exports.sendMailer = function(req, res) {
 
     res.json({status: 'ok'});
 };
-

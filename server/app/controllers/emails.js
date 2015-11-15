@@ -218,13 +218,13 @@ module.exports = {
 
             } else {
                 async.each(users, function(user, asyncEachCb){
-                    template('anniversary', user, function(err, html) {
+                    template('ios_app', user, function(err, html) {
                         if (err) {
                             asyncEachCb(err);
 
                         } else {
                             sendEmail({
-                                'subject': 'Cheapass Turns One! A Small Thank You Note. :)',
+                                'subject': '💥🎉🎊Launching Cheapass iPhone App 🎂✨💞',
                                 'html': html,
                                 'to': user.email
                             }, asyncEachCb);
