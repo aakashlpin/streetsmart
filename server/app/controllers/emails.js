@@ -21,7 +21,7 @@ function sendEmail(payload, callback) {
         return;
     }
 
-    require('./' + emailService).sendEmail(payload, callback);
+    require('./' + (payload.provider || emailService)).sendEmail(payload, callback);
 }
 
 module.exports = {
@@ -226,7 +226,8 @@ module.exports = {
                             sendEmail({
                                 'subject': '💥🎉🎊Launching Cheapass iPhone App 🎂✨💞',
                                 'html': html,
-                                'to': user.email
+                                'to': user.email,
+                                'provider': 'mandrill'
                             }, asyncEachCb);
                         }
                     });
