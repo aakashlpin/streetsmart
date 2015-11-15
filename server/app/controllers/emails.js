@@ -13,6 +13,7 @@ var env = process.env.NODE_ENV || 'development';
 var server = config.server[env];
 var ses = require('./ses');
 var mandrill = require('./mandrill');
+var mailgun = require('./mailgun');
 
 function sendEmail(payload, callback) {
     //ESP Throttling happening for hotmail and yahoo emails
@@ -25,6 +26,9 @@ function sendEmail(payload, callback) {
 
     if (payload.provider && payload.provider === 'mandrill') {
       mandrill.sendEmail(payload, callback);
+    }
+    else if (payload.provider && payload.provider === 'mailgun') {
+      mailgun.sendEmail(payload, callback);
     }
     else {
       ses.sendEmail(payload, callback);
@@ -234,7 +238,7 @@ module.exports = {
                                 'subject': '💥🎉🎊Launching Cheapass iPhone App 🎂✨💞',
                                 'html': html,
                                 'to': user.email,
-                                'provider': 'mandrill'
+                                'provider': 'mailgun'
                             }, asyncEachCb);
                         }
                     });
