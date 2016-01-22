@@ -11,17 +11,28 @@ logger 		   = require('../../logger').logger;
 var emailService = config.emailService;
 var env = process.env.NODE_ENV || 'development';
 var server = config.server[env];
+var ses = require('./ses');
+var mandrill = require('./mandrill');
+var mailgun = require('./mailgun');
 
 function sendEmail(payload, callback) {
     //ESP Throttling happening for hotmail and yahoo emails
     if (_.find(['@hotmail.', '@live.', '@ymail.', '@yahoo.'], function (provider) {
         return payload.to.indexOf(provider) > 0;
     })) {
-        require('./ses').sendEmail(payload, callback);
+        ses.sendEmail(payload, callback);
         return;
     }
 
-    require('./' + emailService).sendEmail(payload, callback);
+    if (payload.provider && payload.provider === 'mandrill') {
+      mandrill.sendEmail(payload, callback);
+    }
+    else if (payload.provider && payload.provider === 'mailgun') {
+      mailgun.sendEmail(payload, callback);
+    }
+    else {
+      ses.sendEmail(payload, callback);
+    }
 }
 
 module.exports = {
@@ -218,15 +229,16 @@ module.exports = {
 
             } else {
                 async.each(users, function(user, asyncEachCb){
-                    template('anniversary', user, function(err, html) {
+                    template('ios_app', user, function(err, html) {
                         if (err) {
                             asyncEachCb(err);
 
                         } else {
                             sendEmail({
-                                'subject': 'Cheapass Turns One! A Small Thank You Note. :)',
+                                'subject': '💥🎉🎊Launching Cheapass iPhone App 🎂✨💞',
                                 'html': html,
-                                'to': user.email
+                                'to': user.email,
+                                'provider': 'mailgun'
                             }, asyncEachCb);
                         }
                     });
