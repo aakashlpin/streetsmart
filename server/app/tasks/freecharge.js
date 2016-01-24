@@ -27,9 +27,7 @@ exports.sendMailer = function(req, res) {
                 return;
             }
             logger.log('info', msg);
+            res.json({status: msg});
         });
     });
-
-    res.json({status: 'ok'});
 };
-
