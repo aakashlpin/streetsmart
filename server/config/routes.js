@@ -104,4 +104,9 @@ module.exports = function(app) {
 	app.get('/auth/facebook', passport.authenticate('facebook', { scope: ['public_profile', 'email'] }));
 	app.get('/auth/facebook/callback',
 		passport.authenticate('facebook', { successRedirect: '/admin/dashboard', failureRedirect: '/admin' }));
+
+	// Fundraiser
+	var fundraise = require('../app/controllers/fundraise');
+	app.get('/contributors', fundraise.index);
+	app.post('/fundraise', fundraise.add);
 };

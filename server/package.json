@@ -9,6 +9,7 @@
   "dependencies": {
     "async": "^0.9.0",
     "aws-sdk": "^2.0.27",
+    "camelcase": "^2.0.1",
     "cheerio": "^0.17.0",
     "connect-redis": "1.4.7",
     "cron": "^1.0.4",

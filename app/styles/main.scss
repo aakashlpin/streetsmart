@@ -100,6 +100,18 @@ a {
     }
 }
 
+.im-checkout {
+  margin: 30px auto;
+}
+
+.landing-cover {
+  .im-checkout {
+    position: absolute;
+    top: 50px; right: 25px;
+    margin: 0;
+  }
+}
+
 .css-landing-alert {
     text-align: center;
 }
@@ -606,6 +618,10 @@ figure.effect-zoe:hover figcaption > span:nth-child(2) {
     -webkit-transition-delay: 0.2s;
     transition-delay: 0.2s;
 }
+
+// .im-checkout {
+//   margin: 40px auto;
+// }
 
 .md-modal {
     position: fixed;
