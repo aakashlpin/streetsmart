@@ -63,7 +63,7 @@ function sendNotifications(emailUser, emailProduct) {
                     title: 'Prices have fallen!',
                     text: androidNotificationMessage
                   },
-                  to: userDoc.androidDeviceTokens[0]
+                  to: userDoc.deviceIds[0]
                 })
               })
             }
