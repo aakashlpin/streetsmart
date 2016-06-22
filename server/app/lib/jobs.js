@@ -66,6 +66,16 @@ function sendNotifications(emailUser, emailProduct) {
                   to: userDoc.deviceIds[0]
                 })
               })
+              .then(function (response) {
+                return response.json();
+              })
+              .then(function (response) {
+                logger.log('info', 'push notification response from Firebase', response);
+              })
+              .catch(function (e) {
+                console.log('error sending push notification ', e);
+              });
+
             }
 
             if (userDoc && userDoc.iOSDeviceTokens && userDoc.iOSDeviceTokens.length) {
