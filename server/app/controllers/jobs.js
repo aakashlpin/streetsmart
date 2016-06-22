@@ -32,7 +32,6 @@ function handleURL404 (url, seller, callback) {
 }
 
 function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, body, callback) {
-    logger.log('info', body);
     var $ = parser.load(body);
 
     if (!callback) {
