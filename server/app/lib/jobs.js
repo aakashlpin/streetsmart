@@ -60,9 +60,10 @@ function sendNotifications(emailUser, emailProduct) {
                 body: JSON.stringify({
                   content_available: true,
                   notification: {
-                    title: 'Prices have fallen!',
-                    text: androidNotificationMessage,
-                    click_action: 'fcm.ACTION.PRICE_DROP_ALERT'
+                    sound: 'default',
+                    title: 'Hooray! Prices have fallen!',
+                    body: androidNotificationMessage,
+                    click_action: 'fcm.ACTION.PRICE_DROP_ALERT',
                   },
                   data: emailProduct,
                   to: userDoc.androidDeviceToken
