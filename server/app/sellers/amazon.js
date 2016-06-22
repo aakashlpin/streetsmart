@@ -55,7 +55,7 @@ module.exports = function($) {
         };
 
     } catch(e) {
-        console.log('error',e);
+        logger.log('error', e);
     }
 
     return response;
