@@ -100,6 +100,19 @@ var commonConfig = {
                 'production': '45 0-23/4 * * *'
             }
         },
+        myntra: {
+            name: 'Myntra.com',
+            url: 'myntra.com',
+            key: null,
+            value: null,
+            requiresUserAgent: false,
+            hasProductAPI: false,
+            hasDeepLinking: false,
+            cronPattern: {
+                'development': '39 0-23/1 * * *',
+                'production': '55 0-23/4 * * *'
+            }
+        },
         healthkart: {
             name: 'HealthKart',
             url: 'healthkart.com',
