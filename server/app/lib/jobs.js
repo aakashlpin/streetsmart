@@ -48,7 +48,7 @@ function sendNotifications(emailUser, emailProduct) {
 
             TwitterFeed.postStatus(emailProduct);
 
-            if (userDoc && userDoc.deviceIds && userDoc.deviceIds.length) {
+            if (userDoc && userDoc.androidDeviceToken) {
               var androidNotificationMessage = emailProduct.productName + ' is now available at ₹' + emailProduct.currentPrice + '/- on ' + config.sellers[emailProduct.seller].name;
               fetch('https://fcm.googleapis.com/fcm/send', {
                 method: 'POST',
@@ -63,7 +63,7 @@ function sendNotifications(emailUser, emailProduct) {
                     title: 'Prices have fallen!',
                     text: androidNotificationMessage
                   },
-                  to: userDoc.deviceIds[userDoc.deviceIds.length - 1]
+                  to: userDoc.androidDeviceToken
                 })
               })
               .then(function (response) {
