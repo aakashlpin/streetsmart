@@ -48,6 +48,26 @@ function sendNotifications(emailUser, emailProduct) {
 
             TwitterFeed.postStatus(emailProduct);
 
+            if (userDoc && userDoc.deviceIds && userDoc.deviceIds.length) {
+              var androidNotificationMessage = emailProduct.productName + ' is now available at ₹' + emailProduct.currentPrice + '/- on ' + config.sellers[emailProduct.seller].name;
+              fetch('https://fcm.googleapis.com/fcm/send', {
+                method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json',
+                  'Authorization': 'key=AIzaSyALFQjseu6RZJNiXCY_VuJsr-8MQTP6OKY'
+                },
+                body: JSON.stringify({
+                  content_available: true,
+                  notification: {
+                    title: 'Prices have fallen!',
+                    text: androidNotificationMessage
+                  },
+                  to: userDoc.androidDeviceTokens[0]
+                })
+              })
+            }
+
             if (userDoc && userDoc.iOSDeviceTokens && userDoc.iOSDeviceTokens.length) {
               var iosNotificationMessage = emailProduct.productName + ' is now available at ₹' + emailProduct.currentPrice + '/- on ' + config.sellers[emailProduct.seller].name;
 
