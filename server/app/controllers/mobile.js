@@ -79,9 +79,9 @@ module.exports = {
 			return;
 		}
 
-		User.update({email: registrationData.email}, {androidDeviceToken: registrationData.token}, function(err, updatedDoc) {
+		User.update({email: registrationData.email}, {androidDeviceToken: registrationData.token}, {}, function(err, updatedDoc) {
 			if (err || !updatedDoc) {
-				res.json({status: 'error', message: 'Internal Server Error'});
+				res.json({status: 'error', message: err});
 				return;
 			}
 			res.json({status: 'ok'});
