@@ -93,6 +93,7 @@ var commonConfig = {
             key: 'tag',
             value: 'cheapass0a-21',
             requiresUserAgent: false,
+            requiresCookies: true,
             hasProductAPI: false,
             hasDeepLinking: true,
             cronPattern: {
