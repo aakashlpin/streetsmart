@@ -104,6 +104,7 @@ var commonConfig = {
         myntra: {
             name: 'Myntra.com',
             url: 'myntra.com',
+            otherUrls: ['mynt.to'],
             key: null,
             value: null,
             requiresUserAgent: false,

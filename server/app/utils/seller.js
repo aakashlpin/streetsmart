@@ -13,6 +13,11 @@ function getSellerFromURL(url) {
         if (url.indexOf(config.sellers[seller].url) >=0 ) {
             return seller;
         }
+        if (config.sellers[seller].otherUrls) {
+          return _.find(config.sellers[seller].otherUrls, function (otherUrl) {
+              return url.indexOf(otherUrl) >= 0 ? seller : null;
+          })
+        }
     });
 }
 
