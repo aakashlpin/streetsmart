@@ -146,6 +146,7 @@ var commonConfig = {
             otherUrls: ['jbo.ng'],
             key: null,
             value: null,
+            requiresCookies: true,
             requiresUserAgent: true,
             cronPattern: {
                 'development': '3-59/5 * * * *',
