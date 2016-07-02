@@ -107,7 +107,8 @@ var commonConfig = {
             otherUrls: ['mynt.to'],
             key: null,
             value: null,
-            requiresUserAgent: false,
+            requiresCookies: true,
+            requiresUserAgent: true,
             hasProductAPI: false,
             hasDeepLinking: false,
             cronPattern: {
