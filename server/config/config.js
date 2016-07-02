@@ -143,6 +143,7 @@ var commonConfig = {
         jabong: {
             name: 'Jabong',
             url: 'jabong.com',
+            otherUrls: ['jbo.ng'],
             key: null,
             value: null,
             requiresUserAgent: true,
