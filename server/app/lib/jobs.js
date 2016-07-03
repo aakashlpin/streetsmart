@@ -61,9 +61,10 @@ function sendNotifications(emailUser, emailProduct) {
                   content_available: true,
                   notification: {
                     sound: 'default',
-                    title: 'Hooray! Prices have fallen!',
+                    title: 'Cheapass Price Drop Alert!',
                     body: androidNotificationMessage,
                     click_action: 'fcm.ACTION.PRICE_DROP_ALERT',
+                    icon: 'ic_stat_notification',
                   },
                   data: emailProduct,
                   to: userDoc.androidDeviceToken
