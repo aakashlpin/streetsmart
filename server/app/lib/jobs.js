@@ -65,6 +65,7 @@ function sendNotifications(emailUser, emailProduct) {
                     body: androidNotificationMessage,
                     click_action: 'fcm.ACTION.PRICE_DROP_ALERT',
                     icon: 'ic_stat_notification',
+                    color: '#0B315B',
                   },
                   data: emailProduct,
                   to: userDoc.androidDeviceToken
