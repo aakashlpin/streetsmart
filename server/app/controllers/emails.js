@@ -228,7 +228,7 @@ module.exports = {
                 callback(err);
 
             } else {
-                async.each(users, function(user, asyncEachCb){
+                async.eachLimit(users, 500, function(user, asyncEachCb){
                     template('android_app', user, function(err, html) {
                         if (err) {
                             asyncEachCb(err);
