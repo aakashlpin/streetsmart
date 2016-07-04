@@ -229,13 +229,13 @@ module.exports = {
 
             } else {
                 async.each(users, function(user, asyncEachCb){
-                    template('ios_app', user, function(err, html) {
+                    template('android_app', user, function(err, html) {
                         if (err) {
                             asyncEachCb(err);
 
                         } else {
                             sendEmail({
-                                'subject': '💥🎉🎊Launching Cheapass iPhone App 🎂✨💞',
+                                'subject': '💥🎉🎊Launching Cheapass Android App 🎂✨💞',
                                 'html': html,
                                 'to': user.email,
                                 'provider': 'mailgun'
