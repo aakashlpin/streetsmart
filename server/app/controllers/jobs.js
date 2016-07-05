@@ -45,7 +45,7 @@ function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, b
      _.isUndefined(scrapedData.name) ||
      _.isUndefined(scrapedData.price ||
      _.isUndefined(scrapedData.image))) {
-        logger.log('error', 'page scraping failed', {requestOptions: requestOptions, scrapedData: scrapedData});
+        logger.log('error', 'page scraping failed', {requestOptions: requestOptions, price: scrapedData ? scrapedData.price : null});
         return callback('Sorry! We were unable to process this page!');
     }
 
