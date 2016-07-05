@@ -126,6 +126,10 @@ function processURL(url, callback, isBackgroundTask) {
                 requestOptions.jar = true;
             }
 
+            if(config.seller[seller].requiresProxy) {
+                requestOptions.proxy = config.proxy;
+            }
+
             request(requestOptions, function(error, response, body) {
                 if (!error && response.statusCode === 200) {
                     handleURLSuccess(requestOptions, isBackgroundTask, seller, response, body, callback);

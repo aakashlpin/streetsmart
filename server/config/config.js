@@ -73,6 +73,7 @@ var commonConfig = {
         'development': '0 0 * * *',
         'production': '0 0 * * *'
     },
+    proxy: 'http://e8ed50e08e444e22a3f13b546196a2c7:@proxy.crawlera.com:8010',
     sellers: {
         flipkart: {
             name: 'Flipkart',
@@ -96,6 +97,7 @@ var commonConfig = {
             requiresCookies: true,
             hasProductAPI: false,
             hasDeepLinking: true,
+            requiresProxy: true,
             cronPattern: {
                 'development': '39 0-23/1 * * *',
                 'production': '45 0-23/4 * * *'
