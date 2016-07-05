@@ -126,7 +126,7 @@ function processURL(url, callback, isBackgroundTask) {
                 requestOptions.jar = true;
             }
 
-            if(config.seller[seller].requiresProxy) {
+            if(config.sellers[seller].requiresProxy) {
                 requestOptions.proxy = config.proxy;
             }
 
