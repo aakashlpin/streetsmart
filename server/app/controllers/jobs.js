@@ -61,7 +61,7 @@ function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, b
         callback(null, cbData);
     } else {
         // fs.writeFileSync('dom.html', body);
-        logger.log('error', 'page scraping failed', {requestOptions: requestOptions, scrapedData: scrapedData});
+        logger.log('error', 'page scraping failed', {requestOptions: requestOptions, price: scrapedData ? scrapedData.price : null});
         callback('Sorry! We were unable to process this page!');
     }
 }
