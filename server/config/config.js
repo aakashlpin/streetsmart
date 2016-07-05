@@ -94,7 +94,7 @@ var commonConfig = {
             key: 'tag',
             value: 'cheapass0a-21',
             requiresUserAgent: false,
-            requiresCookies: true,
+            requiresCookies: false,
             hasProductAPI: false,
             hasDeepLinking: true,
             requiresProxy: true,
