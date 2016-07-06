@@ -36,7 +36,10 @@ SellerJobSchema.statics.getOneGeneric = function(query, callback) {
 };
 
 SellerJobSchema.statics.get = function(callback) {
-    this.find({}, {productPriceHistory: 0}).lean().exec(callback);
+    this.find({}, {productPriceHistory: 0})
+    .where('failedAttempts').lt(5)
+    .lean()
+    .exec(callback);
 };
 
 SellerJobSchema.statics.addJob = function(jobData, callback) {
