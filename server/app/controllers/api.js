@@ -503,6 +503,8 @@ module.exports = {
         var seller = req.params.seller,
         id = req.params.id;
 
+        var queryParams = req.query || {};
+
         //if not a legit seller, send error page
         if (!sellerUtils.isLegitSeller(seller)) {
             res.redirect('/500');
@@ -522,7 +524,7 @@ module.exports = {
                 return;
             }
 
-            if (req.params.app) {
+            if (queryParams.app) {
               return res.json(priceHistoryDocs);
             }
 
