@@ -62,6 +62,17 @@ function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, b
     } else {
         // fs.writeFileSync('dom.html', body);
         logger.log('error', 'page scraping failed', {requestOptions: requestOptions, price: scrapedData ? scrapedData.price : null});
+        if (isBackgroundTask) {
+          sellerUtils
+          .getSellerJobModelInstance(seller)
+          .update({productURL: requestOptions.url}, {$inc: {failedAttempts: 1}}, {}, function (err) {
+            if (err) {
+              logger.log('error', 'unable to increase failedAttempts', {error: err, productURL: requestOptions.url});
+            } else {
+              logger.log('info', 'increased failedAttempts', {productURL: requestOptions.url});
+            }
+          })
+        }
         callback('Sorry! We were unable to process this page!');
     }
 }
@@ -113,7 +124,7 @@ function processURL(url, callback, isBackgroundTask) {
             //proceed with http request
             var requestOptions = {
                 url: url,
-                timeout: 5000
+                timeout: 10000
             };
 
             if (config.sellers[seller].requiresUserAgent) {

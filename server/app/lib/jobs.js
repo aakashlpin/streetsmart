@@ -225,7 +225,9 @@ function handleJobComplete (job) {
         } else {
             // update params
             var updateWith = {
-                currentPrice: scrapedPrice
+                currentPrice: scrapedPrice,
+                // reset failed attempts
+                failedAttempts: 0
             };
 
             if (sendAlert(jobData, jobResult)) {
