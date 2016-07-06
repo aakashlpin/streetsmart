@@ -21,22 +21,19 @@ module.exports = {
 			return;
 		}
 
-		User.findOne({email: registrationData.email}).lean().exec(function(err, userDoc) {
-			if (err || !userDoc) {
-				res.json({status: 'error', message: 'Sorry! This email id does not exist in our system!'});
-				return;
-			}
+		//generate a 6 digit number and store it in the db corresponding to the email id
+		var verificationCode = Math.floor(Math.random()*999999+1);
 
-			//generate a 6 digit number and store it in the db corresponding to the email id
-			var verificationCode = Math.floor(Math.random()*999999+1);
-
-			User.update({email: registrationData.email}, {$push: {verificationCodes: verificationCode}}, {}, function() {
+		User.update(
+			{email: registrationData.email},
+			{$push: {verificationCodes: verificationCode}},
+			{upsert: true}, function() {
 				registrationData.verificationCode = verificationCode;
 				Emails.sendDeviceVerificationCode(registrationData, function() {
 					res.json({status: 'ok'});
 				});
-			});
-		});
+			}
+		);
 	},
 	verifyDeviceRegistration: function(req, res) {
 		var payload = req.body.email ? req.body : req.query;
