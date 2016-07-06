@@ -522,6 +522,10 @@ module.exports = {
                 return;
             }
 
+            if (req.params.app) {
+              return res.json(priceHistoryDocs);
+            }
+
             sellerUtils
             .getSellerJobModelInstance(seller)
             .findById(id, { productPriceHistory: 0 }, function(err, doc) {
