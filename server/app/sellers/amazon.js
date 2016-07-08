@@ -20,7 +20,7 @@ module.exports = function($) {
         '#priceblock_saleprice', '#buyingPriceValue', '#actualPriceValue',
         '#priceBlock', '#price', '#buyNewSection .offer-price'];
         nameDOMs = ['#productTitle', '#btAsinTitle > span', '#btAsinTitle'];
-        imageDOMs = ['#landingImage', '#prodImage', '#kib-ma-container-0 > img', '#imgBlkFront'];
+        imageDOMs = ['#imgTagWrapperId > img', '#landingImage', '#prodImage', '#kib-ma-container-0 > img', '#imgBlkFront'];
 
         nameDOM     = getActualDOM($, nameDOMs);
         imageDOM    = getActualDOM($, imageDOMs);
