@@ -93,7 +93,7 @@ var commonConfig = {
             url: 'amazon.in',
             key: 'tag',
             value: 'cheapass0a-21',
-            requiresUserAgent: false,
+            requiresUserAgent: true,
             requiresCookies: false,
             hasProductAPI: false,
             hasDeepLinking: true,
