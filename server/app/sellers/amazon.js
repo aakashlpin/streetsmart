@@ -28,7 +28,7 @@ module.exports = function($) {
 
         name = nameDOM ? $(nameDOM).text() : '';
         name = name.replace(/<(?:.|\n)*?>/gm, '').replace(/^\s+|\s+$/g, '');
-        image = imageDOM ? $(imageDOM).attr('src') : '';
+        image = imageDOM ? $(imageDOM).data('old-hires') : '';
 
         if ($(priceDOM).attr('id') === 'kindle_meta_binding_winner') {
             //TODO fix this. Amazon has malformed html which prevents $.find('.price')
