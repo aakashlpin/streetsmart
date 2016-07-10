@@ -66,8 +66,8 @@ var commonConfig = {
         'production': '0 0 * * *'
     },
     processAllProductsInterval: {
-        'development': '0-59/5 * * * *',
-        'production': '20 * * * *'
+        'development': '0 0 * * *',
+        'production': '0 10 * * *'
     },
     createAndSendDailyReportInterval: {
         'development': '0 0 * * *',
