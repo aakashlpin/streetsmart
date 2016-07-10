@@ -39,7 +39,7 @@ SellerJobSchema.statics.get = function(callback) {
     this.find({
       '$or': [
         { failedAttempts: {'$exists': false} },
-        { failedAttempts: {'$lt': 5} },
+        { failedAttempts: {'$lt': 5} }
       ]
     }, {productPriceHistory: 0})
     .lean()
