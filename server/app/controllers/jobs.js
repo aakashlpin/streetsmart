@@ -233,8 +233,10 @@ function createWorkerForSeller (seller, asyncEachCallback) {
 }
 
 function createCronTabForAllProducts () {
-    //immediately process all items
-    bgTask.processAllProducts();
+    setTimeout(function () {
+      //process all items after 2 mins
+      bgTask.processAllProducts();
+    }, 5 * 60 * 1000)
 
     // set up cron job
     new CronJob({
