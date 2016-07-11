@@ -100,8 +100,8 @@ var commonConfig = {
             requiresProxy: true,
             cronPattern: {
                 'development': '39 0-23/1 * * *',
-                // 'production': '0 8,12,16,20 * * *',
-                'production': '22 23 * * *',
+                'production': '0 0,8,12,16,20 * * *',
+                // 'production': '22 23 * * *',
             }
         },
         myntra: {
