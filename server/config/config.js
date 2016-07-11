@@ -85,7 +85,7 @@ var commonConfig = {
             hasDeepLinking: true,
             cronPattern: {
                 'development': '0-59/1 * * * *',
-                'production': '9 0-23/4 * * *'
+                'production': '0 10,14,18,21 * * *'
             }
         },
         amazon: {
@@ -100,7 +100,8 @@ var commonConfig = {
             requiresProxy: true,
             cronPattern: {
                 'development': '39 0-23/1 * * *',
-                'production': '45 0-23/4 * * *'
+                // 'production': '0 8,12,16,20 * * *',
+                'production': '22 23 * * *',
             }
         },
         myntra: {
@@ -115,7 +116,7 @@ var commonConfig = {
             hasDeepLinking: false,
             cronPattern: {
                 'development': '39 0-23/1 * * *',
-                'production': '55 0-23/4 * * *'
+                'production': '15 9,13,17,21 * * *'
             }
         },
         healthkart: {
@@ -127,7 +128,7 @@ var commonConfig = {
             hasProductAPI: false,
             cronPattern: {
                 'development': '0-59/3 * * * *',
-                'production': '40 0-23/3 * * *'
+                'production': '15 12,18 * * *'
             }
         },
         zivame: {
@@ -139,7 +140,7 @@ var commonConfig = {
             hasProductAPI: false,
             cronPattern: {
                 'development': '0-59/3 * * * *',
-                'production': '10 0-23/3 * * *'
+                'production': '30 10,17 * * *'
             }
         },
         jabong: {
@@ -152,7 +153,7 @@ var commonConfig = {
             requiresUserAgent: true,
             cronPattern: {
                 'development': '3-59/5 * * * *',
-                'production': '25 0-23/3 * * *'
+                'production': '15 11,16 * * *'
             }
         },
         fabfurnish: {
@@ -163,7 +164,7 @@ var commonConfig = {
             requiresUserAgent: false,
             cronPattern: {
                 'development': '4-59/5 * * * *',
-                'production': '30 0-23/3 * * *'
+                'production': '0 0-23/6 * * *'
             }
         },
         infibeam: {
@@ -187,7 +188,7 @@ var commonConfig = {
             hasDeepLinking: true,
             cronPattern: {
                 'development': '4-59/5 * * * *',
-                'production': '40 1-23/3 * * *'
+                'production': '0 9,14,19 * * *'
             }
         }
     },

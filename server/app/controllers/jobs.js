@@ -201,15 +201,21 @@ function cronWorker(seller, SellerJobModel) {
             return;
         }
 
-        logger.log('info', config.sellerCronWorkerLog, {
-            seller: seller,
-            sellerJobs: sellerJobs.length
-        });
-
-        sellerJobs.forEach(function(sellerJob) {
+        async.eachSeries(sellerJobs, function(sellerJob, callback) {
             sellerJob.seller = seller;
-            queue.insert(sellerJob);
-        });
+            queue.insert(sellerJob, function () {
+              callback();
+            });
+        }, function (err) {
+            if (err) {
+                logger.log('error', config.sellerCronWorkerLog);
+            }
+
+            logger.log('info', config.sellerCronWorkerLog, {
+                seller: seller,
+                sellerJobs: sellerJobs.length
+            });
+        })
     });
 }
 
