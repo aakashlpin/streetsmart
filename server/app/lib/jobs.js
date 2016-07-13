@@ -35,86 +35,87 @@ function sendNotifications(emailUser, emailProduct) {
         emailUser._id = userDoc._id;
 
         //send notification email for price change
-        extendProductDataWithDeal(emailProduct, function (err, emailProduct) {
-            Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
-                if (err) {
-                    logger.log('error', 'while sending notifier email', {err: err});
-                } else {
-                    logger.log('info', 'successfully sent notifier email', {message: message});
-                    //update the emails counter
-                    sellerUtils.increaseCounter('emailsSent');
-                }
-            });
-
-            TwitterFeed.postStatus(emailProduct);
-
-            if (userDoc && userDoc.androidDeviceToken) {
-              var androidNotificationMessage = emailProduct.productName + ' is now available at ₹' + emailProduct.currentPrice + '/- on ' + config.sellers[emailProduct.seller].name;
-              fetch('https://fcm.googleapis.com/fcm/send', {
-                method: 'POST',
-                headers: {
-                  'Accept': 'application/json',
-                  'Content-Type': 'application/json',
-                  'Authorization': 'key=AIzaSyALFQjseu6RZJNiXCY_VuJsr-8MQTP6OKY'
-                },
-                body: JSON.stringify({
-                  content_available: true,
-                  notification: {
-                    sound: 'default',
-                    title: 'Cheapass Price Drop Alert!',
-                    body: androidNotificationMessage,
-                    click_action: 'fcm.ACTION.PRICE_DROP_ALERT',
-                    icon: 'ic_stat_notification',
-                    color: '#0B315B',
-                  },
-                  data: emailProduct,
-                  to: userDoc.androidDeviceToken
-                })
-              })
-              .then(function (response) {
-                return response.json();
-              })
-              .then(function (response) {
-                logger.log('info', 'push notification response from Firebase', response);
-              })
-              .catch(function (e) {
-                console.log('error sending push notification ', e);
-              });
-
-            }
-
-            if (userDoc && userDoc.iOSDeviceTokens && userDoc.iOSDeviceTokens.length) {
-              var iosNotificationMessage = emailProduct.productName + ' is now available at ₹' + emailProduct.currentPrice + '/- on ' + config.sellers[emailProduct.seller].name;
-
-              var url = 'https://api.parse.com/1/push';
-              fetch(url, {
-                  method: 'post',
-                  headers: {
-                      'Accept': 'application/json',
-                      'X-Parse-Application-Id': config.PARSE.APP_ID,
-                      'X-Parse-REST-API-Key': config.PARSE.REST_KEY,
-                      'Content-Type': 'application/json'
-                  },
-                  body: JSON.stringify({
-                    where: {
-                      email: emailUser.email
-                    },
-                    data: _.extend({}, {
-                      alert: iosNotificationMessage
-                    }, emailProduct)
-                  })
-              })
-              .then(function (response) {
-                return response.json();
-              })
-              .then(function (response) {
-                logger.log('info', 'push notification response from parse', response);
-              })
-              .catch(function (e) {
-                console.log('error sending push notification ', e);
-              });
+        Emails.sendNotifier(emailUser, emailProduct, function(err, message) {
+            if (err) {
+                logger.log('error', 'while sending notifier email', {err: err});
+            } else {
+                logger.log('info', 'successfully sent notifier email', {message: message});
+                //update the emails counter
+                sellerUtils.increaseCounter('emailsSent');
             }
         });
+
+        TwitterFeed.postStatus(emailProduct);
+
+        if (userDoc && userDoc.androidDeviceToken) {
+          var androidNotificationMessage = emailProduct.productName + ' is now available at ₹' + emailProduct.currentPrice + '/- on ' + config.sellers[emailProduct.seller].name;
+          fetch('https://fcm.googleapis.com/fcm/send', {
+            method: 'POST',
+            headers: {
+              'Accept': 'application/json',
+              'Content-Type': 'application/json',
+              'Authorization': 'key=AIzaSyALFQjseu6RZJNiXCY_VuJsr-8MQTP6OKY'
+            },
+            body: JSON.stringify({
+              content_available: true,
+              notification: {
+                sound: 'default',
+                title: 'Cheapass Price Drop Alert!',
+                body: androidNotificationMessage,
+                click_action: 'fcm.ACTION.PRICE_DROP_ALERT',
+                icon: 'ic_stat_notification',
+                color: '#0B315B',
+              },
+              data: emailProduct,
+              to: userDoc.androidDeviceToken
+            })
+          })
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (response) {
+            logger.log('info', 'push notification response from Firebase', response);
+          })
+          .catch(function (e) {
+            console.log('error sending push notification ', e);
+          });
+
+        }
+
+        if (userDoc && userDoc.iOSDeviceTokens && userDoc.iOSDeviceTokens.length) {
+          var iosNotificationMessage = emailProduct.productName + ' is now available at ₹' + emailProduct.currentPrice + '/- on ' + config.sellers[emailProduct.seller].name;
+
+          var url = 'https://api.parse.com/1/push';
+          fetch(url, {
+              method: 'post',
+              headers: {
+                  'Accept': 'application/json',
+                  'X-Parse-Application-Id': config.PARSE.APP_ID,
+                  'X-Parse-REST-API-Key': config.PARSE.REST_KEY,
+                  'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({
+                where: {
+                  email: emailUser.email
+                },
+                data: _.extend({}, {
+                  alert: iosNotificationMessage
+                }, emailProduct)
+              })
+          })
+          .then(function (response) {
+            return response.json();
+          })
+          .then(function (response) {
+            logger.log('info', 'push notification response from parse', response);
+          })
+          .catch(function (e) {
+            console.log('error sending push notification ', e);
+          });
+        }
+
+        // extendProductDataWithDeal(emailProduct, function (err, emailProduct) {
+        // });
     });
 }
 

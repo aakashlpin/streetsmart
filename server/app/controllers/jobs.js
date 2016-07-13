@@ -312,7 +312,7 @@ function init() {
     }
 
     //for sending price drop emails, keep deals ready
-    createCronTabForDeals();
+    // createCronTabForDeals();
 
     createQueueBindEvents();
 
