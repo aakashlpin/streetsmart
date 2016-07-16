@@ -437,7 +437,7 @@ module.exports = {
         var queryParams = _.pick(req.query, ['email', 'productURL', 'seller', 'id']);
         var dbQuery;
         if (queryParams.seller && queryParams.id) {
-          var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
+          var SellerJobModel = sellerUtils.getSellerJobModelInstance(queryParams.seller);
           SellerJobModel.removeJob({_id: queryParams.id}, function(err, doc) {
               if (err || !doc) {
                   logger.log('error', 'error unsubscribing for data', dbQuery);
