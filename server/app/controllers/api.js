@@ -434,9 +434,20 @@ module.exports = {
         }
     },
     unsubscribe: function(req, res) {
-        var queryParams = _.pick(req.query, ['email', 'productURL']);
+        var queryParams = _.pick(req.query, ['email', 'productURL', 'seller', 'id']);
         var dbQuery;
-        if (queryParams.productURL && queryParams.email) {
+        if (queryParams.seller && queryParams.id) {
+          var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
+          SellerJobModel.removeJob({_id: queryParams.id}, function(err, doc) {
+              if (err || !doc) {
+                  logger.log('error', 'error unsubscribing for data', dbQuery);
+                  return res.json({status: 'error', error: err});
+              }
+              res.json({status: 'ok'});
+              logger.log('info', 'unsubscribed user', dbQuery);
+          });
+        }
+        else if (queryParams.productURL && queryParams.email) {
             //unsubscribe from email + product combination
             dbQuery = {
                 email: decodeURIComponent(queryParams.email),
@@ -459,35 +470,35 @@ module.exports = {
                 logger.log('info', 'unsubscribed user', dbQuery);
             });
 
-        } else if (queryParams.email) {
-            //unsubscribe all products for this email
-            dbQuery = {
-                email: decodeURIComponent(queryParams.email)
-            };
-
-            var sellers = _.keys(config.sellers);
-            async.each(sellers, function(seller, asyncCb) {
-                var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
-                SellerJobModel.removeJob(dbQuery, function(err, items) {
-                    logger.log('info', 'unsubscribed user for seller', {seller: seller, items: items});
-                    asyncCb(err);
-                });
-            }, function(err) {
-                if (err) {
-                    if (req.xhr) {
-                        res.json({error: 'A request has been sent to admin to unsubscribe this product. Sorry for the inconvenience.'});
-                    } else {
-                        res.redirect('/500');
-                    }
-                    logger.log('error', 'error unsubscribing for data', dbQuery);
-                    return;
-                }
-                if (req.xhr) {
-                    res.json({status: 'ok'});
-                } else {
-                    res.redirect('/unsubscribed');
-                }
-            });
+        // } else if (queryParams.email) {
+        //     //unsubscribe all products for this email
+        //     dbQuery = {
+        //         email: decodeURIComponent(queryParams.email)
+        //     };
+        //
+        //     var sellers = _.keys(config.sellers);
+        //     async.each(sellers, function(seller, asyncCb) {
+        //         var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
+        //         SellerJobModel.removeJob(dbQuery, function(err, items) {
+        //             logger.log('info', 'unsubscribed user for seller', {seller: seller, items: items});
+        //             asyncCb(err);
+        //         });
+        //     }, function(err) {
+        //         if (err) {
+        //             if (req.xhr) {
+        //                 res.json({error: 'A request has been sent to admin to unsubscribe this product. Sorry for the inconvenience.'});
+        //             } else {
+        //                 res.redirect('/500');
+        //             }
+        //             logger.log('error', 'error unsubscribing for data', dbQuery);
+        //             return;
+        //         }
+        //         if (req.xhr) {
+        //             res.json({status: 'ok'});
+        //         } else {
+        //             res.redirect('/unsubscribed');
+        //         }
+        //     });
 
         } else {
             if (req.xhr) {
