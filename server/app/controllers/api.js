@@ -444,7 +444,7 @@ module.exports = {
                   return res.json({status: 'error', error: err});
               }
               res.json({status: 'ok'});
-              logger.log('info', 'unsubscribed user', dbQuery);
+              logger.log('info', 'unsubscribed user from android');
           });
         }
         else if (queryParams.productURL && queryParams.email) {
