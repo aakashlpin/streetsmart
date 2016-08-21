@@ -9,13 +9,15 @@ function queueGetJobById (id, callback) {
 	kue.Job.get(id, callback);
 }
 
-function queueJob (jobData) {
+function queueJob (jobData, callback) {
     //title is a field necessary for the kue lib
     jobData.title = 'Processing ' + jobData.productName;
 
+		callback = callback || function () {};
+
     queue
     .create('scraper', jobData)
-    .save();
+    .save(callback);
 }
 
 function queueGracefulShutDown(callback) {

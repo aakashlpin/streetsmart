@@ -66,13 +66,14 @@ var commonConfig = {
         'production': '0 0 * * *'
     },
     processAllProductsInterval: {
-        'development': '0-59/5 * * * *',
-        'production': '20 * * * *'
+        'development': '0 0 * * *',
+        'production': '0 10 * * *'
     },
     createAndSendDailyReportInterval: {
         'development': '0 0 * * *',
         'production': '0 0 * * *'
     },
+    proxy: 'http://e8ed50e08e444e22a3f13b546196a2c7:@proxy.crawlera.com:8010',
     sellers: {
         flipkart: {
             name: 'Flipkart',
@@ -84,7 +85,7 @@ var commonConfig = {
             hasDeepLinking: true,
             cronPattern: {
                 'development': '0-59/1 * * * *',
-                'production': '9 0-23/4 * * *'
+                'production': '0 10,14,18,21 * * *'
             }
         },
         amazon: {
@@ -92,25 +93,30 @@ var commonConfig = {
             url: 'amazon.in',
             key: 'tag',
             value: 'cheapass0a-21',
-            requiresUserAgent: false,
+            requiresUserAgent: true,
+            requiresCookies: false,
             hasProductAPI: false,
             hasDeepLinking: true,
+            requiresProxy: true,
             cronPattern: {
                 'development': '39 0-23/1 * * *',
-                'production': '45 0-23/4 * * *'
+                'production': '0 8,13,17,22 * * *',
+                // 'production': '22 23 * * *',
             }
         },
         myntra: {
             name: 'Myntra.com',
             url: 'myntra.com',
+            otherUrls: ['mynt.to'],
             key: null,
             value: null,
-            requiresUserAgent: false,
+            requiresCookies: true,
+            requiresUserAgent: true,
             hasProductAPI: false,
             hasDeepLinking: false,
             cronPattern: {
                 'development': '39 0-23/1 * * *',
-                'production': '55 0-23/4 * * *'
+                'production': '15 9,13,17,21 * * *'
             }
         },
         healthkart: {
@@ -122,7 +128,7 @@ var commonConfig = {
             hasProductAPI: false,
             cronPattern: {
                 'development': '0-59/3 * * * *',
-                'production': '40 0-23/3 * * *'
+                'production': '15 12,18 * * *'
             }
         },
         zivame: {
@@ -134,18 +140,20 @@ var commonConfig = {
             hasProductAPI: false,
             cronPattern: {
                 'development': '0-59/3 * * * *',
-                'production': '10 0-23/3 * * *'
+                'production': '30 10,17 * * *'
             }
         },
         jabong: {
             name: 'Jabong',
             url: 'jabong.com',
+            otherUrls: ['jbo.ng'],
             key: null,
             value: null,
+            requiresCookies: true,
             requiresUserAgent: true,
             cronPattern: {
                 'development': '3-59/5 * * * *',
-                'production': '25 0-23/3 * * *'
+                'production': '15 11,16 * * *'
             }
         },
         fabfurnish: {
@@ -156,7 +164,7 @@ var commonConfig = {
             requiresUserAgent: false,
             cronPattern: {
                 'development': '4-59/5 * * * *',
-                'production': '30 0-23/3 * * *'
+                'production': '0 0-23/6 * * *'
             }
         },
         infibeam: {
@@ -180,7 +188,7 @@ var commonConfig = {
             hasDeepLinking: true,
             cronPattern: {
                 'development': '4-59/5 * * * *',
-                'production': '40 1-23/3 * * *'
+                'production': '0 9,14,19 * * *'
             }
         }
     },

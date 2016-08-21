@@ -20,7 +20,7 @@ module.exports = function($) {
         '#priceblock_saleprice', '#buyingPriceValue', '#actualPriceValue',
         '#priceBlock', '#price', '#buyNewSection .offer-price'];
         nameDOMs = ['#productTitle', '#btAsinTitle > span', '#btAsinTitle'];
-        imageDOMs = ['#landingImage', '#prodImage', '#kib-ma-container-0 > img', '#imgBlkFront'];
+        imageDOMs = ['#imgTagWrapperId > img', '#landingImage', '#prodImage', '#kib-ma-container-0 > img', '#imgBlkFront'];
 
         nameDOM     = getActualDOM($, nameDOMs);
         imageDOM    = getActualDOM($, imageDOMs);
@@ -28,7 +28,12 @@ module.exports = function($) {
 
         name = nameDOM ? $(nameDOM).text() : '';
         name = name.replace(/<(?:.|\n)*?>/gm, '').replace(/^\s+|\s+$/g, '');
-        image = imageDOM ? $(imageDOM).attr('src') : '';
+        image = imageDOM ? $(imageDOM).data('old-hires') : '';
+        // image = imageDOM ? imageDOM.data('old-hires') : '';
+        // if (!image) {
+        //   var dynamicImages = imageDOM.data('a-dynamic-image');
+        //   image = Object.keys(dynamicImages)[0];
+        // }
 
         if ($(priceDOM).attr('id') === 'kindle_meta_binding_winner') {
             //TODO fix this. Amazon has malformed html which prevents $.find('.price')
@@ -55,7 +60,7 @@ module.exports = function($) {
         };
 
     } catch(e) {
-        console.log('error',e);
+        logger.log('error', e);
     }
 
     return response;

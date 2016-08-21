@@ -21,22 +21,19 @@ module.exports = {
 			return;
 		}
 
-		User.findOne({email: registrationData.email}).lean().exec(function(err, userDoc) {
-			if (err || !userDoc) {
-				res.json({status: 'error', message: 'Sorry! This email id does not exist in our system!'});
-				return;
-			}
+		//generate a 6 digit number and store it in the db corresponding to the email id
+		var verificationCode = Math.floor(Math.random()*999999+1);
 
-			//generate a 6 digit number and store it in the db corresponding to the email id
-			var verificationCode = Math.floor(Math.random()*999999+1);
-
-			User.update({email: registrationData.email}, {$push: {verificationCodes: verificationCode}}, {}, function() {
+		User.update(
+			{email: registrationData.email},
+			{$push: {verificationCodes: verificationCode}},
+			{upsert: true}, function() {
 				registrationData.verificationCode = verificationCode;
 				Emails.sendDeviceVerificationCode(registrationData, function() {
 					res.json({status: 'ok'});
 				});
-			});
-		});
+			}
+		);
 	},
 	verifyDeviceRegistration: function(req, res) {
 		var payload = req.body.email ? req.body : req.query;
@@ -67,22 +64,21 @@ module.exports = {
 
 	},
 	finalizeDeviceRegistration: function(req, res) {
-		var payload = req.body.email ? req.body : req.query;
-		var registrationData = _.pick(payload, ['email', 'deviceid']);
+		var registrationData = _.pick(req.body, ['email', 'token']);
 
 		if (!registrationData.email) {
 			res.json({status: 'error', message: 'Please send an email id'});
 			return;
 		}
 
-		if (!registrationData.deviceid) {
+		if (!registrationData.token) {
 			res.json({status: 'error', message: 'Please send the device id'});
 			return;
 		}
 
-		User.update({email: registrationData.email}, {$push: {deviceIds: registrationData.deviceid}}, {}, function(err, updatedDoc) {
+		User.update({email: registrationData.email}, {androidDeviceToken: registrationData.token}, {}, function(err, updatedDoc) {
 			if (err || !updatedDoc) {
-				res.json({status: 'error', message: 'Internal Server Error'});
+				res.json({status: 'error', message: err});
 				return;
 			}
 			res.json({status: 'ok'});
