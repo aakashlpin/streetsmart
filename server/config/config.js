@@ -83,6 +83,7 @@ var commonConfig = {
             requiresUserAgent: true,
             requiresCookies: false,
             hasDeepLinking: true,
+            hasMicroService: true,
             cronPattern: {
                 'development': '0-59/1 * * * *',
                 'production': '0 10,14,18,21 * * *'
