@@ -40,14 +40,14 @@ function handleURLSuccess (requestOptions, isBackgroundTask, hasMicroService, se
     var scrapedData, productURL;
 
     if (hasMicroService) {
-        logger.log('typeof body from microservice', typeof body);
+        logger.log('info', 'typeof body from microservice', typeof body);
         try {
           if (typeof body !== 'object') {
               body = JSON.parse(body);
           }
         } catch (e) {}
 
-        logger.log('scraped body from microservice', body);
+        logger.log('info', 'scraped body from microservice', body);
 
         scrapedData = body;
         productURL = requestOptions.form.url;
