@@ -12,7 +12,8 @@ var UserSchema = new Schema({
     deviceIds: [String],
     iOSDeviceTokens: [String],
     fullContact: Schema.Types.Mixed,
-    fullContactAttempts: Number
+    fullContactAttempts: Number,
+    androidDeviceToken: [String],
 });
 
 UserSchema.statics.post = function(req, callback) {

@@ -45,7 +45,7 @@ function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, b
      _.isUndefined(scrapedData.name) ||
      _.isUndefined(scrapedData.price ||
      _.isUndefined(scrapedData.image))) {
-        logger.log('error', 'page scraping failed', {requestOptions: requestOptions, scrapedData: scrapedData});
+        logger.log('error', 'page scraping failed', {requestOptions: requestOptions, price: scrapedData ? scrapedData.price : null});
         return callback('Sorry! We were unable to process this page!');
     }
 
@@ -61,7 +61,18 @@ function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, b
         callback(null, cbData);
     } else {
         // fs.writeFileSync('dom.html', body);
-        logger.log('error', 'page scraping failed', {requestOptions: requestOptions, scrapedData: scrapedData});
+        logger.log('error', 'page scraping failed', {requestOptions: requestOptions, price: scrapedData ? scrapedData.price : null});
+        if (isBackgroundTask) {
+          sellerUtils
+          .getSellerJobModelInstance(seller)
+          .update({productURL: requestOptions.url}, {$inc: {failedAttempts: 1}}, {}, function (err) {
+            if (err) {
+              logger.log('error', 'unable to increase failedAttempts', {error: err, productURL: requestOptions.url});
+            } else {
+              logger.log('info', 'increased failedAttempts', {productURL: requestOptions.url});
+            }
+          })
+        }
         callback('Sorry! We were unable to process this page!');
     }
 }
@@ -113,17 +124,21 @@ function processURL(url, callback, isBackgroundTask) {
             //proceed with http request
             var requestOptions = {
                 url: url,
-                timeout: 5000
+                timeout: 10000
             };
 
             if (config.sellers[seller].requiresUserAgent) {
                 requestOptions.headers = {
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/40.0.2214.94 Safari/537.36'
+                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36'
                 };
             }
 
             if (config.sellers[seller].requiresCookies) {
                 requestOptions.jar = true;
+            }
+
+            if(config.sellers[seller].requiresProxy) {
+                requestOptions.proxy = config.proxy;
             }
 
             request(requestOptions, function(error, response, body) {
@@ -186,15 +201,21 @@ function cronWorker(seller, SellerJobModel) {
             return;
         }
 
-        logger.log('info', config.sellerCronWorkerLog, {
-            seller: seller,
-            sellerJobs: sellerJobs.length
-        });
-
-        sellerJobs.forEach(function(sellerJob) {
+        async.eachSeries(sellerJobs, function(sellerJob, callback) {
             sellerJob.seller = seller;
-            queue.insert(sellerJob);
-        });
+            queue.insert(sellerJob, function () {
+              callback();
+            });
+        }, function (err) {
+            if (err) {
+                logger.log('error', config.sellerCronWorkerLog);
+            }
+
+            logger.log('info', config.sellerCronWorkerLog, {
+                seller: seller,
+                sellerJobs: sellerJobs.length
+            });
+        })
     });
 }
 
@@ -218,8 +239,10 @@ function createWorkerForSeller (seller, asyncEachCallback) {
 }
 
 function createCronTabForAllProducts () {
-    //immediately process all items
-    bgTask.processAllProducts();
+    setTimeout(function () {
+      //process all items after 2 mins
+      bgTask.processAllProducts();
+    }, 5 * 60 * 1000)
 
     // set up cron job
     new CronJob({
@@ -289,7 +312,7 @@ function init() {
     }
 
     //for sending price drop emails, keep deals ready
-    createCronTabForDeals();
+    // createCronTabForDeals();
 
     createQueueBindEvents();
 

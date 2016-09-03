@@ -9,8 +9,8 @@ var SellerProductPriceHistorySchema = new Schema({
 	jobId: {type: Schema.Types.ObjectId, index: true},
 	email: String,
 	productURL: String,
-    date: Date,
-    price: Number
+  date: Date,
+  price: Number
 });
 
 // SellerProductPriceHistorySchema.index({email: 1, productURL: 1});

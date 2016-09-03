@@ -82,7 +82,8 @@ module.exports = function(app) {
 	var mobile = require('../app/controllers/mobile');
 	app.all('/mobile/initiate', mobile.initiateDeviceRegistration);
 	app.all('/mobile/verify', mobile.verifyDeviceRegistration);
-	app.all('/mobile/register', mobile.finalizeDeviceRegistration);
+
+	app.post('/mobile/register', mobile.finalizeDeviceRegistration);
 
 	// iOS APIs
 	app.post('/mobile/register/ios', mobile.storeIOSDeviceToken);
