@@ -86,7 +86,7 @@ var commonConfig = {
             hasMicroService: true,
             cronPattern: {
                 'development': '0-59/1 * * * *',
-                'production': '0 10,14,18,21 * * *'
+                'production': '15 0,10,14,18,21 * * *'
             }
         },
         amazon: {
