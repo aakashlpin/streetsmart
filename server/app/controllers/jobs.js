@@ -202,7 +202,7 @@ function createQueueBindEvents () {
 }
 
 function ensureQoS (seller, callback) {
-    if (seller !== 'flipkart') {
+    if (seller !== 'amazon') {
         return callback(null, true);
     }
     //until kue gets completely reliable, put a watchdog
@@ -353,7 +353,9 @@ function init() {
     createAndSendDailyReport();
 
     //foreach seller, create a cron job
-    async.each(_.keys(config.sellers), createWorkerForSeller, queueProcess);
+    async.each(_.filter(_.keys(config.sellers), function (seller) {
+      return config.sellers[seller].isCronActive;
+    }), createWorkerForSeller, queueProcess);
 }
 
 function exitHandler(options, err) {
