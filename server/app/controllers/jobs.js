@@ -201,30 +201,30 @@ function createQueueBindEvents () {
     queue.create();
 }
 
-function ensureQoS (seller, callback) {
-    if (seller !== 'amazon') {
-        return callback(null, true);
-    }
-    //until kue gets completely reliable, put a watchdog
-    //
-    var lastProcessInterval = moment().diff(latestJobProcessedAt, 'minutes');
-    if (lastProcessInterval > config.QoSCheckInterval) {
-        //bouy! Kue has fucked up again!
-        //
-        logger.log('warning', 'service disrupted at ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
-        queue.shutdown(function(err) {
-            if (!err) {
-                logger.log('info', 'restarting kue.');
-                createQueueBindEvents();
-                queueProcess();
-                callback(null, false);
-            }
-        });
-    } else {
-        logger.log('info', 'service running at ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
-        callback(null, true);
-    }
-}
+// function ensureQoS (seller, callback) {
+//     if (seller !== 'amazon') {
+//         return callback(null, true);
+//     }
+//     //until kue gets completely reliable, put a watchdog
+//     //
+//     var lastProcessInterval = moment().diff(latestJobProcessedAt, 'minutes');
+//     if (lastProcessInterval > config.QoSCheckInterval) {
+//         //bouy! Kue has fucked up again!
+//         //
+//         logger.log('warning', 'service disrupted at ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
+//         queue.shutdown(function(err) {
+//             if (!err) {
+//                 logger.log('info', 'restarting kue.');
+//                 createQueueBindEvents();
+//                 queueProcess();
+//                 callback(null, false);
+//             }
+//         });
+//     } else {
+//         logger.log('info', 'service running at ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
+//         callback(null, true);
+//     }
+// }
 
 function cronWorker(seller, SellerJobModel) {
     SellerJobModel.get(function(err, sellerJobs) {
@@ -257,12 +257,13 @@ function createWorkerForSeller (seller, asyncEachCallback) {
     new CronJob({
         cronTime: sellerData.cronPattern[env],
         onTick: function() {
-            ensureQoS(seller, function (err, active) {
-                if (active) {
-                    //is service is not active, lets process queue before adding more
-                    cronWorker(seller, SellerJobModel);
-                }
-            });
+          cronWorker(seller, SellerJobModel);
+            // ensureQoS(seller, function (err, active) {
+            //     if (active) {
+            //         //is service is not active, lets process queue before adding more
+            //
+            //     }
+            // });
         },
         start: true,
         timeZone: 'Asia/Kolkata'
