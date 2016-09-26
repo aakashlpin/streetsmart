@@ -31,16 +31,33 @@ function handleURL404 (url, seller, callback) {
     .remove(callback);
 }
 
-function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, body, callback) {
-    var $ = parser.load(body);
-
+function handleURLSuccess (requestOptions, isBackgroundTask, hasMicroService, seller, response, body, callback) {
     if (!callback) {
         logger.log('error', 'scraping without a callback');
         return;
     }
 
-    //TODO support isBackgroundTask
-    var scrapedData = require('../sellers/' + seller)($, isBackgroundTask);
+    var scrapedData, productURL;
+
+    if (hasMicroService) {
+        logger.log('info', 'typeof body from microservice', typeof body);
+        try {
+          if (typeof body !== 'object') {
+              body = JSON.parse(body);
+          }
+        } catch (e) {}
+
+        logger.log('info', 'scraped body from microservice', body);
+
+        scrapedData = body;
+        productURL = requestOptions.form.url;
+
+    } else {
+        var $ = parser.load(body);
+        scrapedData = require('../sellers/' + seller)($, isBackgroundTask);
+        productURL = requestOptions.url;
+    }
+
     if (_.isUndefined(scrapedData) ||
      _.isUndefined(scrapedData.name) ||
      _.isUndefined(scrapedData.price ||
@@ -57,19 +74,20 @@ function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, b
             seller: config.sellers[seller].name
         };
 
-        dataStore.set(requestOptions.url, cbData);
+        dataStore.set(productURL, cbData);
         callback(null, cbData);
+
     } else {
         // fs.writeFileSync('dom.html', body);
         logger.log('error', 'page scraping failed', {requestOptions: requestOptions, price: scrapedData ? scrapedData.price : null});
         if (isBackgroundTask) {
           sellerUtils
           .getSellerJobModelInstance(seller)
-          .update({productURL: requestOptions.url}, {$inc: {failedAttempts: 1}}, {}, function (err) {
+          .update({productURL: productURL}, {$inc: {failedAttempts: 1}}, {}, function (err) {
             if (err) {
-              logger.log('error', 'unable to increase failedAttempts', {error: err, productURL: requestOptions.url});
+              logger.log('error', 'unable to increase failedAttempts', {error: err, productURL: productURL});
             } else {
-              logger.log('info', 'increased failedAttempts', {productURL: requestOptions.url});
+              logger.log('info', 'increased failedAttempts', {productURL: productURL});
             }
           })
         }
@@ -77,13 +95,15 @@ function handleURLSuccess (requestOptions, isBackgroundTask, seller, response, b
     }
 }
 
-function handleURLFailure (requestOptions, seller, error, response, body, callback) {
+function handleURLFailure (requestOptions, hasMicroService, seller, error, response, body, callback) {
+    var productURL = hasMicroService ? requestOptions.form.url : requestOptions.url;
+
     if (response && response.statusCode) {
         logger.log('error', 'request module', {error: error, responseCode: response.statusCode, requestOptions: requestOptions});
         if (parseInt(response.statusCode) === 404) {
             //if page 404s out when running scheduled jobs
             //remove the link from the queue and unsubscribe user of this product
-            handleURL404(requestOptions.url, seller);
+            handleURL404(productURL, seller);
         }
 
     } else {
@@ -127,25 +147,37 @@ function processURL(url, callback, isBackgroundTask) {
                 timeout: 10000
             };
 
-            if (config.sellers[seller].requiresUserAgent) {
-                requestOptions.headers = {
-                    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36'
+            var hasMicroService = config.sellers[seller].hasMicroService;
+
+            if (hasMicroService) {
+                requestOptions.url = 'http://' + seller + '.cheapass.in/'
+                requestOptions.method = 'POST';
+                requestOptions.form = {
+                  API_KEY: 'fuck_you_flipkart',
+                  url: url,
                 };
-            }
 
-            if (config.sellers[seller].requiresCookies) {
-                requestOptions.jar = true;
-            }
+            } else {
+                if (config.sellers[seller].requiresUserAgent) {
+                    requestOptions.headers = {
+                        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36'
+                    };
+                }
 
-            if(config.sellers[seller].requiresProxy) {
-                requestOptions.proxy = config.proxy;
+                if (config.sellers[seller].requiresCookies) {
+                    requestOptions.jar = true;
+                }
+
+                if(config.sellers[seller].requiresProxy) {
+                    requestOptions.proxy = config.proxy;
+                }
             }
 
             request(requestOptions, function(error, response, body) {
                 if (!error && response.statusCode === 200) {
-                    handleURLSuccess(requestOptions, isBackgroundTask, seller, response, body, callback);
+                    handleURLSuccess(requestOptions, isBackgroundTask, hasMicroService, seller, response, body, callback);
                 } else {
-                    handleURLFailure(requestOptions, seller, error, response, body, callback);
+                    handleURLFailure(requestOptions, hasMicroService, seller, error, response, body, callback);
                 }
 
                 if (isBackgroundTask) {
@@ -169,30 +201,30 @@ function createQueueBindEvents () {
     queue.create();
 }
 
-function ensureQoS (seller, callback) {
-    if (seller !== 'flipkart') {
-        return callback(null, true);
-    }
-    //until kue gets completely reliable, put a watchdog
-    //
-    var lastProcessInterval = moment().diff(latestJobProcessedAt, 'minutes');
-    if (lastProcessInterval > config.QoSCheckInterval) {
-        //bouy! Kue has fucked up again!
-        //
-        logger.log('warning', 'service disrupted at ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
-        queue.shutdown(function(err) {
-            if (!err) {
-                logger.log('info', 'restarting kue.');
-                createQueueBindEvents();
-                queueProcess();
-                callback(null, false);
-            }
-        });
-    } else {
-        logger.log('info', 'service running at ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
-        callback(null, true);
-    }
-}
+// function ensureQoS (seller, callback) {
+//     if (seller !== 'amazon') {
+//         return callback(null, true);
+//     }
+//     //until kue gets completely reliable, put a watchdog
+//     //
+//     var lastProcessInterval = moment().diff(latestJobProcessedAt, 'minutes');
+//     if (lastProcessInterval > config.QoSCheckInterval) {
+//         //bouy! Kue has fucked up again!
+//         //
+//         logger.log('warning', 'service disrupted at ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
+//         queue.shutdown(function(err) {
+//             if (!err) {
+//                 logger.log('info', 'restarting kue.');
+//                 createQueueBindEvents();
+//                 queueProcess();
+//                 callback(null, false);
+//             }
+//         });
+//     } else {
+//         logger.log('info', 'service running at ' + moment().format('MMMM Do YYYY, h:mm:ss a'));
+//         callback(null, true);
+//     }
+// }
 
 function cronWorker(seller, SellerJobModel) {
     SellerJobModel.get(function(err, sellerJobs) {
@@ -225,12 +257,13 @@ function createWorkerForSeller (seller, asyncEachCallback) {
     new CronJob({
         cronTime: sellerData.cronPattern[env],
         onTick: function() {
-            ensureQoS(seller, function (err, active) {
-                if (active) {
-                    //is service is not active, lets process queue before adding more
-                    cronWorker(seller, SellerJobModel);
-                }
-            });
+          cronWorker(seller, SellerJobModel);
+            // ensureQoS(seller, function (err, active) {
+            //     if (active) {
+            //         //is service is not active, lets process queue before adding more
+            //
+            //     }
+            // });
         },
         start: true,
         timeZone: 'Asia/Kolkata'
@@ -321,7 +354,9 @@ function init() {
     createAndSendDailyReport();
 
     //foreach seller, create a cron job
-    async.each(_.keys(config.sellers), createWorkerForSeller, queueProcess);
+    async.each(_.filter(_.keys(config.sellers), function (seller) {
+      return config.sellers[seller].isCronActive;
+    }), createWorkerForSeller, queueProcess);
 }
 
 function exitHandler(options, err) {
