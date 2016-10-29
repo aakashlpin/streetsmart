@@ -201,12 +201,7 @@ module.exports = {
 		}
 
 		request(requestOptions, function (error, response, body) {
-			console.log(error);
-			console.log('=================');
-			console.log(response.status);
-			console.log('=================');
-			console.log(body);
-			if (!error && response.status === 200) {
+			if (!error && response.statusCode === 200) {
 				try {
 					if (typeof body !== 'object') {
 							body = JSON.parse(body);
