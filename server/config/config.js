@@ -73,6 +73,10 @@ var commonConfig = {
         'development': '0 0 * * *',
         'production': '0 0 * * *'
     },
+    generateAmazonSalesReportInterval: {
+        'development': '0 6 * * *',
+        'production': '0 6 * * *'
+    },
     proxy: 'http://e8ed50e08e444e22a3f13b546196a2c7:@proxy.crawlera.com:8010',
     sellers: {
         flipkart: {
