@@ -208,6 +208,9 @@ module.exports = {
 					}
 				} catch (e) {}
 
+				body.month = 'http://flipkart.cheapass.in' + body.month;
+				body.yesterday = 'http://flipkart.cheapass.in' + body.yesterday;
+
 				Emails.sendAmazonSalesReport(body, function () {})
 				callback(null);
 
