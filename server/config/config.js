@@ -107,7 +107,7 @@ var commonConfig = {
             isCronActive: true,
             cronPattern: {
                 'development': '39 0-23/1 * * *',
-                'production': '0 8,13,17,22 * * *',
+                'production': '0 9,14,20 * * *',
                 // 'production': '22 23 * * *',
             }
         },
