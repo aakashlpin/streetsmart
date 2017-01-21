@@ -77,7 +77,7 @@ var commonConfig = {
         'development': '0 6 * * *',
         'production': '0 6 * * *'
     },
-    proxy: 'http://41ba8b0d65634f8c8e9ae03b1de91fa9:@proxy.crawlera.com:8010',
+    proxy: 'http://5f207fe4aca04cab9e4ebb4dd8f8b713:@proxy.crawlera.com:8010',
     sellers: {
         flipkart: {
             name: 'Flipkart',
