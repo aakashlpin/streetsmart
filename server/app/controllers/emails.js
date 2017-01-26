@@ -274,6 +274,31 @@ module.exports = {
                 });
             }
         });
+    },
+    sendAmazonSalesReport: function (imagesPathnames, callback) {
+      emailTemplates(templatesDir, function(err, template) {
+          if (err) {
+              callback(err);
+
+          } else {
+              var locals = {
+                images: imagesPathnames,
+                email: 'aakash.lpin@gmail.com'
+              };
+
+              template('amazon-report', locals, function(err, html) {
+                  if (err) {
+                      callback(err);
+                  } else {
+                      sendEmail({
+                          'subject': 'Cheapass | Amazon Earnings',
+                          'html': html,
+                          'to': locals.email,
+                      }, callback);
+                  }
+              });
+          }
+      });
     }
 
 };

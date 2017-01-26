@@ -110,4 +110,7 @@ module.exports = function(app) {
 	var fundraise = require('../app/controllers/fundraise');
 	app.get('/contributors', fundraise.index);
 	app.post('/fundraise', fundraise.add);
+
+	// Reports
+	app.get('/get-report', api.generateAmazonReport);
 };

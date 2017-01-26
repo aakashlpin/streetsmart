@@ -73,7 +73,11 @@ var commonConfig = {
         'development': '0 0 * * *',
         'production': '0 0 * * *'
     },
-    proxy: 'http://e8ed50e08e444e22a3f13b546196a2c7:@proxy.crawlera.com:8010',
+    generateAmazonSalesReportInterval: {
+        'development': '0 6 * * *',
+        'production': '0 6 * * *'
+    },
+    proxy: 'http://5f207fe4aca04cab9e4ebb4dd8f8b713:@proxy.crawlera.com:8010',
     sellers: {
         flipkart: {
             name: 'Flipkart',
@@ -83,9 +87,11 @@ var commonConfig = {
             requiresUserAgent: true,
             requiresCookies: false,
             hasDeepLinking: true,
+            hasMicroService: true,
+            isCronActive: false,
             cronPattern: {
                 'development': '0-59/1 * * * *',
-                'production': '0 10,14,18,21 * * *'
+                'production': '15 0,10,14,18,21 * * *'
             }
         },
         amazon: {
@@ -98,9 +104,10 @@ var commonConfig = {
             hasProductAPI: false,
             hasDeepLinking: true,
             requiresProxy: true,
+            isCronActive: true,
             cronPattern: {
                 'development': '39 0-23/1 * * *',
-                'production': '0 8,13,17,22 * * *',
+                'production': '0 9,14,20 * * *',
                 // 'production': '22 23 * * *',
             }
         },
@@ -114,6 +121,7 @@ var commonConfig = {
             requiresUserAgent: true,
             hasProductAPI: false,
             hasDeepLinking: false,
+            isCronActive: true,
             cronPattern: {
                 'development': '39 0-23/1 * * *',
                 'production': '15 9,13,17,21 * * *'
@@ -126,6 +134,7 @@ var commonConfig = {
             value: null,
             requiresUserAgent: false,
             hasProductAPI: false,
+            isCronActive: true,
             cronPattern: {
                 'development': '0-59/3 * * * *',
                 'production': '15 12,18 * * *'
@@ -138,6 +147,7 @@ var commonConfig = {
             value: null,
             requiresUserAgent: false,
             hasProductAPI: false,
+            isCronActive: true,
             cronPattern: {
                 'development': '0-59/3 * * * *',
                 'production': '30 10,17 * * *'
@@ -151,6 +161,7 @@ var commonConfig = {
             value: null,
             requiresCookies: true,
             requiresUserAgent: true,
+            isCronActive: true,
             cronPattern: {
                 'development': '3-59/5 * * * *',
                 'production': '15 11,16 * * *'
@@ -162,6 +173,7 @@ var commonConfig = {
             key: null,
             value: null,
             requiresUserAgent: false,
+            isCronActive: true,
             cronPattern: {
                 'development': '4-59/5 * * * *',
                 'production': '0 0-23/6 * * *'
@@ -173,6 +185,7 @@ var commonConfig = {
             key: 'trackId',
             value: 'aaka',
             requiresUserAgent: false,
+            isCronActive: true,
             cronPattern: {
                 'development': '1-59/5 * * * *',
                 'production': '5 0-23/3 * * *'
@@ -186,6 +199,7 @@ var commonConfig = {
             extraParams: '&utm_source=aff_prog&utm_campaign=afts&offer_id=17',
             requiresUserAgent: true,
             hasDeepLinking: true,
+            isCronActive: true,
             cronPattern: {
                 'development': '4-59/5 * * * *',
                 'production': '0 9,14,19 * * *'
