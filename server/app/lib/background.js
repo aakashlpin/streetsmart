@@ -13,6 +13,7 @@ var mongoose = require('mongoose');
 var UserModel = mongoose.model('User');
 var UserLookup = require('./userLookup');
 var Emails = require('../controllers/emails');
+var request = require('request');
 var currentDeal;
 
 var processedData = [];
@@ -187,6 +188,36 @@ module.exports = {
 	createAndSendDailyReport: function () {
 		// fake some numbers right now.
 		Emails.sendDailyReport(_.random(900, 1200), function () {});
+	},
+	generateAmazonSalesReport: function (callback) {
+		callback = callback || function () {}
+
+		var requestOptions = {
+			url: 'http://flipkart.cheapass.in/generate-report',
+			method: 'POST',
+			form: {
+				API_KEY: 'fuck_you_flipkart',
+			}
+		}
+
+		request(requestOptions, function (error, response, body) {
+			if (!error && response.statusCode === 200) {
+				try {
+					if (typeof body !== 'object') {
+							body = JSON.parse(body);
+					}
+				} catch (e) {}
+
+				body.month = 'http://flipkart.cheapass.in' + body.month;
+				body.yesterday = 'http://flipkart.cheapass.in' + body.yesterday;
+
+				Emails.sendAmazonSalesReport(body, function () {})
+				callback(null);
+
+			} else {
+				callback('some error');
+			}
+		})
 	},
 	refreshDeal: refreshDeal
 };

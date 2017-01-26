@@ -641,6 +641,14 @@ module.exports = {
             }
         });
     },
+    generateAmazonReport: function (req, res) {
+      bgTask.generateAmazonSalesReport(function (err) {
+        if (err) {
+          return res.json({error: 'something went wrong'})
+        }
+        res.json({success: 'ok'})
+      })
+    },
     ping: function(req, res) {
         //to test if server is up
         res.json({status: 'ok'});

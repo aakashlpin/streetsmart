@@ -333,6 +333,16 @@ function createAndSendDailyReport () {
     });
 }
 
+function generateAmazonSalesReport () {
+  //set up cron job
+  new CronJob({
+      cronTime: config.generateAmazonSalesReportInterval[env],
+      onTick: bgTask.generateAmazonSalesReport,
+      start: true,
+      timeZone: 'Asia/Kolkata'
+  });
+}
+
 function init() {
     //for request from home page, pre-process all products and keep the data in memory
     createCronTabForAllProducts();
@@ -352,6 +362,8 @@ function init() {
     createSearchForFullContacts();
 
     createAndSendDailyReport();
+
+    generateAmazonSalesReport();
 
     //foreach seller, create a cron job
     async.each(_.filter(_.keys(config.sellers), function (seller) {
