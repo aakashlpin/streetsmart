@@ -219,16 +219,5 @@ module.exports = {
 			}
 		})
 	},
-	generateReviewEmailForAlertsTask: function (callback) {
-		callback = callback || function () {}
-
-		callback();
-
-		// async.each(_.keys(config.sellers), function (seller, sellerAsyncCb) {
-		// 	var sellerModel = sellerUtils.getSellerJobModelInstance(seller);
-		//
-		// })
-
-	},
 	refreshDeal: refreshDeal
 };

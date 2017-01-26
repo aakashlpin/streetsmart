@@ -208,31 +208,5 @@ module.exports = {
                 res.json({status: 'ok'});
             }
         });
-    },
-    assignDatesToAllExistingAlerts: function (req, res) {
-      // var sellers = _.keys(config.sellers);
-      // async.eachSeries(sellers, function(seller, asyncOuterCb) {
-      //   var sellerModel = sellerUtils.getSellerJobModelInstance(seller);
-      //   sellerModel.find({}, {_id: 1}).lean().exec(function (err, docs) {
-      //     async.eachSeries(docs, function (doc, asyncInnerCb) {
-      //       sellerModel.update(
-      //         {_id: doc._id},
-      //         {createdAt: doc._id.getTimestamp()},
-      //         {},
-      //         function (err, updatedDoc) {
-      //           asyncInnerCb(err);
-      //         }
-      //       )
-      //     }, function (err) {
-      //       asyncOuterCb(err);
-      //     })
-      //   })
-      // }, function (err) {
-      //   if (err) {
-      //     res.json({error: err})
-      //   } else {
-      //     res.json({sttaus: 'ok'})
-      //   }
-      // })
     }
 };
