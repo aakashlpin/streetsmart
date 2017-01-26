@@ -333,14 +333,26 @@ function createAndSendDailyReport () {
     });
 }
 
-function generateAmazonSalesReport () {
-  //set up cron job
-  new CronJob({
-      cronTime: config.generateAmazonSalesReportInterval[env],
-      onTick: bgTask.generateAmazonSalesReport,
-      start: true,
-      timeZone: 'Asia/Kolkata'
-  });
+// function generateAmazonSalesReport () {
+//   //set up cron job
+//   new CronJob({
+//       cronTime: config.generateAmazonSalesReportInterval[env],
+//       onTick: bgTask.generateAmazonSalesReport,
+//       start: true,
+//       timeZone: 'Asia/Kolkata'
+//   });
+// }
+//
+//
+
+function generateReviewEmailForAlerts () {
+    //set up cron job
+    new CronJob({
+        cronTime: config.generateReviewEmailForAlertsInterval[env],
+        onTick: bgTask.generateReviewEmailForAlertsTask,
+        start: true,
+        timeZone: 'Asia/Kolkata'
+    });
 }
 
 function init() {
@@ -363,7 +375,9 @@ function init() {
 
     createAndSendDailyReport();
 
-    generateAmazonSalesReport();
+    // generateAmazonSalesReport();
+
+    generateReviewEmailForAlerts();
 
     //foreach seller, create a cron job
     async.each(_.filter(_.keys(config.sellers), function (seller) {
