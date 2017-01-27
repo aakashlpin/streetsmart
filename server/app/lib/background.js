@@ -141,9 +141,6 @@ module.exports = {
 			//1st page = initialBatchSize
 			//next page onwards = futureBatchSize
 
-			//make them available for GC
-			allTracks = null;
-
 			if (processedData.length < initialBatchSize) {
 				totalPages = 1;
 			} else {
@@ -221,13 +218,51 @@ module.exports = {
 	},
 	generateReviewEmailForAlertsTask: function (callback) {
 		callback = callback || function () {}
+		var date = moment().subtract(3, 'months').toDate();
+		var userAlerts = {};
 
-		callback();
+		console.time('generateReviewEmailForAlertsTask');
 
-		// async.each(_.keys(config.sellers), function (seller, sellerAsyncCb) {
-		// 	var sellerModel = sellerUtils.getSellerJobModelInstance(seller);
-		//
-		// })
+		UserModel.find({}, {email: 1}).lean().exec(function (err, users) {
+			async.eachSeries(users, function (user, asyncOneCb) {
+				var email = user.email;
+				async.eachLimit(_.keys(config.sellers), 2, function (seller, asyncTwoCb) {
+					var SellerModel = sellerUtils.getSellerJobModelInstance(seller);
+					SellerModel.find(
+						{
+							email: email,
+							createdAt: {
+								$lte: date,
+							}
+						},
+						{
+							productURL: 1,
+							productName: 1,
+							productImage: 1,
+							createdAt: 1,
+						}
+					)
+					.lean()
+					.exec(function (err, userAlertsOnSeller) {
+						if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
+							if (!userAlerts[email]) {
+								userAlerts[email] = {}
+							}
+							userAlerts[email][seller] = userAlertsOnSeller;
+						}
+						asyncTwoCb(err);
+					})
+				}, function (err) {
+					asyncOneCb(err);
+				})
+			}, function (err) {
+				if (err) {
+					// TODO handle this
+				}
+				console.timeEnd('generateReviewEmailForAlertsTask')
+				callback(err, userAlerts);
+			})
+		})
 
 	},
 	refreshDeal: refreshDeal

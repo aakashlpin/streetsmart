@@ -361,6 +361,8 @@ function init() {
 
     createCronTabForRemoteSync();
 
+    generateReviewEmailForAlerts();
+
     if (!config.isCronActive) {
         logger.log('info', '=========== Cron Jobs are disabled =============');
         return;
@@ -376,8 +378,6 @@ function init() {
     createAndSendDailyReport();
 
     // generateAmazonSalesReport();
-
-    generateReviewEmailForAlerts();
 
     //foreach seller, create a cron job
     async.each(_.filter(_.keys(config.sellers), function (seller) {
