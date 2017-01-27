@@ -18,6 +18,7 @@ module.exports = function(app, config) {
   app.set('port', config.port);
   app.set('views', config.root + '/public');
   app.engine('html', require('ejs').renderFile);
+  app.set('view engine', 'html');
   // app.use(favicon(config.root + '/public/img/favicon.ico'));
   // app.use(logger('dev'));
   app.use(bodyParser.json());
