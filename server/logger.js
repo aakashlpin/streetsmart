@@ -3,11 +3,18 @@ var winston = require('winston');
 var loggly = require('loggly');
 var _ = require('underscore');
 var config = require('./config/config');
+require('winston-daily-rotate-file');
 
-winston.add(winston.transports.DailyRotateFile, {
-    filename: './logs/log',
-    datePattern: '.yyyy-MM-ddTHH',
-    handleExceptions: true
+var transport = new winston.transports.DailyRotateFile({
+  filename: './logs/log',
+  datePattern: '.yyyy-MM-ddTHH',
+  handleExceptions: true
+})
+
+new (winston.Logger)({
+  transports: [
+    transport
+  ]
 });
 
 var client = loggly.createClient({

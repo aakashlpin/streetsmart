@@ -9,14 +9,18 @@
   "dependencies": {
     "async": "^2.1.4",
     "aws-sdk": "^2.8.0",
+    "body-parser": "^1.16.0",
     "camelcase": "^4.0.0",
     "cheerio": "^0.22.0",
+    "compression": "^1.6.2",
     "connect-redis": "3.2.0",
+    "cookie-parser": "^1.4.3",
     "cron": "^1.2.1",
     "ejs": "^2.5.5",
     "email-templates": "^2.5.4",
     "es6-promise": "^4.0.5",
     "express": "~4.14.0",
+    "express-session": "^1.15.0",
     "isomorphic-fetch": "^2.2.1",
     "jade": "~1.11.0",
     "kue": "^0.11.5",
@@ -24,6 +28,7 @@
     "mailcomposer": "^4.0.1",
     "mailgun-js": "^0.8.0",
     "mandrill-api": "^1.0.45",
+    "method-override": "^2.3.7",
     "moment": "^2.17.1",
     "mongoose": "~4.7.8",
     "newrelic": "^1.36.1",
@@ -38,19 +43,21 @@
     "redis": "^2.6.5",
     "request": "^2.79.0",
     "s3": "^4.4.0",
+    "serve-favicon": "^2.3.2",
     "time": "^0.11.4",
     "twit": "^2.2.5",
     "underscore": "^1.8.3",
     "underscore.string": "^3.3.4",
     "winston": "^2.3.1",
+    "winston-daily-rotate-file": "^1.4.3",
     "xml2js": "^0.4.17"
   },
   "devDependencies": {
     "grunt": "~1.0.1",
-    "grunt-develop": "~0.4.0",
-    "grunt-contrib-watch": "~1.0.0",
     "grunt-contrib-compass": "~1.1.1",
-    "time-grunt": "~1.4.0",
-    "load-grunt-tasks": "~3.5.2"
+    "grunt-contrib-watch": "~1.0.0",
+    "grunt-develop": "~0.4.0",
+    "load-grunt-tasks": "~3.5.2",
+    "time-grunt": "~1.4.0"
   }
 }

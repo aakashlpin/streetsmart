@@ -344,7 +344,7 @@ function generateAmazonSalesReport () {
 }
 
 function init() {
-    //for request from home page, pre-process all products and keep the data in memory
+    // for request from home page, pre-process all products and keep the data in memory
     createCronTabForAllProducts();
 
     createCronTabForRemoteSync();
@@ -354,7 +354,7 @@ function init() {
         return;
     }
 
-    //for sending price drop emails, keep deals ready
+    // for sending price drop emails, keep deals ready
     // createCronTabForDeals();
 
     createQueueBindEvents();
@@ -391,11 +391,11 @@ function exitHandler(options, err) {
     }
 }
 
-//so the program will not close instantly
+// so the program will not close instantly
 process.stdin.resume();
-//catches uncaught exceptions
+// catches uncaught exceptions
 process.on('uncaughtException', exitHandler.bind(null, {cleanup:true}));
-//do something when app is closing
+// do something when app is closing
 process.on('exit', exitHandler.bind(null, {exit:true}));
 
 exports.init = init;
