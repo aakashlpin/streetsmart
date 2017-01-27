@@ -113,4 +113,8 @@ module.exports = function(app) {
 
 	// Reports
 	app.get('/get-report', api.generateAmazonReport);
+
+	app.use(function(req, res) {
+			res.status(404).render('404', { title: '404' });
+	});
 };

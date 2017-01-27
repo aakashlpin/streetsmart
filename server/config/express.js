@@ -38,7 +38,4 @@ module.exports = function(app, config) {
   app.use(methodOverride());
   app.use(passport.initialize());
   app.use(passport.session());
-  app.use(function(req, res) {
-      res.status(404).render('404', { title: '404' });
-  });
 };
