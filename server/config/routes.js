@@ -4,7 +4,7 @@ var migrations = require('../app/migrations/index');
 var passport = require('passport');
 var env = process.env.NODE_ENV || 'development';
 var errorHandler = require('errorhandler');
-// var background = require('../app/lib/background');
+var background = require('../app/lib/background');
 
 function ensureAuthenticated(req, res, next) {
 	if (req.isAuthenticated()) {
@@ -40,6 +40,9 @@ module.exports = function(app) {
 
 	//Email verification
 	app.get('/verify', api.verifyEmail);
+
+	// Email Remove Suspension
+	app.get('/keep-tracking/:seller/:id', api.removeSuspension);
 
 	//Redirect to seller
 	app.get('/redirect', api.redirectToSeller);
@@ -115,6 +118,17 @@ module.exports = function(app) {
 
 	// Reports
 	app.get('/get-report', api.generateAmazonReport);
+
+	app.get('/hack', function (req, res) {
+		background.generateReviewEmailForAlertsTask(function (err, alerts) {
+			if (err) {
+				return res.status(500).json({error: err})
+			}
+			res.json({
+				data: alerts,
+			})
+		})
+	})
 
 	app.use(function(req, res) {
 			res.status(404).render('404', { title: '404' });
