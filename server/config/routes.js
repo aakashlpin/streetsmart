@@ -2,6 +2,8 @@
 var home = require('../app/controllers/home');
 var migrations = require('../app/migrations/index');
 var passport = require('passport');
+var env = process.env.NODE_ENV || 'development';
+var errorHandler = require('errorhandler');
 // var background = require('../app/lib/background');
 
 function ensureAuthenticated(req, res, next) {
@@ -117,4 +119,9 @@ module.exports = function(app) {
 	app.use(function(req, res) {
 			res.status(404).render('404', { title: '404' });
 	});
+
+	// error handling middleware should be loaded after the loading the routes
+	if (env === 'development') {
+	  app.use(errorHandler())
+	}
 };

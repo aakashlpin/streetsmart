@@ -9,8 +9,8 @@ var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
 var favicon = require('serve-favicon');
 var compression = require('compression');
-// var logger = require('express-logger');
-var methodOverride = require('method-override')
+var logger = require('morgan');
+var methodOverride = require('method-override');
 
 module.exports = function(app, config) {
   app.use(compression());
@@ -19,8 +19,8 @@ module.exports = function(app, config) {
   app.set('views', config.root + '/public');
   app.engine('html', require('ejs').renderFile);
   app.set('view engine', 'html');
-  // app.use(favicon(config.root + '/public/img/favicon.ico'));
-  // app.use(logger('dev'));
+  app.use(favicon(config.root + '/public/img/favicon.ico'));
+  app.use(logger('dev'));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({
     extended: true
