@@ -217,6 +217,7 @@ module.exports = {
 		})
 	},
 	generateReviewEmailForAlertsTask: function (callback) {
+		logger.log('info', '[generateReviewEmailForAlertsTask] beginning');
 		callback = callback || function () {}
 		var date = moment().subtract(3, 'months').toDate();
 		var userAlerts = {};
@@ -233,6 +234,9 @@ module.exports = {
 							email: email,
 							createdAt: {
 								$lte: date,
+							},
+							suspended: {
+								$ne: true,
 							}
 						},
 						{
