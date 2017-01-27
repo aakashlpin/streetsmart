@@ -22,7 +22,7 @@ var SellerJobSchema = new Schema({
     alertToPrice: Number,
     alertFromPrice: Number,
     failedAttempts: Number,
-    // createdAt: Date,
+    createdAt: Date,
     productPriceHistory: [ProductPriceHistorySchema]
 });
 
