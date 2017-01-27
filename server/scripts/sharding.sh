@@ -2,4 +2,4 @@
 #mongodump -d streetsmart-development -o backup
 
 #backup production data
-mongodump -d streetsmart-production -o backup
+mongodump --port 38128 -d streetsmart-production -o backup
