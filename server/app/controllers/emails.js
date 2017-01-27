@@ -16,6 +16,12 @@ var mandrill = require('./mandrill');
 var mailgun = require('./mailgun');
 
 function sendEmail(payload, callback) {
+  if (env === 'development') {
+    if (payload.to !== 'aakash.lpin@gmail.com') {
+      return callback(null);
+    }
+  }
+
     //ESP Throttling happening for hotmail and yahoo emails
     if (_.find(['@hotmail.', '@live.', '@ymail.', '@yahoo.'], function (provider) {
         return payload.to.indexOf(provider) > 0;
@@ -299,6 +305,40 @@ module.exports = {
               });
           }
       });
-    }
+    },
+    sendAlertsSuspensionNotifier: function (userAlerts, callback) {
+      emailTemplates(templatesDir, function(err, template) {
+        if (err) {
+          callback(err);
 
+        } else {
+          var emails = Object.keys(userAlerts);
+          async.eachLimit(emails, 2, function (email, asyncOneCb) {
+            var locals = {
+              email: email,
+              baseUrl: config.server[env],
+              alerts: userAlerts[email]
+            };
+
+            template('suspension', locals, function(err, html) {
+              if (err) {
+                callback(err);
+              } else {
+                sendEmail({
+                  'subject': '[IMPORTANT] Cheapass | Old Alerts Suspension',
+                  'html': html,
+                  'to': email,
+                }, callback);
+              }
+            })
+          }, function (err) {
+            if (err) {
+              logger.log('error', '[sendAlertsSuspensionNotifier] failed with ' + err);
+            } else {
+              logger.log('info', '[sendAlertsSuspensionNotifier] successfully executed')
+            }
+          })
+        }
+      })
+    }
 };

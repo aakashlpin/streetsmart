@@ -1,0 +1,31 @@
+Hi <%= email %>,
+
+<br><br>
+
+There are some really old price drop alerts set on your account.
+<br><br>
+<strong>We're suspending price drops alerts on the products below.</strong>
+<br><br>
+<strong>Take action if you want to continue tracking these items.</strong>
+<br><br>
+Don't worry, all your data is safe, and still there.
+This is just like pressing a "pause" button.
+Feel free to "play" again.
+<br><br>
+<% for(var i=0; i < alerts.length; i++) { %>
+  <p>
+    <a href="<%= alerts[i].productURL %>"><%= alerts[i].productName %></a>
+    <span>on <%= alerts[i].sellerName %> added on <%= alerts[i].createdAtFormatted %>.</span>
+    <br>
+    <a href="<%= baseUrl %>/track/<%= alerts[i].seller %>/<%= alerts[i]._id %>">View Price History</a>
+    <span> | </span>
+    <a href="<%= baseUrl %>/keep-tracking/<%= alerts[i].seller %>/<%= alerts[i]._id %>">Keep tracking this</a>
+    <br>
+    <span>~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~</span>
+  </p>
+<% } %>
+<br><br>
+
+Thanks,
+<br>
+Aakash Goel

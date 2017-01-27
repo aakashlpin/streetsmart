@@ -246,9 +246,19 @@ module.exports = {
 					.exec(function (err, userAlertsOnSeller) {
 						if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
 							if (!userAlerts[email]) {
-								userAlerts[email] = {}
+								userAlerts[email] = []
 							}
-							userAlerts[email][seller] = userAlertsOnSeller;
+
+							userAlerts[email] = userAlerts[email].concat(userAlertsOnSeller.map(function(userAlertOnSeller) {
+								return Object.assign(
+									userAlertOnSeller, {
+										seller: seller,
+										sellerName: config.sellers[seller].name,
+										createdAtFormatted: moment(userAlertOnSeller.createdAt).format('Do MMM YYYY')
+									}
+								)
+							}))
+
 							var ids = userAlertsOnSeller.map(function (alert) {
 								return alert._id;
 							})
@@ -274,6 +284,12 @@ module.exports = {
 			}, function (err) {
 				console.timeEnd('generateReviewEmailForAlertsTask')
 				callback(err, userAlerts);
+
+				Emails.sendAlertsSuspensionNotifier(userAlerts, function (err) {
+					if (err) {
+						console.log('error in Emails.sendAlertsSuspensionNotifier', err);
+					}
+				});
 			})
 		})
 
