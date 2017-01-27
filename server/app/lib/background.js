@@ -249,16 +249,29 @@ module.exports = {
 								userAlerts[email] = {}
 							}
 							userAlerts[email][seller] = userAlertsOnSeller;
+							var ids = userAlertsOnSeller.map(function (alert) {
+								return alert._id;
+							})
+
+							SellerModel.update(
+								{_id: {$in: ids}},
+								{$set: {suspended: true}},
+								{multi: true},
+								function (err, results) {
+									logger.log('info', '[generateReviewEmailForAlertsTask] suspended ' + results.n + ' alerts for ' + email + ' on ' + seller)
+									asyncTwoCb(err);
+								}
+							)
+							//
+							return;
 						}
+
 						asyncTwoCb(err);
 					})
 				}, function (err) {
 					asyncOneCb(err);
 				})
 			}, function (err) {
-				if (err) {
-					// TODO handle this
-				}
 				console.timeEnd('generateReviewEmailForAlertsTask')
 				callback(err, userAlerts);
 			})
