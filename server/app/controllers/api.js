@@ -554,6 +554,8 @@ module.exports = {
 
                 tmplData.productSeller = _.str.capitalize(seller);
 
+                tmplData.baseUrl = config.server[env];
+
                 res.render('track.ejs', tmplData);
             });
         });
@@ -576,6 +578,7 @@ module.exports = {
 
             var tmplData = _.pick(doc, ['email', 'dropOnlyAlerts']);
             tmplData._id = id;
+            tmplData.baseUrl = config.server[env];
             res.render('dashboard.ejs', tmplData);
         });
     },
