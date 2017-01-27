@@ -361,7 +361,7 @@ function init() {
 
     createCronTabForRemoteSync();
 
-    generateReviewEmailForAlerts();
+    // generateReviewEmailForAlerts();
 
     if (!config.isCronActive) {
         logger.log('info', '=========== Cron Jobs are disabled =============');
