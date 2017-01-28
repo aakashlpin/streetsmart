@@ -119,8 +119,19 @@ module.exports = function(app) {
 	// Reports
 	app.get('/get-report', api.generateAmazonReport);
 
-	app.get('/hack', function (req, res) {
+	app.get('/suspend', function (req, res) {
 		background.generateReviewEmailForAlertsTask(function (err, alerts) {
+			if (err) {
+				return res.status(500).json({error: err})
+			}
+			res.json({
+				data: alerts,
+			})
+		})
+	})
+
+	app.get('/send-suspend-email', function (req, res) {
+		background.sendSuspensionEmail(function (err, alerts) {
 			if (err) {
 				return res.status(500).json({error: err})
 			}

@@ -322,8 +322,9 @@ module.exports = {
                   'subject': '[IMPORTANT] Cheapass | Old Alerts Suspension',
                   'html': html,
                   'to': email,
-                }, asyncOneCb);
+                }, function() {});
               }
+              asyncOneCb(err);
             })
           }, function (err) {
             if (err) {

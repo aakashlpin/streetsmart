@@ -298,5 +298,60 @@ module.exports = {
 		})
 
 	},
+	sendSuspensionEmail: function (callback) {
+		var userAlerts = {};
+		UserModel.find({}, {email: 1}).lean().exec(function (err, users) {
+			async.eachSeries(users, function (user, asyncOneCb) {
+				var email = user.email;
+				async.eachLimit(_.keys(config.sellers), 2, function (seller, asyncTwoCb) {
+					var SellerModel = sellerUtils.getSellerJobModelInstance(seller);
+					SellerModel.find(
+						{
+							email: email,
+							suspended: true,
+						},
+						{
+							productURL: 1,
+							productName: 1,
+							productImage: 1,
+							createdAt: 1,
+						}
+					)
+					.lean()
+					.exec(function (err, userAlertsOnSeller) {
+						if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
+							if (!userAlerts[email]) {
+								userAlerts[email] = []
+							}
+
+							userAlerts[email] = userAlerts[email].concat(userAlertsOnSeller.map(function(userAlertOnSeller) {
+								return Object.assign(
+									userAlertOnSeller, {
+										seller: seller,
+										sellerName: config.sellers[seller].name,
+										createdAtFormatted: moment(userAlertOnSeller.createdAt).format('Do MMM YYYY')
+									}
+								)
+							}))
+						}
+
+						asyncTwoCb(err);
+					})
+				}, function (err) {
+					asyncOneCb(err);
+				})
+			}, function (err) {
+				console.timeEnd('generateReviewEmailForAlertsTask')
+				callback(err, userAlerts);
+
+				Emails.sendAlertsSuspensionNotifier(userAlerts, function (err) {
+					if (err) {
+						console.log('error in Emails.sendAlertsSuspensionNotifier', err);
+					}
+				});
+			})
+		})
+
+	},
 	refreshDeal: refreshDeal
 };
