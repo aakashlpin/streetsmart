@@ -1,7 +1,9 @@
 {
   "name": "streetsmart",
   "version": "0.0.0",
-  "dependencies": {},
+  "dependencies": {
+    "kue": "0.8.9"
+  },
   "devDependencies": {
     "grunt": "~1.0.1",
     "grunt-autoprefixer": "~3.0.4",

@@ -24,7 +24,7 @@
     "express-session": "^1.15.0",
     "isomorphic-fetch": "^2.2.1",
     "jade": "~1.11.0",
-    "kue": "^0.11.5",
+    "kue": "^0.8.9",
     "loggly": "^1.1.1",
     "mailcomposer": "^4.0.1",
     "mailgun-js": "^0.8.0",
