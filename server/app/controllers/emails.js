@@ -324,7 +324,7 @@ module.exports = {
                   'to': email,
                   'provider': 'mailgun',
                 }, function(err) {
-                  
+                  logger.log('info', '[sendAlertsSuspensionNotifier] send email to ' +email)
                 });
               }
               asyncOneCb(err);
