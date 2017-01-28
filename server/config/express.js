@@ -11,6 +11,12 @@ var favicon = require('serve-favicon');
 var compression = require('compression');
 var logger = require('morgan');
 var methodOverride = require('method-override');
+var dd_options = {
+  'response_code':true,
+  'tags': ['app:cheapass']
+}
+
+var connect_datadog = require('connect-datadog')(dd_options);
 
 module.exports = function(app, config) {
   app.use(compression());
@@ -38,4 +44,5 @@ module.exports = function(app, config) {
   app.use(methodOverride());
   app.use(passport.initialize());
   app.use(passport.session());
+  app.use(connect_datadog)
 };

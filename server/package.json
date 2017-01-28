@@ -13,6 +13,7 @@
     "camelcase": "^4.0.0",
     "cheerio": "^0.22.0",
     "compression": "^1.6.2",
+    "connect-datadog": "^0.0.6",
     "connect-redis": "3.2.0",
     "cookie-parser": "^1.4.3",
     "cron": "^1.2.1",
