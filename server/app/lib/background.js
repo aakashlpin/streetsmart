@@ -341,7 +341,6 @@ module.exports = {
 					asyncOneCb(err);
 				})
 			}, function (err) {
-				console.timeEnd('generateReviewEmailForAlertsTask')
 				callback(err, userAlerts);
 
 				Emails.sendAlertsSuspensionNotifier(userAlerts, function (err) {
