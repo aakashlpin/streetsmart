@@ -16,12 +16,6 @@ var mandrill = require('./mandrill');
 var mailgun = require('./mailgun');
 
 function sendEmail(payload, callback) {
-  if (env === 'development') {
-    if (payload.to !== 'aakash.lpin@gmail.com') {
-      return callback(null);
-    }
-  }
-
     //ESP Throttling happening for hotmail and yahoo emails
     if (_.find(['@hotmail.', '@live.', '@ymail.', '@yahoo.'], function (provider) {
         return payload.to.indexOf(provider) > 0;
