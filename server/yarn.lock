@@ -1388,6 +1388,10 @@ globule@^1.0.0:
     lodash "~4.16.4"
     minimatch "~3.0.2"
 
+glossy@^0.1.7:
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/glossy/-/glossy-0.1.7.tgz#769b5984a96f6066ab9ea758224825ee6c210f0b"
+
 graceful-fs@^4.1.2:
   version "4.1.11"
   resolved "https://registry.yarnpkg.com/graceful-fs/-/graceful-fs-4.1.11.tgz#0e8bdfe4d1ddb8854d64e04ea7c00e2a026e5658"
@@ -3652,6 +3656,12 @@ window-size@^0.1.2:
 winston-daily-rotate-file@^1.4.3:
   version "1.4.3"
   resolved "https://registry.yarnpkg.com/winston-daily-rotate-file/-/winston-daily-rotate-file-1.4.3.tgz#41633910890c8b5b72f71930943e58b5fe650637"
+
+winston-papertrail@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/winston-papertrail/-/winston-papertrail-1.0.4.tgz#95b40e2f518cf12975207b272caab08c8ea448f9"
+  dependencies:
+    glossy "^0.1.7"
 
 winston@^2.3.1:
   version "2.3.1"
