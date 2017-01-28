@@ -322,7 +322,6 @@ module.exports = {
                   'subject': '[IMPORTANT] Cheapass | Old Alerts Suspension',
                   'html': html,
                   'to': email,
-                  'provider': 'mailgun',
                 }, function(err) {
                   logger.log('info', '[sendAlertsSuspensionNotifier] send email to ' +email)
                 });
