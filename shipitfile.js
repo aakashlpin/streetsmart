@@ -20,7 +20,7 @@ module.exports = function (shipit) {
 
   shipit.task('start', function () {
     return shipit.remote('cd /tmp/deploy_to/current && yarn && bower install && grunt').then(function () {
-      shipit.remote('cd /tmp/deploy_to/current/server && yarn && mkdir logs && npm start').then(function () {
+      shipit.remote('cd /tmp/deploy_to/current/server && yarn && mkdir logs && npm stop && npm start').then(function () {
         shipit.log('all done');
       })
     })
