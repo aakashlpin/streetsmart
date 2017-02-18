@@ -4,6 +4,10 @@ exports.index = function(req, res) {
     res.render('index');
 };
 
+exports.privacy = function(req, res) {
+    res.render('privacy.html');
+};
+
 exports.serverError = function(req, res) {
     res.render('500.html');
 };
