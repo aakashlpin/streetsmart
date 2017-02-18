@@ -22,6 +22,7 @@ module.exports = function(app) {
 
 	//home route
 	app.get('/', home.index);
+	app.get('/privacy', home.privacy);
 	app.get('/500', home.serverError);
 	app.get('/404', home.pageNotFound);
 	app.get('/gameon', home.gameOn);
