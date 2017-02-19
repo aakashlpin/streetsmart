@@ -554,6 +554,8 @@ module.exports = {
 
                 tmplData.productSeller = _.str.capitalize(seller);
 
+                tmplData.baseUrl = config.server[env];
+
                 res.render('track.ejs', tmplData);
             });
         });
@@ -576,6 +578,7 @@ module.exports = {
 
             var tmplData = _.pick(doc, ['email', 'dropOnlyAlerts']);
             tmplData._id = id;
+            tmplData.baseUrl = config.server[env];
             res.render('dashboard.ejs', tmplData);
         });
     },
@@ -648,6 +651,31 @@ module.exports = {
         }
         res.json({success: 'ok'})
       })
+    },
+    removeSuspension: function (req, res) {
+      var seller = req.params.seller;
+      var id = req.params.id;
+
+      if (!config.sellers[seller]) {
+        return res.status(400).json({error: 'Illegal Request'});
+      }
+
+      var SellerModel = sellerUtils.getSellerJobModelInstance(seller);
+      SellerModel.update(
+        {_id: id},
+        {$set: {
+          suspended: false,
+          createdAt: new Date(),
+        }},
+        {},
+        function (err, docs) {
+          if (!err && docs) {
+            res.render('unsuspend.html');
+          } else {
+            res.render('500.html');
+          }
+        }
+      )
     },
     ping: function(req, res) {
         //to test if server is up

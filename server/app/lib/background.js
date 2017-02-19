@@ -141,9 +141,6 @@ module.exports = {
 			//1st page = initialBatchSize
 			//next page onwards = futureBatchSize
 
-			//make them available for GC
-			allTracks = null;
-
 			if (processedData.length < initialBatchSize) {
 				totalPages = 1;
 			} else {
@@ -218,6 +215,142 @@ module.exports = {
 				callback('some error');
 			}
 		})
+	},
+	generateReviewEmailForAlertsTask: function (callback) {
+		logger.log('info', '[generateReviewEmailForAlertsTask] beginning');
+		callback = callback || function () {}
+		var date = moment().subtract(3, 'months').toDate();
+		var userAlerts = {};
+
+		console.time('generateReviewEmailForAlertsTask');
+
+		UserModel.find({}, {email: 1}).lean().exec(function (err, users) {
+			async.eachSeries(users, function (user, asyncOneCb) {
+				var email = user.email;
+				async.eachLimit(_.keys(config.sellers), 2, function (seller, asyncTwoCb) {
+					var SellerModel = sellerUtils.getSellerJobModelInstance(seller);
+					SellerModel.find(
+						{
+							email: email,
+							createdAt: {
+								$lte: date,
+							},
+							suspended: {
+								$ne: true,
+							}
+						},
+						{
+							productURL: 1,
+							productName: 1,
+							productImage: 1,
+							createdAt: 1,
+						}
+					)
+					.lean()
+					.exec(function (err, userAlertsOnSeller) {
+						if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
+							if (!userAlerts[email]) {
+								userAlerts[email] = []
+							}
+
+							userAlerts[email] = userAlerts[email].concat(userAlertsOnSeller.map(function(userAlertOnSeller) {
+								return Object.assign(
+									userAlertOnSeller, {
+										seller: seller,
+										sellerName: config.sellers[seller].name,
+										createdAtFormatted: moment(userAlertOnSeller.createdAt).format('Do MMM YYYY')
+									}
+								)
+							}))
+
+							var ids = userAlertsOnSeller.map(function (alert) {
+								return alert._id;
+							})
+
+							SellerModel.update(
+								{_id: {$in: ids}},
+								{$set: {suspended: true}},
+								{multi: true},
+								function (err, results) {
+									logger.log('info', '[generateReviewEmailForAlertsTask] suspended ' + results.n + ' alerts for ' + email + ' on ' + seller)
+									asyncTwoCb(err);
+								}
+							)
+							//
+							return;
+						}
+
+						asyncTwoCb(err);
+					})
+				}, function (err) {
+					asyncOneCb(err);
+				})
+			}, function (err) {
+				console.timeEnd('generateReviewEmailForAlertsTask')
+				callback(err, userAlerts);
+
+				Emails.sendAlertsSuspensionNotifier(userAlerts, function (err) {
+					if (err) {
+						console.log('error in Emails.sendAlertsSuspensionNotifier', err);
+					}
+				});
+			})
+		})
+
+	},
+	sendSuspensionEmail: function (callback) {
+		var userAlerts = {};
+		UserModel.find({}, {email: 1}).lean().exec(function (err, users) {
+			async.eachSeries(users, function (user, asyncOneCb) {
+				var email = user.email;
+				async.eachLimit(_.keys(config.sellers), 2, function (seller, asyncTwoCb) {
+					var SellerModel = sellerUtils.getSellerJobModelInstance(seller);
+					SellerModel.find(
+						{
+							email: email,
+							suspended: true,
+						},
+						{
+							productURL: 1,
+							productName: 1,
+							productImage: 1,
+							createdAt: 1,
+						}
+					)
+					.lean()
+					.exec(function (err, userAlertsOnSeller) {
+						if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
+							if (!userAlerts[email]) {
+								userAlerts[email] = []
+							}
+
+							userAlerts[email] = userAlerts[email].concat(userAlertsOnSeller.map(function(userAlertOnSeller) {
+								return Object.assign(
+									userAlertOnSeller, {
+										seller: seller,
+										sellerName: config.sellers[seller].name,
+										createdAtFormatted: moment(userAlertOnSeller.createdAt).format('Do MMM YYYY')
+									}
+								)
+							}))
+						}
+
+						asyncTwoCb(err);
+					})
+				}, function (err) {
+					asyncOneCb(err);
+				})
+			}, function (err) {
+				callback(err, userAlerts);
+
+				Emails.sendAlertsSuspensionNotifier(userAlerts, function (err) {
+					if (err) {
+						console.log('error in Emails.sendAlertsSuspensionNotifier', err);
+					}
+				});
+			})
+		})
+
 	},
 	refreshDeal: refreshDeal
 };

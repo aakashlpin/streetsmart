@@ -1,34 +1,48 @@
 'use strict';
 var express = require('express');
+var session = require('express-session');
 var passport = require('passport');
-var RedisStore = require('connect-redis')(express);
+var RedisStore = require('connect-redis')(session);
 var TwitterStrategy = require('passport-twitter').Strategy;
 var FacebookStrategy = require('passport-facebook').Strategy;
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
+var favicon = require('serve-favicon');
+var compression = require('compression');
+var logger = require('morgan');
+var methodOverride = require('method-override');
+var dd_options = {
+  'response_code':true,
+  'tags': ['app:cheapass']
+}
+
+var connect_datadog = require('connect-datadog')(dd_options);
 
 module.exports = function(app, config) {
-    app.configure(function () {
-        app.use(express.compress());
-        app.use(express.static(config.root + '/public'));
-        app.set('port', config.port);
-        app.set('views', config.root + '/public');
-        app.engine('html', require('ejs').renderFile);
-        app.use(express.favicon(config.root + '/public/img/favicon.ico'));
-        app.use(express.logger('dev'));
-        app.use(express.bodyParser());
-        app.use(express.cookieParser());
-        app.use(express.session({
-            secret: 'be a fucking cheapass',
-            cookie: {
-                maxAge: 86400000
-            },
-            store: new RedisStore()
-        }));
-        app.use(express.methodOverride());
-        app.use(passport.initialize());
-        app.use(passport.session());
-        app.use(app.router);
-        app.use(function(req, res) {
-            res.status(404).render('404', { title: '404' });
-        });
-    });
+  app.use(compression());
+  app.use(express.static(config.root + '/public'));
+  app.set('port', config.port);
+  app.set('views', config.root + '/public');
+  app.engine('html', require('ejs').renderFile);
+  app.set('view engine', 'html');
+  app.use(favicon(config.root + '/public/img/favicon.ico'));
+  app.use(logger('dev'));
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({
+    extended: true
+  }));
+  app.use(cookieParser());
+  app.use(session({
+      secret: 'be a fucking cheapass',
+      resave: true,
+      saveUninitialized: true,
+      cookie: {
+          maxAge: 86400000
+      },
+      store: new RedisStore()
+  }));
+  app.use(methodOverride());
+  app.use(passport.initialize());
+  app.use(passport.session());
+  app.use(connect_datadog)
 };

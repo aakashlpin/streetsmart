@@ -22,6 +22,8 @@ var SellerJobSchema = new Schema({
     alertToPrice: Number,
     alertFromPrice: Number,
     failedAttempts: Number,
+    createdAt: Date,
+    suspended: Boolean,
     productPriceHistory: [ProductPriceHistorySchema]
 });
 
@@ -37,6 +39,7 @@ SellerJobSchema.statics.getOneGeneric = function(query, callback) {
 
 SellerJobSchema.statics.get = function(callback) {
     this.find({
+      suspended: {$ne: true},
       '$or': [
         { failedAttempts: {'$exists': false} },
         { failedAttempts: {'$lt': 5} }
@@ -49,6 +52,8 @@ SellerJobSchema.statics.get = function(callback) {
 SellerJobSchema.statics.addJob = function(jobData, callback) {
     var data = _.pick(jobData, ['email', 'currentPrice', 'productURL',
     'productImage', 'productName', 'productPriceHistory', 'source']);
+
+    data.createdAt = new Date();
 
     (new this(data)).save(callback);
 };

@@ -14,8 +14,12 @@ var server = config.server[env];
 var ses = require('./ses');
 var mandrill = require('./mandrill');
 var mailgun = require('./mailgun');
+var __DEV__ = env === 'development';
 
 function sendEmail(payload, callback) {
+    if (__DEV__ && payload.to !== 'aakash.lpin@gmail.com') {
+        return;
+    }
     //ESP Throttling happening for hotmail and yahoo emails
     if (_.find(['@hotmail.', '@live.', '@ymail.', '@yahoo.'], function (provider) {
         return payload.to.indexOf(provider) > 0;
@@ -299,6 +303,43 @@ module.exports = {
               });
           }
       });
-    }
+    },
+    sendAlertsSuspensionNotifier: function (userAlerts, callback) {
+      emailTemplates(templatesDir, function(err, template) {
+        if (err) {
+          callback(err);
 
+        } else {
+          var emails = Object.keys(userAlerts);
+          async.eachLimit(emails, 2, function (email, asyncOneCb) {
+            var locals = {
+              email: email,
+              baseUrl: config.server[env],
+              alerts: userAlerts[email]
+            };
+
+            template('suspension', locals, function(err, html) {
+              if (err) {
+                callback(err);
+              } else {
+                sendEmail({
+                  'subject': '[IMPORTANT] Cheapass | Old Alerts Suspension',
+                  'html': html,
+                  'to': email,
+                }, function(err) {
+                  logger.log('info', '[sendAlertsSuspensionNotifier] send email to ' +email)
+                });
+              }
+              asyncOneCb(err);
+            })
+          }, function (err) {
+            if (err) {
+              logger.log('error', '[sendAlertsSuspensionNotifier] failed with ' + err);
+            } else {
+              logger.log('info', '[sendAlertsSuspensionNotifier] successfully executed')
+            }
+          })
+        }
+      })
+    }
 };

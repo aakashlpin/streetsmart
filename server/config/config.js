@@ -77,7 +77,11 @@ var commonConfig = {
         'development': '0 6 * * *',
         'production': '0 6 * * *'
     },
-    proxy: 'http://5f207fe4aca04cab9e4ebb4dd8f8b713:@proxy.crawlera.com:8010',
+    generateReviewEmailForAlertsInterval: {
+        'development': '10 0 * * *',
+        'production': '10 30 * * *'
+    },
+    proxy: 'http://e8ed50e08e444e22a3f13b546196a2c7:@proxy.crawlera.com:8010',
     sellers: {
         flipkart: {
             name: 'Flipkart',
@@ -107,7 +111,7 @@ var commonConfig = {
             isCronActive: true,
             cronPattern: {
                 'development': '39 0-23/1 * * *',
-                'production': '0 9,14,20 * * *',
+                'production': '20 8,12,18,22 * * *',
                 // 'production': '22 23 * * *',
             }
         },
@@ -211,11 +215,11 @@ var commonConfig = {
 
 var config = {
     development: {
-        db: 'mongodb://localhost/streetsmart-development',
-        isCronActive: true  //use this to control running of cron jobs
+        db: 'mongodb://localhost/streetsmart-production',
+        isCronActive: false  //use this to control running of cron jobs
     },
     production: {
-        db: 'mongodb://localhost/streetsmart-production',
+        db: 'mongodb://localhost:38128/streetsmart-production',
         isCronActive: true
     }
 };

@@ -35,7 +35,7 @@ TwitterQueue.process('twitterFeed', function (job, done) {
     alert.productName = alert.productName.substr(0,62) + '...';
   }
 
-  base64.base64encoder(alert.productImage, base64encoderOptions, function (err, b64content) {
+  base64.encode(alert.productImage, base64encoderOptions, function (err, b64content) {
       if (err) { console.log(err); return done(err); }
       // first we must post the media to Twitter
       T.post('media/upload', { media_data: b64content }, function (err, data, response) {
