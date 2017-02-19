@@ -2,7 +2,9 @@
 var home = require('../app/controllers/home');
 var migrations = require('../app/migrations/index');
 var passport = require('passport');
-// var background = require('../app/lib/background');
+var env = process.env.NODE_ENV || 'development';
+var errorHandler = require('errorhandler');
+var background = require('../app/lib/background');
 
 function ensureAuthenticated(req, res, next) {
 	if (req.isAuthenticated()) {
@@ -20,6 +22,7 @@ module.exports = function(app) {
 
 	//home route
 	app.get('/', home.index);
+	app.get('/privacy', home.privacy);
 	app.get('/500', home.serverError);
 	app.get('/404', home.pageNotFound);
 	app.get('/gameon', home.gameOn);
@@ -38,6 +41,9 @@ module.exports = function(app) {
 
 	//Email verification
 	app.get('/verify', api.verifyEmail);
+
+	// Email Remove Suspension
+	app.get('/keep-tracking/:seller/:id', api.removeSuspension);
 
 	//Redirect to seller
 	app.get('/redirect', api.redirectToSeller);
@@ -76,7 +82,7 @@ module.exports = function(app) {
 	app.get('/api/dashboard/targetPrice', dashboard.setTargetPrice);
 
 	//1 time migration scripts
-	// app.get('/migrate', migrations.unwindProductPriceHistory);
+	app.get('/migrate', migrations.assignDatesToAllExistingAlerts);
 
 	//Mobile APIs
 	var mobile = require('../app/controllers/mobile');
@@ -113,4 +119,35 @@ module.exports = function(app) {
 
 	// Reports
 	app.get('/get-report', api.generateAmazonReport);
+
+	app.get('/suspend', function (req, res) {
+		background.generateReviewEmailForAlertsTask(function (err, alerts) {
+			if (err) {
+				return res.status(500).json({error: err})
+			}
+			res.json({
+				data: alerts,
+			})
+		})
+	})
+
+	app.get('/send-suspend-email', function (req, res) {
+		background.sendSuspensionEmail(function (err, alerts) {
+			if (err) {
+				return res.status(500).json({error: err})
+			}
+			res.json({
+				data: alerts,
+			})
+		})
+	})
+
+	app.use(function(req, res) {
+			res.status(404).render('404', { title: '404' });
+	});
+
+	// error handling middleware should be loaded after the loading the routes
+	if (env === 'development') {
+	  app.use(errorHandler())
+	}
 };

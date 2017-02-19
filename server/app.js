@@ -3,10 +3,11 @@
 require('newrelic');
 
 var express = require('express'),
-mongoose = require('mongoose'),
-fs = require('fs'),
-config = require('./config/config');
+    mongoose = require('mongoose'),
+    fs = require('fs'),
+    config = require('./config/config');
 
+mongoose.Promise = global.Promise;
 mongoose.connect(config.db);
 var db = mongoose.connection;
 db.on('error', function () {
