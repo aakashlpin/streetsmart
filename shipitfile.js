@@ -5,7 +5,7 @@ module.exports = function (shipit) {
     default: {
       workspace: '/tmp/github-monitor',
       deployTo: '/tmp/deploy_to',
-      branch: 'upgrade/everthing',
+      branch: 'master',
       repositoryUrl: 'https://github.com/aakashlpin/streetsmart.git',
       ignores: ['.git', 'node_modules'],
       rsync: ['--del'],
@@ -14,7 +14,7 @@ module.exports = function (shipit) {
       shallowClone: true
     },
     production: {
-      servers: 'aakashlpin@139.59.10.255'
+      servers: 'aakashlpin@cheapass.in'
     }
   });
 
