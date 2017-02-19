@@ -16,6 +16,7 @@ var Store = require('../lib/store').Store;
 var dataStore = new Store();
 var latestJobProcessedAt;
 var env = process.env.NODE_ENV || 'development';
+var __DEV__ = env === 'development';
 
 // var fs = require('fs');
 
@@ -168,7 +169,7 @@ function processURL(url, callback, isBackgroundTask) {
                     requestOptions.jar = true;
                 }
 
-                if(config.sellers[seller].requiresProxy) {
+                if(config.sellers[seller].requiresProxy && !__DEV__) {
                     requestOptions.proxy = config.proxy;
                 }
             }
