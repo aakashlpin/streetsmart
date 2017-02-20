@@ -219,7 +219,7 @@ var config = {
         isCronActive: false  //use this to control running of cron jobs
     },
     production: {
-        db: 'mongodb://localhost:38128/streetsmart-production',
+        db: 'mongodb://localhost/streetsmart-production',
         isCronActive: true
     }
 };
