@@ -14,8 +14,11 @@ module.exports = function (shipit) {
       shallowClone: true
     },
     production: {
-      servers: 'aakashlpin@cheapass.in'
-    }
+      servers: 'aakashlpin@mongo1.cheapass.in'
+    },
+    newproduction: {
+      servers: 'aakashlpin@mongo3.cheapass.in'
+    },
   });
 
   shipit.task('start', function () {
