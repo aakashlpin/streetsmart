@@ -38,32 +38,53 @@ if (process.env.IS_CRON_ACTIVE) {
       start: true,
       timeZone: 'Asia/Kolkata',
       onTick: () => {
-        const SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
-        SellerJobModel.get((err, sellerJobs) => {
-          const sellerJobsMappedWithSeller = sellerJobs.map(sellerJob =>
-            _.extend({}, sellerJob, {
-              seller,
-              title: `Processing ${sellerJob.productName}`,
-            })
-          );
+        logger.log(`cron ticking for ${seller}`);
+        queue.inactiveCount(jobQueueName, (err, total) => {
+          logger.log({ err, inactiveCount: total });
+          if (err) {
+            return logger.log('error', `error getting queue.inactiveCount on ${jobQueueName}`, err);
+          }
 
-          sellerJobsMappedWithSeller.forEach((jobData) => {
-            queue
-              .create(jobQueueName, jobData)
-              .removeOnComplete(true)
-              .save((saveErr) => {
-                if (err) {
-                  return console.error('Unable to add job to queue', saveErr);
-                }
-                return logger.log('Added job to queue', jobQueueName, jobData);
-              });
+          if (total) {
+            return logger.log(`not processing cron tick because ${total} items in ${jobQueueName} queue.`);
+          }
+
+          const SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
+          SellerJobModel.get((err, sellerJobs) => {
+            if (err) {
+              return logger.log('error', `CRITICAL: error in doing SellerJobModel.get on ${SellerJobModel.modelName}`);
+            }
+
+            if (!sellerJobs) {
+              return logger.log('warning', `cron tick: no seller jobs for ${seller}`);
+            }
+
+            const sellerJobsMappedWithSeller = sellerJobs.map(sellerJob =>
+              _.extend({}, sellerJob, {
+                seller,
+                title: `Processing ${sellerJob.productName}`,
+              })
+            );
+
+            sellerJobsMappedWithSeller.forEach((jobData) => {
+              queue
+                .create(jobQueueName, jobData)
+                .removeOnComplete(true)
+                .priority(process.env.ADMIN_EMAIL_IDS.indexOf(jobData.email) > -1 ? 'high' : 'normal')
+                .save((saveErr) => {
+                  if (saveErr) {
+                    return logger.log('error', 'Unable to add job to queue', saveErr);
+                  }
+                  return logger.log('Added job to queue', jobQueueName, jobData);
+                });
+            });
           });
         });
       },
     });
 
     // Start processing existing jobs
-    const concurrency = sellerConfig.hasMicroService || seller === 'amazon' ? 1 : 4;
+    const concurrency = sellerConfig.hasMicroService ? 1 : 4;
     queue.process(jobQueueName, concurrency, (job, done) =>
       processJob(job, done)
     );
