@@ -356,10 +356,9 @@ a {
     // z-index: 10;
     li {
         padding: 10px;
-        cursor: pointer;
         background: #fff;
-        border: 1px solid #eee;
-        border-radius: 7px;
+        border-right: 1px solid #eee;
+        // border-radius: 7px;
         margin-right: 2px;
         margin-bottom: 5px;
 
@@ -546,6 +545,11 @@ a {
 }
 .popover{
     max-width: 100%; // Max Width of the popover (depending on the container!)
+}
+
+.disable-hover,
+.disable-hover * {
+  pointer-events: none !important;
 }
 
 /*---------------*/

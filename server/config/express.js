@@ -1,48 +1,48 @@
-'use strict';
-var express = require('express');
-var session = require('express-session');
-var passport = require('passport');
-var RedisStore = require('connect-redis')(session);
-var TwitterStrategy = require('passport-twitter').Strategy;
-var FacebookStrategy = require('passport-facebook').Strategy;
-var bodyParser = require('body-parser');
-var cookieParser = require('cookie-parser');
-var favicon = require('serve-favicon');
-var compression = require('compression');
-var logger = require('morgan');
-var methodOverride = require('method-override');
-var dd_options = {
-  'response_code':true,
-  'tags': ['app:cheapass']
-}
 
-var connect_datadog = require('connect-datadog')(dd_options);
+const express = require('express');
+const session = require('express-session');
+const passport = require('passport');
+const RedisStore = require('connect-redis')(session);
+const TwitterStrategy = require('passport-twitter').Strategy;
+const FacebookStrategy = require('passport-facebook').Strategy;
+const bodyParser = require('body-parser');
+const cookieParser = require('cookie-parser');
+const favicon = require('serve-favicon');
+const compression = require('compression');
+const logger = require('morgan');
+const methodOverride = require('method-override');
+const dd_options = {
+  response_code: true,
+  tags: ['app:cheapass'],
+};
 
-module.exports = function(app, config) {
+const connect_datadog = require('connect-datadog')(dd_options);
+
+module.exports = function (app, config) {
   app.use(compression());
-  app.use(express.static(config.root + '/public'));
+  app.use(express.static(`${config.root}/public`));
   app.set('port', config.port);
-  app.set('views', config.root + '/public');
+  app.set('views', `${config.root}/public`);
   app.engine('html', require('ejs').renderFile);
   app.set('view engine', 'html');
-  app.use(favicon(config.root + '/public/img/favicon.ico'));
+  app.use(favicon(`${config.root}/public/img/favicon.ico`));
   app.use(logger('dev'));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({
-    extended: true
+    extended: true,
   }));
   app.use(cookieParser());
   app.use(session({
-      secret: 'be a fucking cheapass',
-      resave: true,
-      saveUninitialized: true,
-      cookie: {
-          maxAge: 86400000
-      },
-      store: new RedisStore()
+    secret: 'be a fucking cheapass',
+    resave: true,
+    saveUninitialized: true,
+    cookie: {
+      maxAge: 86400000,
+    },
+    store: new RedisStore(),
   }));
   app.use(methodOverride());
   app.use(passport.initialize());
   app.use(passport.session());
-  app.use(connect_datadog)
+  app.use(connect_datadog);
 };

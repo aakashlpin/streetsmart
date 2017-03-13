@@ -1,356 +1,342 @@
-'use strict';
-var _ = require('underscore');
+
+const _ = require('underscore');
 _.str = require('underscore.string');
-var config = require('../../config/config');
-var sellerUtils = require('../utils/seller');
-var async = require('async');
-var moment = require('moment');
-var logger = require('../../logger').logger;
-var initialBatchSize = 50;
-var futureBatchSize = 20;
-var Deal = require('../lib/deals').Deal;
-var mongoose = require('mongoose');
-var UserModel = mongoose.model('User');
-var UserLookup = require('./userLookup');
-var Emails = require('../controllers/emails');
-var request = require('request');
-var currentDeal;
+const config = require('../../config/config');
+const sellerUtils = require('../utils/seller');
+const async = require('async');
+const moment = require('moment');
+const logger = require('../../logger').logger;
+const Deal = require('../lib/deals').Deal;
+const mongoose = require('mongoose');
+const UserLookup = require('./userLookup');
+const Emails = require('../controllers/emails');
+const request = require('request');
 
-var processedData = [];
-var totalPages = 0;
+const UserModel = mongoose.model('User');
+const initialBatchSize = 50;
+const futureBatchSize = 20;
+let currentDeal;
 
-function refreshDeal (callback) {
-	callback = callback || function() {};
+let processedData = [];
+let totalPages = 0;
 
-	var deal = new Deal('amazon', 'banner');
-	deal.getDeal(function (err, dealObj) {
-		if (!err) {
-			currentDeal = dealObj;
-			callback(null, currentDeal);
-			deal = null;
+function refreshDeal(callback) {
+  callback = callback || function () {};
 
-		} else {
-			callback(err, null);
-			deal = null;
-		}
-	});
+  let deal = new Deal('amazon', 'banner');
+  deal.getDeal((err, dealObj) => {
+    if (!err) {
+      currentDeal = dealObj;
+      callback(null, currentDeal);
+      deal = null;
+    } else {
+      callback(err, null);
+      deal = null;
+    }
+  });
 }
 
 module.exports = {
-	getFullContactByEmail: function () {
-		UserModel.find(function (err, users) {
-			if (err) {
-				return logger.log('error', 'error getting all users to get full contact', err);
-			}
-			async.eachSeries(users, function (user, asyncSeriesCb) {
-				setTimeout(function () {
-					if (
-						(user.fullContact && _.keys(user.fullContact).length) ||
-						(user.fullContactAttempts && user.fullContactAttempts >= 3)
-					) {
-						return asyncSeriesCb();
-					}
-					UserLookup.get(user.email, function (err, userData) {
-						var updateWith;
-						if (userData !== null) {
-							updateWith = {
-								fullContact: userData
-							};
-						} else {
-							user.fullContactAttempts = user.fullContactAttempts || 0;
-							updateWith = {
-								fullContactAttempts: user.fullContactAttempts + 1
-							};
-						}
-						UserModel.update({email: user.email}, updateWith, {}, function () {
-							return asyncSeriesCb();
-						});
-					});
-				}, config.fullContactRateLimit * 1000);
-			});
-		}, function (err) {
-			if (err) {
-				logger.log('error', 'error in getFullContactByEmail', err);
-			} else {
-				logger.log('info', 'finished doing getFullContactByEmail');
-			}
-		});
-	},
-	processAllProducts: function () {
-		logger.log('info', 'processing all products for home page', {at: moment().format('MMMM Do YYYY, h:mm:ss a')});
-		var allTracks = [];
-		async.each(_.keys(config.sellers), function (seller, sellerAsyncCb) {
-			var sellerModel = sellerUtils.getSellerJobModelInstance(seller);
-			var sellerModelProductPriceHistory = sellerUtils.getSellerProductPriceHistoryModelInstance(seller);
+  getFullContactByEmail() {
+    UserModel.find((err, users) => {
+      if (err) {
+        return logger.log('error', 'error getting all users to get full contact', err);
+      }
+      async.eachSeries(users, (user, asyncSeriesCb) => {
+        setTimeout(() => {
+          if (
+            (user.fullContact && _.keys(user.fullContact).length) ||
+            (user.fullContactAttempts && user.fullContactAttempts >= 3)
+          ) {
+            return asyncSeriesCb();
+          }
+          UserLookup.get(user.email, (err, userData) => {
+            let updateWith;
+            if (userData !== null) {
+              updateWith = {
+                fullContact: userData,
+              };
+            } else {
+              user.fullContactAttempts = user.fullContactAttempts || 0;
+              updateWith = {
+                fullContactAttempts: user.fullContactAttempts + 1,
+              };
+            }
+            UserModel.update({ email: user.email }, updateWith, {}, () => asyncSeriesCb());
+          });
+        }, process.env.FULL_CONTACT_RATE_LIMIT * 1000);
+      });
+    }, (err) => {
+      if (err) {
+        logger.log('error', 'error in getFullContactByEmail', err);
+      } else {
+        logger.log('info', 'finished doing getFullContactByEmail');
+      }
+    });
+  },
+  processAllProducts() {
+    logger.log('processing all products for home page', { at: moment().format('MMMM Do YYYY, h:mm:ss a') });
 
-			sellerModelProductPriceHistory
-			.aggregate(
-				[
-					{
-						$group:
-							{
-								_id: { productURL: '$productURL' },
-								min: { $min: '$price' }
-							}
-					}
-				], function (err, aggregatedResults) {
-					async.each(aggregatedResults, function (aggregatedResult, aggregatedResultAsynCb) {
-						sellerModel
-						.findOne(
-							{
-								productURL: aggregatedResult._id.productURL
-							},
-							{
-								productURL 		: 1,
-								productName		: 1,
-								productImage 	: 1,
-								currentPrice 	: 1
-							}
-						)
-						.lean()
-						.exec(function (err, storedJob) {
-							if (err) {
-								return aggregatedResultAsynCb(err);
-							}
+    async.mapSeries(Object.keys(config.sellers), (seller, sellerAsyncCb) => {
+      const sellerModel =
+        sellerUtils.getSellerJobModelInstance(seller);
 
-							if (storedJob) {
-								_.extend(storedJob, {
-									ltp 			: aggregatedResult.min,
-									seller 			: seller
-								});
+      const sellerModelProductPriceHistory =
+        sellerUtils.getSellerProductPriceHistoryModelInstance(seller);
 
-								allTracks.push(storedJob);
-							}
+      sellerModel
+      .find(
+        { suspended: { $ne: true }, productImage: { $exists: true, $nin: ['', 'undefined', 'null'] } },
+        { productURL: 1, productImage: 1, productName: 1, currentPrice: 1 }
+      )
+      .lean()
+      .exec((err, results) => {
+        if (err) {
+          logger.log({
+            message: 'in exec sellerModel',
+            sellerModel: sellerModel.modelName,
+            error: err,
+          });
+        }
 
-							aggregatedResultAsynCb();
+        logger.log({ seller, resultsLength: results.length });
 
-						});
+        sellerModelProductPriceHistory
+        .aggregate([
+          { $match: { jobId: { $in: results.map(result => result._id) } } },
+          { $group: {
+            _id: { jobId: '$jobId' },
+            min: { $min: '$price' },
+          } },
+        ])
+        .exec((err, aggregatedResults) => {
+          if (err) {
+            logger.log({
+              err,
+              sellerModelProductPriceHistory: sellerModelProductPriceHistory.modelName,
+            });
 
-					}, function (err) {
-						if (err) {
-							return sellerAsyncCb(err);
-						}
+            return sellerAsyncCb(err);
+          }
 
-						sellerAsyncCb();
-					});
-				}
-			);
-		}, function () {
-			// processedData = _.sortBy(_.flatten(allTracks, true), 'eyes').reverse();
-			processedData = _.shuffle(_.flatten(allTracks, true));
-			//1st page = initialBatchSize
-			//next page onwards = futureBatchSize
+          const idToMinPriceMap =
+            aggregatedResults
+            .filter(item => item.min)
+            .reduce((obj, item) => {
+              obj[item._id.jobId] = item.min;
+              return obj;
+            }, {});
 
-			if (processedData.length < initialBatchSize) {
-				totalPages = 1;
-			} else {
-				totalPages = 1 + (processedData.length - initialBatchSize)/futureBatchSize;
-				if (totalPages !== parseInt(totalPages)) {
-					totalPages += 1;
-				}
-			}
+          const resultsMappedWithMinPrice =
+            results
+            .map(result => _.extend({}, result, {
+              seller,
+              ltp: idToMinPriceMap[result._id],
+            }))
+            .filter(result => result.ltp);
 
-			logger.log('info', 'completed processing all products for home page', {at: moment().format('MMMM Do YYYY, h:mm:ss a')});
-		});
-	},
-	getPagedProducts: function (page) {
-		page = parseInt(page);
-		if (page <= 0) {
-			return [];
+          sellerAsyncCb(null, resultsMappedWithMinPrice);
+        });
+      });
+    }, (err, sellerResultsWithMinPrice) => {
+      processedData = _.shuffle(_.flatten(sellerResultsWithMinPrice, true));
+      if (processedData.length < initialBatchSize) {
+        totalPages = 1;
+      } else {
+        totalPages = Math.ceil((processedData.length - initialBatchSize) / futureBatchSize);
+      }
 
-		}
-		if (page === 1) {
-			//initial page request
-			return _.first(processedData, initialBatchSize);
+      logger.log({ totalPages });
 
-		} else {
-			var beginIndex = initialBatchSize + ((page - 2) * futureBatchSize) - 1;
-			var endIndex = beginIndex + futureBatchSize;
-			return processedData.slice(beginIndex, endIndex);
-		}
-	},
-	getProcessedProducts: function () {
-		return processedData;
-	},
-	getTotalPages: function () {
-		return totalPages;
-	},
-	getCurrentDeal: function (callback) {
-		if (currentDeal) {
-			callback(null, currentDeal);
-		} else {
-			refreshDeal(callback);
-		}
-	},
-	createAndSendDailyReport: function () {
+      logger.log('completed processing all products for home page', { at: moment().format('MMMM Do YYYY, h:mm:ss a') });
+    });
+  },
+  getPagedProducts(page) {
+    page = Number(page);
+    if (page <= 0) {
+      return [];
+    }
+    if (page === 1) {
+      // initial page request
+      return _.first(processedData, initialBatchSize);
+    }
+    const beginIndex = initialBatchSize + ((page - 2) * futureBatchSize) - 1;
+    const endIndex = beginIndex + futureBatchSize;
+    return processedData.slice(beginIndex, endIndex);
+  },
+  getProcessedProducts() {
+    return processedData;
+  },
+  getTotalPages() {
+    return totalPages;
+  },
+  getCurrentDeal(callback) {
+    if (currentDeal) {
+      callback(null, currentDeal);
+    } else {
+      refreshDeal(callback);
+    }
+  },
+  createAndSendDailyReport() {
 		// fake some numbers right now.
-		Emails.sendDailyReport(_.random(900, 1200), function () {});
-	},
-	generateAmazonSalesReport: function (callback) {
-		callback = callback || function () {}
+    Emails.sendDailyReport(_.random(900, 1200), () => {});
+  },
+  generateAmazonSalesReport(callback) {
+    callback = callback || function () {};
 
-		var requestOptions = {
-			url: 'http://flipkart.cheapass.in/generate-report',
-			method: 'POST',
-			form: {
-				API_KEY: 'fuck_you_flipkart',
-			}
-		}
+    const requestOptions = {
+      url: 'http://flipkart.cheapass.in/generate-report',
+      method: 'POST',
+      form: {
+        API_KEY: 'fuck_you_flipkart',
+      },
+    };
 
-		request(requestOptions, function (error, response, body) {
-			if (!error && response.statusCode === 200) {
-				try {
-					if (typeof body !== 'object') {
-							body = JSON.parse(body);
-					}
-				} catch (e) {}
+    request(requestOptions, (error, response, body) => {
+      if (!error && response.statusCode === 200) {
+        try {
+          if (typeof body !== 'object') {
+            body = JSON.parse(body);
+          }
+        } catch (e) {}
 
-				body.month = 'http://flipkart.cheapass.in' + body.month;
-				body.yesterday = 'http://flipkart.cheapass.in' + body.yesterday;
+        body.month = `http://flipkart.cheapass.in${body.month}`;
+        body.yesterday = `http://flipkart.cheapass.in${body.yesterday}`;
 
-				Emails.sendAmazonSalesReport(body, function () {})
-				callback(null);
+        Emails.sendAmazonSalesReport(body, () => {});
+        callback(null);
+      } else {
+        callback('some error');
+      }
+    });
+  },
+  generateReviewEmailForAlertsTask(callback) {
+    logger.log('info', '[generateReviewEmailForAlertsTask] beginning');
+    callback = callback || function () {};
+    const date = moment().subtract(3, 'months').toDate();
+    const userAlerts = {};
 
-			} else {
-				callback('some error');
-			}
-		})
-	},
-	generateReviewEmailForAlertsTask: function (callback) {
-		logger.log('info', '[generateReviewEmailForAlertsTask] beginning');
-		callback = callback || function () {}
-		var date = moment().subtract(3, 'months').toDate();
-		var userAlerts = {};
+    console.time('generateReviewEmailForAlertsTask');
 
-		console.time('generateReviewEmailForAlertsTask');
-
-		UserModel.find({}, {email: 1}).lean().exec(function (err, users) {
-			async.eachSeries(users, function (user, asyncOneCb) {
-				var email = user.email;
-				async.eachLimit(_.keys(config.sellers), 2, function (seller, asyncTwoCb) {
-					var SellerModel = sellerUtils.getSellerJobModelInstance(seller);
-					SellerModel.find(
-						{
-							email: email,
-							createdAt: {
-								$lte: date,
-							},
-							suspended: {
-								$ne: true,
-							}
-						},
-						{
-							productURL: 1,
-							productName: 1,
-							productImage: 1,
-							createdAt: 1,
-						}
+    UserModel.find({}, { email: 1 }).lean().exec((err, users) => {
+      async.eachSeries(users, (user, asyncOneCb) => {
+        const email = user.email;
+        async.eachLimit(_.keys(config.sellers), 2, (seller, asyncTwoCb) => {
+          const SellerModel = sellerUtils.getSellerJobModelInstance(seller);
+          SellerModel.find(
+            {
+              email,
+              createdAt: {
+                $lte: date,
+              },
+              suspended: {
+                $ne: true,
+              },
+            },
+            {
+              productURL: 1,
+              productName: 1,
+              productImage: 1,
+              createdAt: 1,
+            }
 					)
 					.lean()
-					.exec(function (err, userAlertsOnSeller) {
-						if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
-							if (!userAlerts[email]) {
-								userAlerts[email] = []
-							}
+					.exec((err, userAlertsOnSeller) => {
+  if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
+    if (!userAlerts[email]) {
+      userAlerts[email] = [];
+    }
 
-							userAlerts[email] = userAlerts[email].concat(userAlertsOnSeller.map(function(userAlertOnSeller) {
-								return Object.assign(
+    userAlerts[email] = userAlerts[email].concat(userAlertsOnSeller.map(userAlertOnSeller => Object.assign(
 									userAlertOnSeller, {
-										seller: seller,
-										sellerName: config.sellers[seller].name,
-										createdAtFormatted: moment(userAlertOnSeller.createdAt).format('Do MMM YYYY')
-									}
-								)
-							}))
+  seller,
+  sellerName: config.sellers[seller].name,
+  createdAtFormatted: moment(userAlertOnSeller.createdAt).format('Do MMM YYYY'),
+}
+								)));
 
-							var ids = userAlertsOnSeller.map(function (alert) {
-								return alert._id;
-							})
+    const ids = userAlertsOnSeller.map(alert => alert._id);
 
-							SellerModel.update(
-								{_id: {$in: ids}},
-								{$set: {suspended: true}},
-								{multi: true},
-								function (err, results) {
-									logger.log('info', '[generateReviewEmailForAlertsTask] suspended ' + results.n + ' alerts for ' + email + ' on ' + seller)
-									asyncTwoCb(err);
-								}
-							)
+    SellerModel.update(
+								{ _id: { $in: ids } },
+								{ $set: { suspended: true } },
+								{ multi: true },
+								(err, results) => {
+  logger.log('info', `[generateReviewEmailForAlertsTask] suspended ${results.n} alerts for ${email} on ${seller}`);
+  asyncTwoCb(err);
+}
+							);
 							//
-							return;
-						}
+    return;
+  }
 
-						asyncTwoCb(err);
-					})
-				}, function (err) {
-					asyncOneCb(err);
-				})
-			}, function (err) {
-				console.timeEnd('generateReviewEmailForAlertsTask')
-				callback(err, userAlerts);
+  asyncTwoCb(err);
+});
+        }, (err) => {
+          asyncOneCb(err);
+        });
+      }, (err) => {
+        console.timeEnd('generateReviewEmailForAlertsTask');
+        callback(err, userAlerts);
 
-				Emails.sendAlertsSuspensionNotifier(userAlerts, function (err) {
-					if (err) {
-						console.log('error in Emails.sendAlertsSuspensionNotifier', err);
-					}
-				});
-			})
-		})
-
-	},
-	sendSuspensionEmail: function (callback) {
-		var userAlerts = {};
-		UserModel.find({}, {email: 1}).lean().exec(function (err, users) {
-			async.eachSeries(users, function (user, asyncOneCb) {
-				var email = user.email;
-				async.eachLimit(_.keys(config.sellers), 2, function (seller, asyncTwoCb) {
-					var SellerModel = sellerUtils.getSellerJobModelInstance(seller);
-					SellerModel.find(
-						{
-							email: email,
-							suspended: true,
-						},
-						{
-							productURL: 1,
-							productName: 1,
-							productImage: 1,
-							createdAt: 1,
-						}
+        Emails.sendAlertsSuspensionNotifier(userAlerts, (err) => {
+          if (err) {
+            logger.log('error in Emails.sendAlertsSuspensionNotifier', err);
+          }
+        });
+      });
+    });
+  },
+  sendSuspensionEmail(callback) {
+    const userAlerts = {};
+    UserModel.find({}, { email: 1 }).lean().exec((err, users) => {
+      async.eachSeries(users, (user, asyncOneCb) => {
+        const email = user.email;
+        async.eachLimit(_.keys(config.sellers), 2, (seller, asyncTwoCb) => {
+          const SellerModel = sellerUtils.getSellerJobModelInstance(seller);
+          SellerModel.find(
+            {
+              email,
+              suspended: true,
+            },
+            {
+              productURL: 1,
+              productName: 1,
+              productImage: 1,
+              createdAt: 1,
+            }
 					)
 					.lean()
-					.exec(function (err, userAlertsOnSeller) {
-						if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
-							if (!userAlerts[email]) {
-								userAlerts[email] = []
-							}
+					.exec((err, userAlertsOnSeller) => {
+  if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
+    if (!userAlerts[email]) {
+      userAlerts[email] = [];
+    }
 
-							userAlerts[email] = userAlerts[email].concat(userAlertsOnSeller.map(function(userAlertOnSeller) {
-								return Object.assign(
+    userAlerts[email] = userAlerts[email].concat(userAlertsOnSeller.map(userAlertOnSeller => Object.assign(
 									userAlertOnSeller, {
-										seller: seller,
-										sellerName: config.sellers[seller].name,
-										createdAtFormatted: moment(userAlertOnSeller.createdAt).format('Do MMM YYYY')
-									}
-								)
-							}))
-						}
+  seller,
+  sellerName: config.sellers[seller].name,
+  createdAtFormatted: moment(userAlertOnSeller.createdAt).format('Do MMM YYYY'),
+}
+								)));
+  }
 
-						asyncTwoCb(err);
-					})
-				}, function (err) {
-					asyncOneCb(err);
-				})
-			}, function (err) {
-				callback(err, userAlerts);
+  asyncTwoCb(err);
+});
+        }, (err) => {
+          asyncOneCb(err);
+        });
+      }, (err) => {
+        callback(err, userAlerts);
 
-				Emails.sendAlertsSuspensionNotifier(userAlerts, function (err) {
-					if (err) {
-						console.log('error in Emails.sendAlertsSuspensionNotifier', err);
-					}
-				});
-			})
-		})
-
-	},
-	refreshDeal: refreshDeal
+        Emails.sendAlertsSuspensionNotifier(userAlerts, (err) => {
+          if (err) {
+            logger.log('error in Emails.sendAlertsSuspensionNotifier', err);
+          }
+        });
+      });
+    });
+  },
+  refreshDeal,
 };

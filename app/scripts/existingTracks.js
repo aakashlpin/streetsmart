@@ -14,7 +14,7 @@
 			}
 			var addedAt = +new Date();
 			return (
-				'<li id="'+data._id+'" class="product-track" data-added-at="'+addedAt+'" data-eyes="'+data.eyes+'" data-filter-class=\'["'+data.seller+'"]\'>'+
+				'<li id="'+data._id+'" class="product-track" data-filter-class=\'["'+data.seller+'"]\'>'+
 					'<figure class="effect-zoe">'+
 						'<div class="img-container">'+
 							'<img class="lazy" data-original="'+data.productImage+'" alt="'+data.productName+'">'+
@@ -97,24 +97,6 @@
 				align: 'center',
 				offset: 20,
 				ignoreInactiveItems: false,
-				comparator: function(a, b) {
-					var $a = $(a);
-					var $b = $(b);
-					if (!$a.hasClass('inactive') && !$b.hasClass('inactive')) {
-						if ($a.data('eyes') === $b.data('eyes')) {
-							return $a.data('added-at') < $b.data('added-at') ? -1 : 1;
-						}
-						return $a.data('eyes') > $b.data('eyes') ? -1 : 1;
-					}
-					return $a.hasClass('inactive') && !$b.hasClass('inactive') ? 1 : -1;
-				},
-				onLayoutChanged: function () {
-					ProductTracks
-					.$el
-					.find('.product-track:not(.inactive)')
-						.find('.lazy')
-						.trigger('appear');
-				}
 			});
 
 			ProductTracks.wookmarkHandler = handler;
@@ -122,7 +104,7 @@
 		lazyLoad: function () {
 			var $imgs = ProductTracks.$el.find('.lazy');
 			$imgs.lazyload({
-				'effect': 'fadeIn',
+				// 'effect': 'fadeIn',
 				'threshold': 100,
 				'skip_invisible': false,
 				'failure_limit': Math.max($imgs.length-1, 0)
@@ -266,7 +248,7 @@
 			ProductTracks.loadTracksForPage(1);
 			ProductTracks.initFilters();
 			ProductTracks.bindAllEvents();
-			ProductTracks.initSticky();
+			// ProductTracks.initSticky();
 		}
 	};
 
