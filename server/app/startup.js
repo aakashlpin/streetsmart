@@ -121,8 +121,14 @@ function setup() {
     timeZone: 'Asia/Kolkata'
   });
 
+  new CronJob({
+    cronTime: process.env.REMOVE_FAILED_JOBS_INTERVAL,
+    onTick: bgTask.removeFailedJobs,
+    start: true,
+    timeZone: 'Asia/Kolkata'
+  });
+
   bgTask.processAllProducts();
-  bgTask.getFullContactByEmail();
 }
 
 setup();
