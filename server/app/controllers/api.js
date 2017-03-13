@@ -138,16 +138,16 @@ module.exports = {
       productURL: url,
       seller,
     }, (err, crawledInfo) => {
+      if (err) {
+        logger.log('error', 'processing URL from UI failed', { error: err });
+        return res[resMethod]({ error: err.error });
+      }
+
       const {
         price: productPrice,
         name: productName,
         image: productImage,
       } = crawledInfo;
-
-      if (err) {
-        logger.log('error', 'processing URL from UI failed', { error: err });
-        return res[resMethod]({ error: err.error });
-      }
 
       res[resMethod]({
         productPrice,
