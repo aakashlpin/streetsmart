@@ -144,9 +144,9 @@ module.exports = {
       }
 
       const {
-        price: productPrice,
-        name: productName,
-        image: productImage,
+        productPrice,
+        productName,
+        productImage,
       } = crawledInfo;
 
       res[resMethod]({

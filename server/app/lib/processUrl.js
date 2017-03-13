@@ -84,9 +84,9 @@ function processUrl({ productURL, seller }, cb) {
           }
 
           return cb(null, {
-            name,
-            image,
-            price: Number(price),
+            productName: name,
+            productImage: image,
+            productPrice: Number(price),
           });
         }
 

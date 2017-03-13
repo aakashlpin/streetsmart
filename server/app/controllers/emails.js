@@ -12,7 +12,7 @@ const templatesDir = path.resolve(__dirname, '..', 'templates');
 const server = process.env.SERVER;
 
 function sendEmail(payload, callback) {
-  if (process.env.IS_DEV && payload.to !== 'aakash.lpin@gmail.com') {
+  if (process.env.IS_DEV && process.env.ADMIN_EMAIL_IDS.indexOf(payload.to) === -1) {
     return;
   }
     // ESP Throttling happening for hotmail and yahoo emails

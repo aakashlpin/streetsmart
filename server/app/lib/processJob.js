@@ -46,7 +46,7 @@ function processJob(jobData, done) {
       return done(err.error);
     }
 
-    const { price: scrapedPrice } = processedData;
+    const { productPrice: scrapedPrice } = processedData;
     logger.log(`Job scraped successfully for ${seller} ${productURL} `);
     /**
     TODO
