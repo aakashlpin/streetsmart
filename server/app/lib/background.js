@@ -11,6 +11,7 @@ const mongoose = require('mongoose');
 const UserLookup = require('./userLookup');
 const Emails = require('../controllers/emails');
 const request = require('request');
+const kue = require('kue');
 
 const UserModel = mongoose.model('User');
 const initialBatchSize = 50;
@@ -210,6 +211,15 @@ module.exports = {
       }
     });
   },
+  removeFailedJobs: () => {
+    kue.Job.rangeByState('failed', 0, 100, 'asc', (err, jobs) => {
+      jobs.forEach((job) => {
+        job.remove(() => {
+          logger.log('failed job removed in background', job.id);
+        });
+      });
+    });
+  },
   generateReviewEmailForAlertsTask(callback) {
     logger.log('info', '[generateReviewEmailForAlertsTask] beginning');
     callback = callback || function () {};
@@ -239,39 +249,41 @@ module.exports = {
               productImage: 1,
               createdAt: 1,
             }
-					)
-					.lean()
-					.exec((err, userAlertsOnSeller) => {
-  if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
-    if (!userAlerts[email]) {
-      userAlerts[email] = [];
-    }
+          )
+          .lean()
+          .exec((err, userAlertsOnSeller) => {
+            if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
+              if (!userAlerts[email]) {
+                userAlerts[email] = [];
+              }
 
-    userAlerts[email] = userAlerts[email].concat(userAlertsOnSeller.map(userAlertOnSeller => Object.assign(
-									userAlertOnSeller, {
-  seller,
-  sellerName: config.sellers[seller].name,
-  createdAtFormatted: moment(userAlertOnSeller.createdAt).format('Do MMM YYYY'),
-}
-								)));
+              userAlerts[email] = userAlerts[email].concat(
+                userAlertsOnSeller.map(userAlertOnSeller => Object.assign(
+                  userAlertOnSeller, {
+                    seller,
+                    sellerName: config.sellers[seller].name,
+                    createdAtFormatted: moment(userAlertOnSeller.createdAt).format('Do MMM YYYY'),
+                  }
+                ))
+              );
 
-    const ids = userAlertsOnSeller.map(alert => alert._id);
+              const ids = userAlertsOnSeller.map(alert => alert._id);
 
-    SellerModel.update(
-								{ _id: { $in: ids } },
-								{ $set: { suspended: true } },
-								{ multi: true },
-								(err, results) => {
-  logger.log('info', `[generateReviewEmailForAlertsTask] suspended ${results.n} alerts for ${email} on ${seller}`);
-  asyncTwoCb(err);
-}
-							);
-							//
-    return;
-  }
+              SellerModel.update(
+                { _id: { $in: ids } },
+                { $set: { suspended: true } },
+                { multi: true },
+                (err, results) => {
+                  logger.log('info', `[generateReviewEmailForAlertsTask] suspended ${results.n} alerts for ${email} on ${seller}`);
+                  asyncTwoCb(err);
+                }
+              );
 
-  asyncTwoCb(err);
-});
+              return;
+            }
+
+            asyncTwoCb(err);
+          });
         }, (err) => {
           asyncOneCb(err);
         });
@@ -305,25 +317,27 @@ module.exports = {
               productImage: 1,
               createdAt: 1,
             }
-					)
-					.lean()
-					.exec((err, userAlertsOnSeller) => {
-  if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
-    if (!userAlerts[email]) {
-      userAlerts[email] = [];
-    }
+          )
+          .lean()
+          .exec((err, userAlertsOnSeller) => {
+            if (!err && userAlertsOnSeller && userAlertsOnSeller.length) {
+              if (!userAlerts[email]) {
+                userAlerts[email] = [];
+              }
 
-    userAlerts[email] = userAlerts[email].concat(userAlertsOnSeller.map(userAlertOnSeller => Object.assign(
-									userAlertOnSeller, {
-  seller,
-  sellerName: config.sellers[seller].name,
-  createdAtFormatted: moment(userAlertOnSeller.createdAt).format('Do MMM YYYY'),
-}
-								)));
-  }
+              userAlerts[email] = userAlerts[email].concat(
+                userAlertsOnSeller.map(userAlertOnSeller => Object.assign(
+                  userAlertOnSeller, {
+                    seller,
+                    sellerName: config.sellers[seller].name,
+                    createdAtFormatted: moment(userAlertOnSeller.createdAt).format('Do MMM YYYY'),
+                  }
+                ))
+              );
+            }
 
-  asyncTwoCb(err);
-});
+            asyncTwoCb(err);
+          });
         }, (err) => {
           asyncOneCb(err);
         });
