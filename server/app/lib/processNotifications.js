@@ -74,6 +74,9 @@ function sendNotifications({ email }, emailProduct) {
   }
 
   UserModel.findOne({ email }).lean().exec((err, userDoc) => {
+    if (err) {
+      return logger.log('error', `CRITICAL: wanted to send notifications but unable to UserModel.findOne ${email}`);
+    }
     const { _id } = userDoc;
     const notificationUser = {
       _id,
@@ -91,7 +94,7 @@ function sendNotifications({ email }, emailProduct) {
 
     TwitterFeed.postStatus(emailProduct);
 
-    if (userDoc && userDoc.androidDeviceToken) {
+    if (userDoc.androidDeviceToken) {
       const androidNotificationMessage = `${emailProduct.productName} is now available at ₹${emailProduct.currentPrice}/- on ${config.sellers[emailProduct.seller].name}`;
       fetch('https://fcm.googleapis.com/fcm/send', {
         method: 'POST',
@@ -123,7 +126,7 @@ function sendNotifications({ email }, emailProduct) {
       });
     }
 
-    if (userDoc && userDoc.iOSDeviceTokens && userDoc.iOSDeviceTokens.length) {
+    if (userDoc.iOSDeviceTokens && userDoc.iOSDeviceTokens.length) {
       const iosNotificationMessage = `${emailProduct.productName} is now available at ₹${emailProduct.currentPrice}/- on ${config.sellers[emailProduct.seller].name}`;
 
       const url = 'https://api.parse.com/1/push';
