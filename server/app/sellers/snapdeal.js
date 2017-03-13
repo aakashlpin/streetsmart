@@ -1,33 +1,39 @@
-'use strict';
-var _ = require('underscore');
-module.exports = function($) {
-	var priceDOM, imageDOM, nameDOM, price, name, image, response = {};
-	try {
-		priceDOM = $('[itemprop="price"]');
-		price = priceDOM.text() || false;
-		if (price) {
-			price = parseInt(price.replace(/,/g, ''), 10);
-		}
+const _ = require('underscore');
+const logger = require('../../logger').logger;
 
-		if (_.isNaN(price)) {
-			price = false;
-		}
+module.exports = function ($) {
+  let priceDOM,
+    imageDOM,
+    nameDOM,
+    price,
+    name,
+    image,
+    response = {};
+  try {
+    priceDOM = $('[itemprop="price"]');
+    price = priceDOM.text() || false;
+    if (price) {
+      price = parseInt(price.replace(/,/g, ''), 10);
+    }
 
-		imageDOM = $('[itemprop="image"]');
-		image = imageDOM.attr('src');
+    if (_.isNaN(price)) {
+      price = false;
+    }
 
-		nameDOM = $($('#productOverview [itemprop="name"]')[0]);
-		name = nameDOM.text().replace(/^\s+|\s+$/g, '');
+    imageDOM = $('[itemprop="image"]');
+    image = imageDOM.attr('src');
 
-		response = {
-			price: price,
-			name: name,
-			image: image
-		};
+    nameDOM = $($('#productOverview [itemprop="name"]')[0]);
+    name = nameDOM.text().replace(/^\s+|\s+$/g, '');
 
-	} catch(e) {
-		console.log(e);
-	}
+    response = {
+      price,
+      name,
+      image,
+    };
+  } catch (e) {
+    logger.log('error', 'error with scraping snapdeal', e);
+  }
 
-	return response;
+  return response;
 };

@@ -1,345 +1,323 @@
-'use strict';
+const path = require('path');
+const async = require('async');
+const emailTemplates = require('email-templates');
+const _ = require('underscore');
+const config = require('../../config/config');
+const logger = require('../../logger').logger;
+const ses = require('./ses');
+const mandrill = require('./mandrill');
+const mailgun = require('./mailgun');
 
-var path       = require('path'),
-async          = require('async'),
-templatesDir   = path.resolve(__dirname, '..', 'templates'),
-emailTemplates = require('email-templates'),
-_              = require('underscore'),
-config         = require('../../config/config'),
-logger 		   = require('../../logger').logger;
-
-var emailService = config.emailService;
-var env = process.env.NODE_ENV || 'development';
-var server = config.server[env];
-var ses = require('./ses');
-var mandrill = require('./mandrill');
-var mailgun = require('./mailgun');
-var __DEV__ = env === 'development';
+const templatesDir = path.resolve(__dirname, '..', 'templates');
+const server = process.env.SERVER;
 
 function sendEmail(payload, callback) {
-    if (__DEV__ && payload.to !== 'aakash.lpin@gmail.com') {
-        return;
-    }
-    //ESP Throttling happening for hotmail and yahoo emails
-    if (_.find(['@hotmail.', '@live.', '@ymail.', '@yahoo.'], function (provider) {
-        return payload.to.indexOf(provider) > 0;
-    })) {
-        ses.sendEmail(payload, callback);
-        return;
-    }
+  if (process.env.IS_DEV && payload.to !== 'aakash.lpin@gmail.com') {
+    return;
+  }
+    // ESP Throttling happening for hotmail and yahoo emails
+  if (_.find(['@hotmail.', '@live.', '@ymail.', '@yahoo.'], provider => payload.to.indexOf(provider) > 0)) {
+    ses.sendEmail(payload, callback);
+    return;
+  }
 
-    if (payload.provider && payload.provider === 'mandrill') {
-      mandrill.sendEmail(payload, callback);
-    }
-    else if (payload.provider && payload.provider === 'mailgun') {
-      mailgun.sendEmail(payload, callback);
-    }
-    else {
-      ses.sendEmail(payload, callback);
-    }
+  if (payload.provider && payload.provider === 'mandrill') {
+    mandrill.sendEmail(payload, callback);
+  } else if (payload.provider && payload.provider === 'mailgun') {
+    mailgun.sendEmail(payload, callback);
+  } else {
+    ses.sendEmail(payload, callback);
+  }
 }
 
 module.exports = {
-    sendVerifier: function(user, product, callback) {
-        emailTemplates(templatesDir, function(err, template) {
-            if (err) {
-                callback(err);
+  sendVerifier(user, product, callback) {
+    emailTemplates(templatesDir, (err, template) => {
+      if (err) {
+        callback(err);
+      } else {
+        if (!user.email || (user.email && !user.email.length)) {
+          return callback('Recipient not found');
+        }
 
-            } else {
-                if (!user.email || (user.email && !user.email.length)) {
-                    return callback('Recipient not found');
-                }
+        const encodedEmail = encodeURIComponent(user.email);
+        if (product.seller) {
+          // human readable seller name
+          product.seller = config.sellers[product.seller].name;
+        }
 
-                var encodedEmail = encodeURIComponent(user.email);
-                if (product.seller) {
-                    //human readable seller name
-                    product.seller = config.sellers[product.seller].name;
-                }
+        const locals = {
+          user,
+          product,
+          verificationLink: `${server}/verify?email=${encodedEmail}`,
+        };
 
-                var locals = {
-                    user: user,
-                    product: product,
-                    verificationLink: server + '/verify?' + 'email=' + encodedEmail
-                };
-
-                template('verifier', locals, function(err, html) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        sendEmail({
-                            'subject': 'Cheapass | Verify your email id',
-                            'html': html,
-                            'bcc': 'aakash@cheapass.in',
-                            'to': locals.user.email
-                        }, callback);
-                    }
-                });
-            }
+        template('verifier', locals, (err, html) => {
+          if (err) {
+            callback(err);
+          } else {
+            sendEmail({
+              subject: 'Cheapass | Verify your email id',
+              html,
+              bcc: 'aakash@cheapass.in',
+              to: locals.user.email,
+            }, callback);
+          }
         });
+      }
+    });
+  },
+  sendNotifier(user, product, callback) {
+    emailTemplates(templatesDir, (err, template) => {
+      if (err) {
+        callback(err);
+      } else {
+        if (product.seller) {
+          // human readable seller name
+          product.seller = config.sellers[product.seller].name;
+        }
 
-    },
-    sendNotifier: function(user, product, callback) {
-        emailTemplates(templatesDir, function(err, template) {
-            if (err) {
-                callback(err);
+        const locals = {
+          user,
+          product,
+          server,
+        };
 
-            } else {
-                if (product.seller) {
-                    //human readable seller name
-                    product.seller = config.sellers[product.seller].name;
-                }
-
-                var locals = {
-                    user: user,
-                    product: product,
-                    server: server
-                };
-
-                _.extend(locals.user, {
-                    dashboardURL: (server + '/dashboard/' + user._id)
-                });
+        _.extend(locals.user, {
+          dashboardURL: (`${server}/dashboard/${user._id}`),
+        });
 
                 // Send a single email
-                template('notifier', locals, function(err, html) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        sendEmail({
-                            'subject': 'Price Drop Alert | ' + locals.product.seller + ' | ' + locals.product.productName,
-                            'html': html,
-                            'to': locals.user.email
-                        }, callback);
-                    }
-                });
-            }
-        });
-    },
-    sendHandshake: function(user, product, callback) {
-        emailTemplates(templatesDir, function(err, template) {
-            if (err) {
-                callback(err);
-
-            } else {
-                if (product.seller) {
-                    //human readable seller name
-                    product.seller = config.sellers[product.seller].name;
-                }
-
-                var locals = {
-                    user: user,
-                    product: product
-                };
-
-                _.extend(locals.user, {
-                    dashboardURL: (server + '/dashboard/' + user._id),
-                    dashboardProductURL: (server + '/dashboard/' + user._id + '?productId=' + product._id)
-                });
-
-                template('handshake', locals, function(err, html) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        sendEmail({
-                            'subject': 'Price Alert Set | ' + locals.product.seller + ' | ' + locals.product.productName,
-                            'html': html,
-                            'to': locals.user.email
-                        }, callback);
-                    }
-                });
-            }
-        });
-    },
-    resendVerifierEmail: function (user, callback) {
-        emailTemplates(templatesDir, function(err, template) {
-            if (err) {
-                callback(err);
-
-            } else {
-                var encodedEmail = encodeURIComponent(user.email);
-                var locals = {
-                    user: user,
-                    verificationLink: server + '/verify?' + 'email=' + encodedEmail
-                };
-
-                template('reverifier', locals, function(err, html) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        sendEmail({
-                            'subject': 'Cheapass | Verify your email id',
-                            'html': html,
-                            'to': locals.user.email
-                        }, callback);
-                    }
-                });
-            }
-        });
-    },
-    sendReminderEmail: function (user, callback) {
-        emailTemplates(templatesDir, function(err, template) {
-            if (err) {
-                callback(err);
-
-            } else {
-                var encodedEmail = encodeURIComponent(user.email);
-                var locals = {
-                    user: user,
-                    verificationLink: server + '/verify?' + 'email=' + encodedEmail
-                };
-
-                template('reminder', locals, function(err, html) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        sendEmail({
-                            'subject': 'Cheapass | What happened?',
-                            'html': html,
-                            'to': locals.user.email,
-                            'from': 'Aakash Goel <aakash@cheapass.in>'
-                        }, callback);
-                    }
-                });
-            }
-        });
-    },
-    sendDeviceVerificationCode: function(registrationData, callback) {
-        emailTemplates(templatesDir, function(err, template) {
-            if (err) {
-                callback(err);
-
-            } else {
-                var locals = registrationData;
-
-                template('deviceregistration', locals, function(err, html) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        sendEmail({
-                            'subject': 'Cheapass | App Login OTP | ' + locals.verificationCode,
-                            'html': html,
-                            'to': locals.email,
-                            'bcc': 'aakash@cheapass.in'
-                        }, callback);
-                    }
-                });
-            }
-        });
-    },
-    sendMailer: function(users, callback) {
-        //pass to this method an array of user emails
-        emailTemplates(templatesDir, function(err, template) {
-            if (err) {
-                callback(err);
-
-            } else {
-                async.eachLimit(users, 500, function(user, asyncEachCb){
-                    template('android_app', user, function(err, html) {
-                        if (err) {
-                            asyncEachCb(err);
-
-                        } else {
-                            sendEmail({
-                                'subject': '💥🎉🎊Launching Cheapass Android App 🎂✨💞',
-                                'html': html,
-                                'to': user.email,
-                                'provider': 'mailgun'
-                            }, asyncEachCb);
-                        }
-                    });
-
-                }, function() {
-                    callback(null, 'emails sent');
-                });
-            }
-        });
-    },
-    sendDailyReport: function(alerts, callback) {
-        emailTemplates(templatesDir, function(err, template) {
-            if (err) {
-                callback(err);
-
-            } else {
-                var locals = {
-                	alerts: alerts,
-                	email: 'pisceanaish@gmail.com'
-                };
-
-                template('report', locals, function(err, html) {
-                    if (err) {
-                        callback(err);
-                    } else {
-                        sendEmail({
-                            'subject': 'Cheapass - Pucchis Due Report',
-                            'html': html,
-                            'to': locals.email,
-                            'cc': 'aakash@cheapass.in'
-                        }, callback);
-                    }
-                });
-            }
-        });
-    },
-    sendAmazonSalesReport: function (imagesPathnames, callback) {
-      emailTemplates(templatesDir, function(err, template) {
+        template('notifier', locals, (err, html) => {
           if (err) {
-              callback(err);
-
+            callback(err);
           } else {
-              var locals = {
-                images: imagesPathnames,
-                email: 'aakash.lpin@gmail.com'
-              };
-
-              template('amazon-report', locals, function(err, html) {
-                  if (err) {
-                      callback(err);
-                  } else {
-                      sendEmail({
-                          'subject': 'Cheapass | Amazon Earnings',
-                          'html': html,
-                          'to': locals.email,
-                      }, callback);
-                  }
-              });
+            sendEmail({
+              subject: `Price Drop Alert | ${locals.product.seller} | ${locals.product.productName}`,
+              html,
+              to: locals.user.email,
+            }, callback);
           }
-      });
-    },
-    sendAlertsSuspensionNotifier: function (userAlerts, callback) {
-      emailTemplates(templatesDir, function(err, template) {
-        if (err) {
-          callback(err);
-
-        } else {
-          var emails = Object.keys(userAlerts);
-          async.eachLimit(emails, 2, function (email, asyncOneCb) {
-            var locals = {
-              email: email,
-              baseUrl: config.server[env],
-              alerts: userAlerts[email]
-            };
-
-            template('suspension', locals, function(err, html) {
-              if (err) {
-                callback(err);
-              } else {
-                sendEmail({
-                  'subject': '[IMPORTANT] Cheapass | Old Alerts Suspension',
-                  'html': html,
-                  'to': email,
-                }, function(err) {
-                  logger.log('info', '[sendAlertsSuspensionNotifier] send email to ' +email)
-                });
-              }
-              asyncOneCb(err);
-            })
-          }, function (err) {
-            if (err) {
-              logger.log('error', '[sendAlertsSuspensionNotifier] failed with ' + err);
-            } else {
-              logger.log('info', '[sendAlertsSuspensionNotifier] successfully executed')
-            }
-          })
+        });
+      }
+    });
+  },
+  sendHandshake(user, product, callback) {
+    emailTemplates(templatesDir, (err, template) => {
+      if (err) {
+        callback(err);
+      } else {
+        if (product.seller) {
+          // human readable seller name
+          product.seller = config.sellers[product.seller].name;
         }
-      })
-    }
+
+        const locals = {
+          user,
+          product,
+        };
+
+        _.extend(locals.user, {
+          dashboardURL: (`${server}/dashboard/${user._id}`),
+          dashboardProductURL: (`${server}/dashboard/${user._id}?productId=${product._id}`),
+        });
+
+        template('handshake', locals, (err, html) => {
+          if (err) {
+            callback(err);
+          } else {
+            sendEmail({
+              subject: `Price Alert Set | ${locals.product.seller} | ${locals.product.productName}`,
+              html,
+              to: locals.user.email,
+            }, callback);
+          }
+        });
+      }
+    });
+  },
+  resendVerifierEmail(user, callback) {
+    emailTemplates(templatesDir, (err, template) => {
+      if (err) {
+        callback(err);
+      } else {
+        const encodedEmail = encodeURIComponent(user.email);
+        const locals = {
+          user,
+          verificationLink: `${server}/verify?email=${encodedEmail}`,
+        };
+
+        template('reverifier', locals, (err, html) => {
+          if (err) {
+            callback(err);
+          } else {
+            sendEmail({
+              subject: 'Cheapass | Verify your email id',
+              html,
+              to: locals.user.email,
+            }, callback);
+          }
+        });
+      }
+    });
+  },
+  sendReminderEmail(user, callback) {
+    emailTemplates(templatesDir, (err, template) => {
+      if (err) {
+        callback(err);
+      } else {
+        const encodedEmail = encodeURIComponent(user.email);
+        const locals = {
+          user,
+          verificationLink: `${server}/verify?email=${encodedEmail}`,
+        };
+
+        template('reminder', locals, (err, html) => {
+          if (err) {
+            callback(err);
+          } else {
+            sendEmail({
+              subject: 'Cheapass | What happened?',
+              html,
+              to: locals.user.email,
+              from: 'Aakash Goel <aakash@cheapass.in>',
+            }, callback);
+          }
+        });
+      }
+    });
+  },
+  sendDeviceVerificationCode(registrationData, callback) {
+    emailTemplates(templatesDir, (err, template) => {
+      if (err) {
+        callback(err);
+      } else {
+        const locals = registrationData;
+
+        template('deviceregistration', locals, (err, html) => {
+          if (err) {
+            callback(err);
+          } else {
+            sendEmail({
+              subject: `Cheapass | App Login OTP | ${locals.verificationCode}`,
+              html,
+              to: locals.email,
+              bcc: 'aakash@cheapass.in',
+            }, callback);
+          }
+        });
+      }
+    });
+  },
+  sendMailer(users, callback) {
+        // pass to this method an array of user emails
+    emailTemplates(templatesDir, (err, template) => {
+      if (err) {
+        callback(err);
+      } else {
+        async.eachLimit(users, 500, (user, asyncEachCb) => {
+          template('android_app', user, (err, html) => {
+            if (err) {
+              asyncEachCb(err);
+            } else {
+              sendEmail({
+                subject: '💥🎉🎊Launching Cheapass Android App 🎂✨💞',
+                html,
+                to: user.email,
+                provider: 'mailgun',
+              }, asyncEachCb);
+            }
+          });
+        }, () => {
+          callback(null, 'emails sent');
+        });
+      }
+    });
+  },
+  sendDailyReport(alerts, callback) {
+    emailTemplates(templatesDir, (err, template) => {
+      if (err) {
+        callback(err);
+      } else {
+        const locals = {
+          alerts,
+          email: 'pisceanaish@gmail.com',
+        };
+
+        template('report', locals, (err, html) => {
+          if (err) {
+            callback(err);
+          } else {
+            sendEmail({
+              subject: 'Cheapass - Pucchis Due Report',
+              html,
+              to: locals.email,
+              cc: 'aakash@cheapass.in',
+            }, callback);
+          }
+        });
+      }
+    });
+  },
+  sendAmazonSalesReport(imagesPathnames, callback) {
+    emailTemplates(templatesDir, (err, template) => {
+      if (err) {
+        callback(err);
+      } else {
+        const locals = {
+          images: imagesPathnames,
+          email: 'aakash.lpin@gmail.com',
+        };
+
+        template('amazon-report', locals, (err, html) => {
+          if (err) {
+            callback(err);
+          } else {
+            sendEmail({
+              subject: 'Cheapass | Amazon Earnings',
+              html,
+              to: locals.email,
+            }, callback);
+          }
+        });
+      }
+    });
+  },
+  sendAlertsSuspensionNotifier(userAlerts, callback) {
+    emailTemplates(templatesDir, (err, template) => {
+      if (err) {
+        callback(err);
+      } else {
+        const emails = Object.keys(userAlerts);
+        async.eachLimit(emails, 2, (email, asyncOneCb) => {
+          const locals = {
+            email,
+            baseUrl: process.env.SERVER,
+            alerts: userAlerts[email],
+          };
+
+          template('suspension', locals, (err, html) => {
+            if (err) {
+              callback(err);
+            } else {
+              sendEmail({
+                subject: '[IMPORTANT] Cheapass | Old Alerts Suspension',
+                html,
+                to: email,
+              }, () => {
+                logger.log('info', `[sendAlertsSuspensionNotifier] send email to ${email}`);
+              });
+            }
+            asyncOneCb(err);
+          });
+        }, (err) => {
+          if (err) {
+            logger.log('error', `[sendAlertsSuspensionNotifier] failed with ${err}`);
+          } else {
+            logger.log('info', '[sendAlertsSuspensionNotifier] successfully executed');
+          }
+        });
+      }
+    });
+  },
 };

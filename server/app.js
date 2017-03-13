@@ -1,33 +1,38 @@
-'use strict';
-
 require('newrelic');
 
-var express = require('express'),
-    mongoose = require('mongoose'),
-    fs = require('fs'),
-    config = require('./config/config');
+require('dotenv').config();
+
+const express = require('express');
+const mongoose = require('mongoose');
+const fs = require('fs');
+const config = require('./config/config');
+const logger = require('./logger').logger;
 
 mongoose.Promise = global.Promise;
-mongoose.connect(config.db);
-var db = mongoose.connection;
-db.on('error', function () {
-    throw new Error('unable to connect to database at ' + config.db);
+mongoose.connect(process.env.DB_CONNECTION, {
+  server: {
+    connectTimeoutMS: 30000,
+    socketTimeoutMS: 30000,
+  },
+});
+const db = mongoose.connection;
+db.on('error', () => {
+  throw new Error(`unable to connect to database at ${process.env.DB_CONNECTION}`);
 });
 
-var modelsPath = __dirname + '/app/models';
-fs.readdirSync(modelsPath).forEach(function (file) {
-    if (file.indexOf('.js') >= 0) {
-        require(modelsPath + '/' + file);
-    }
+const modelsPath = `${__dirname}/app/models`;
+fs.readdirSync(modelsPath).forEach((file) => {
+  if (file.indexOf('.js') >= 0) {
+    require(`${modelsPath}/${file}`);
+  }
 });
 
-var jobs = require('./app/controllers/jobs');
-jobs.init();
+require('./app/startup');
 
-var app = express();
+const app = express();
 require('./config/express')(app, config);
 require('./config/routes')(app);
 require('./auth');
 
-app.listen(config.port);
-console.log(config.app.name + ' running ');
+app.listen(process.env.PORT);
+logger.log(`${config.app.name} running `);
