@@ -1,5 +1,4 @@
 const request = require('request');
-// const fs = require('fs');
 const parser = require('cheerio');
 const config = require('../../config/config');
 const amazonScraper = require('../sellers/amazon');
