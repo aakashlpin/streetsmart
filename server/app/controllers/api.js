@@ -478,36 +478,6 @@ module.exports = {
         }
         logger.log('info', 'unsubscribed user', dbQuery);
       });
-
-        // } else if (queryParams.email) {
-        //     //unsubscribe all products for this email
-        //     dbQuery = {
-        //         email: decodeURIComponent(queryParams.email)
-        //     };
-        //
-        //     var sellers = _.keys(config.sellers);
-        //     async.each(sellers, function(seller, asyncCb) {
-        //         var SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
-        //         SellerJobModel.removeJob(dbQuery, function(err, items) {
-        //             logger.log('info', 'unsubscribed user for seller', {seller: seller, items: items});
-        //             asyncCb(err);
-        //         });
-        //     }, function(err) {
-        //         if (err) {
-        //             if (req.xhr) {
-        //                 res.json({error: 'A request has been sent to admin to unsubscribe this product. Sorry for the inconvenience.'});
-        //             } else {
-        //                 res.redirect('/500');
-        //             }
-        //             logger.log('error', 'error unsubscribing for data', dbQuery);
-        //             return;
-        //         }
-        //         if (req.xhr) {
-        //             res.json({status: 'ok'});
-        //         } else {
-        //             res.redirect('/unsubscribed');
-        //         }
-        //     });
     } else if (req.xhr) {
       res.json({ error: 'Invalid Request' });
     } else {
@@ -680,6 +650,25 @@ module.exports = {
           }
         }
       );
+  },
+  hikePrices(callback) {
+    const { sellers } = config;
+    async.eachSeries(Object.keys(sellers), (seller, asyncEachCb) => {
+      const SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
+      const adminEmailIds = process.env.ADMIN_EMAIL_IDS.split(',');
+      SellerJobModel
+      .update(
+        { email: { $in: adminEmailIds } },
+        { $inc: { currentPrice: 500, alertToPrice: 300, alertFromPrice: 400 } },
+        { multi: true },
+        (err, updatedDocs) => {
+          asyncEachCb(err);
+          logger.log('hiked prices for admin email ids', updatedDocs);
+        }
+      );
+    }, (err) => {
+      callback(err);
+    });
   },
   ping(req, res) {
     // to test if server is up
