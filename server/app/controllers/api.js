@@ -140,7 +140,7 @@ module.exports = {
     }, (err, crawledInfo) => {
       if (err) {
         logger.log('error', 'processing URL from UI failed', { error: err });
-        return res[resMethod]({ error: err.error });
+        return res[resMethod]({ error: 'Ugh, the page couldn\'t be processed. Try again?' });
       }
 
       const {
