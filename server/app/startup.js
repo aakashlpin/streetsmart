@@ -136,7 +136,9 @@ function setup() {
     timeZone: 'Asia/Kolkata'
   });
 
-  bgTask.processAllProducts();
+  setTimeout(() => {
+    bgTask.processAllProducts();
+  }, 2 * 60 * 1000);
 }
 
 setup();
