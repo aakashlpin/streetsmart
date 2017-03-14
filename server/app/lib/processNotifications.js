@@ -117,12 +117,16 @@ function sendNotifications({ email }, emailProduct) {
           to: userDoc.androidDeviceToken,
         }),
       })
+      .then((response) => {
+        logger.log({ fcmResponse: response });
+        return response;
+      })
       .then(response => response.json())
       .then((response) => {
         logger.log('info', 'push notification response from Firebase', response);
       })
       .catch((e) => {
-        logger.log('error sending push notification ', e);
+        logger.log('fcm error sending push notification ', e);
       });
     }
 
@@ -147,12 +151,16 @@ function sendNotifications({ email }, emailProduct) {
           }, emailProduct),
         }),
       })
+      .then((response) => {
+        logger.log({ parseResponse: response });
+        return response;
+      })
       .then(response => response.json())
       .then((response) => {
         logger.log('push notification response from parse', response);
       })
       .catch((e) => {
-        logger.log('error sending push notification ', e);
+        logger.log('parse error sending push notification ', e);
       });
     }
   });
