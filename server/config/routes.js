@@ -139,6 +139,15 @@ module.exports = function routes(app) {
     });
   });
 
+  app.get('/hikeprices', (req, res) => {
+    api.hikePrices((err) => {
+      if (err) {
+        return res.json({ err });
+      }
+      res.json({ status: 'ok' });
+    });
+  });
+
   app.use((req, res) => {
     res.status(404).render('404', { title: '404' });
   });
