@@ -4,9 +4,9 @@ const processNotifications = require('./processNotifications');
 const dbConnections = require('./dbConnections');
 const sellerUtils = require('../utils/seller');
 const logger = require('../../logger').logger;
-const Store = require('./store').Store;
+// const Store = require('./store').Store;
 
-const urlDataStore = new Store();
+// const urlDataStore = new Store();
 
 const { jobModelConnections, priceHistoryConnections } = dbConnections;
 
@@ -91,41 +91,41 @@ function processJob(jobData, done) {
   2. ...
   **/
 
-  urlDataStore.get(productURL, (err, urlData) => {
-    if (!err && urlData) {
-      return updateStorageAndSendNotifications(_.extend({ id }, urlData, data));
+  // urlDataStore.get(productURL, (err, urlData) => {
+  //   if (!err && urlData) {
+  //     return updateStorageAndSendNotifications(_.extend({ id }, urlData, data));
+  //   }
+
+  processUrl({ productURL, seller }, (err, processedData) => {
+    if (err) {
+      /*
+      there could be plenty of reasons for this -
+      1. network failure
+      2. proxy limit exhausted
+      3. endpoint unavailable - 404
+      4. data not available in parseable format
+      5. ...you get the idea
+      */
+      logger.log('Job Errored', { id, err });
+      if (err.statusCode === 404) {
+        jobModelConnections[seller]
+        .update({ _id }, { $set: { suspended: true } }, {}, updateErr =>
+          done(updateErr)
+        );
+        return;
+      }
+      return done(err.error);
     }
 
-    processUrl({ productURL, seller }, (err, processedData) => {
-      if (err) {
-        /*
-        there could be plenty of reasons for this -
-        1. network failure
-        2. proxy limit exhausted
-        3. endpoint unavailable - 404
-        4. data not available in parseable format
-        5. ...you get the idea
-        */
-        logger.log('Job Errored', { id, err });
-        if (err.statusCode === 404) {
-          jobModelConnections[seller]
-          .update({ _id }, { $set: { suspended: true } }, {}, updateErr =>
-            done(updateErr)
-          );
-          return;
-        }
-        return done(err.error);
-      }
+    logger.log(`Job scraped successfully for ${seller} ${productURL} `);
 
-      logger.log(`Job scraped successfully for ${seller} ${productURL} `);
+    // urlDataStore.set(productURL, processedData);
 
-      urlDataStore.set(productURL, processedData);
+    updateStorageAndSendNotifications(_.extend({ id }, processedData, data));
 
-      updateStorageAndSendNotifications(_.extend({ id }, processedData, data));
-
-      return done();
-    });
+    return done();
   });
+  // });
 }
 
 module.exports = processJob;
