@@ -26,7 +26,7 @@ const scrapers = {
 function processUrl({ productURL, seller }, cb) {
   const requestOptions = {
     url: productURL,
-    timeout: 10000,
+    timeout: 30000,
   };
 
   const sellerConfig = config.sellers[seller];
@@ -35,20 +35,30 @@ function processUrl({ productURL, seller }, cb) {
     requiresUserAgent,
     requiresCookies,
     requiresProxy,
+    hasMicroService,
   } = sellerConfig;
 
-  if (requiresUserAgent) {
-    requestOptions.headers = {
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+  if (hasMicroService) {
+    requestOptions.method = 'POST';
+    requestOptions.url = process.env[sellerConfig.proxyKey];
+    requestOptions.form = {
+      API_KEY: 'fuck_you_flipkart',
+      url: productURL,
     };
-  }
+  } else {
+    if (requiresUserAgent) {
+      requestOptions.headers = {
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
+      };
+    }
 
-  if (requiresCookies) {
-    requestOptions.jar = true;
-  }
+    if (requiresCookies) {
+      requestOptions.jar = true;
+    }
 
-  if (requiresProxy && process.env.PAID_PROXY) {
-    requestOptions.proxy = process.env.PAID_PROXY;
+    if (requiresProxy && process.env[sellerConfig.proxyKey]) {
+      requestOptions.proxy = process.env[sellerConfig.proxyKey];
+    }
   }
 
   request(requestOptions, (requestError, response, body) => {
@@ -67,8 +77,13 @@ function processUrl({ productURL, seller }, cb) {
 
       switch (response.statusCode) {
         case 200: {
-          const htmlBody = parser.load(body);
-          const scrapedData = scrapers[seller](htmlBody);
+          let scrapedData;
+          if (hasMicroService) {
+            scrapedData = JSON.parse(body);
+          } else {
+            const htmlBody = parser.load(body);
+            scrapedData = scrapers[seller](htmlBody);
+          }
 
           if (!scrapedData) {
             scrapingError.error = `Unable to process from ${productURL} `;
@@ -78,7 +93,6 @@ function processUrl({ productURL, seller }, cb) {
           const { name, price, image } = scrapedData || {};
           if (!(name && price)) {
             scrapingError.error = `Unable to extract information from ${productURL} `;
-            // fs.writeFileSync(`${seller}_${+new Date()}.html`, body);
             return cb(scrapingError);
           }
 
