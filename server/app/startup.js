@@ -98,6 +98,14 @@ queue.on('error', (err) => {
 
 queue.watchStuckJobs();
 
+queue.active((err, ids) => {
+  ids.forEach((id) => {
+    kue.Job.get(id, (err, job) => {
+      job.inactive();
+    });
+  });
+});
+
 process.once('uncaughtException', (err) => {
   console.error('Something bad happened: ', err);
   queue.shutdown(1000, (err2) => {
