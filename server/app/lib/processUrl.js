@@ -24,11 +24,7 @@ const scrapers = {
 };
 
 function processUrl({ productURL, seller }, cb) {
-  const requestOptions = {
-    url: productURL,
-    timeout: 30000,
-  };
-
+  const requestOptions = {};
   const sellerConfig = config.sellers[seller];
 
   const {
@@ -39,13 +35,17 @@ function processUrl({ productURL, seller }, cb) {
   } = sellerConfig;
 
   if (hasMicroService) {
-    requestOptions.method = 'POST';
     requestOptions.url = process.env[sellerConfig.proxyKey];
+    requestOptions.timeout = 60000;
+    requestOptions.method = 'POST';
     requestOptions.form = {
       API_KEY: 'fuck_you_flipkart',
       url: productURL,
     };
   } else {
+    requestOptions.url = productURL;
+    requestOptions.timeout = 30000;
+
     if (requiresUserAgent) {
       requestOptions.headers = {
         'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/56.0.2924.87 Safari/537.36',
@@ -101,6 +101,11 @@ function processUrl({ productURL, seller }, cb) {
             productImage: image,
             productPrice: Number(price),
           });
+        }
+
+        case 403: {
+          scrapingError.error = `Page 403ed ${productURL} `;
+          return cb(scrapingError, null);
         }
 
         case 404: {
