@@ -234,31 +234,6 @@ module.exports = {
       }
     });
   },
-  sendDailyReport(alerts, callback) {
-    emailTemplates(templatesDir, (err, template) => {
-      if (err) {
-        callback(err);
-      } else {
-        const locals = {
-          alerts,
-          email: 'pisceanaish@gmail.com',
-        };
-
-        template('report', locals, (err, html) => {
-          if (err) {
-            callback(err);
-          } else {
-            sendEmail({
-              subject: 'Cheapass - Pucchis Due Report',
-              html,
-              to: locals.email,
-              cc: 'aakash@cheapass.in',
-            }, callback);
-          }
-        });
-      }
-    });
-  },
   sendAmazonSalesReport(imagesPathnames, callback) {
     emailTemplates(templatesDir, (err, template) => {
       if (err) {
@@ -320,4 +295,32 @@ module.exports = {
       }
     });
   },
+  sendEmailThatTheURLCannotBeAdded({ email, productURL, seller }, callback) {
+    emailTemplates(templatesDir, (err, template) => {
+      if (err) {
+        return callback(err);
+      }
+
+      const locals = {
+        email,
+        productURL,
+        seller,
+      };
+
+      template('unaddable', locals, (err, html) => {
+        if (err) {
+          callback(err);
+        } else {
+          sendEmail({
+            subject: 'Cheapass India | Unable to set the price drop alert',
+            html,
+            to: email,
+          }, () => {
+            logger.log('info', `[sendEmailThatTheURLCannotBeAdded] send email to ${email}`);
+            return callback(null);
+          });
+        }
+      });
+    });
+  }
 };

@@ -24,6 +24,7 @@
     "es6-promise": "^4.0.5",
     "express": "~4.14.0",
     "express-session": "^1.15.0",
+    "isemail": "^2.2.1",
     "isomorphic-fetch": "^2.2.1",
     "jade": "~1.11.0",
     "kue": "^0.11.5",

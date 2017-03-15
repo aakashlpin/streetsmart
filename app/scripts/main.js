@@ -6,7 +6,7 @@
 
 	setInterval(function() {
 		App.Counters.init();
-	}, 10000);
+	}, 20000);
 
 	App.UrlForm.init();
 	App.Counters.init();
