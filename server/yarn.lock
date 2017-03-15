@@ -2040,6 +2040,10 @@ isarray@^1.0.0, isarray@~1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/isarray/-/isarray-1.0.0.tgz#bb935d48582cba168c06834957a54a3e07124f11"
 
+isemail@^2.2.1:
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/isemail/-/isemail-2.2.1.tgz#0353d3d9a62951080c262c2aa0a42b8ea8e9e2a6"
+
 isexe@^1.1.1:
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/isexe/-/isexe-1.1.2.tgz#36f3e22e60750920f5e7241a476a8c6a42275ad0"
@@ -2380,9 +2384,9 @@ mailcomposer@^4.0.1:
     buildmail "4.0.1"
     libmime "3.0.0"
 
-mailgun-js@^0.8.0:
-  version "0.8.0"
-  resolved "https://registry.yarnpkg.com/mailgun-js/-/mailgun-js-0.8.0.tgz#3b40210d5537f1dcc3f5612b23b60b9bbada0b75"
+mailgun-js@0.8.2:
+  version "0.8.2"
+  resolved "https://registry.yarnpkg.com/mailgun-js/-/mailgun-js-0.8.2.tgz#a108ceda3145a93cd616b0472c0566f7456b6f34"
   dependencies:
     async "~2.1.2"
     debug "~2.2.0"

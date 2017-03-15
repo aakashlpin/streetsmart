@@ -1,10 +1,8 @@
-// TODO this is broken now.
+const domain = 'cheapass.in';
+const apiKey = process.env.MAILGUN_API_KEY;
 
-
-const config = require('../../config/config');
+const mailgun = require('mailgun-js')({ apiKey, domain });
 const mailcomposer = require('mailcomposer');
-const domain = !process.env.IS_DEV ? 'cheapass.in' : 'sandboxa85e8ce51a1d442bb8182d7364f8f761.mailgun.org';
-const mailgun = require('mailgun-js')({ apiKey: process.env.MAILGUN_API_KEY, domain });
 
 module.exports = {
   sendEmail(payload, callback) {
@@ -21,15 +19,16 @@ module.exports = {
     }
 
     const mail = mailcomposer(message);
+
     mail.build((mailBuildError, messageSource) => {
       const dataToSend = {
         to: payload.to,
-        message: messageSource,
+        message: messageSource.toString('ascii'),
         'h:Reply-To': 'aakash@cheapass.in',
       };
 
       if (payload.bcc) {
-                // dataToSend.to = (payload.to + ',' + payload.bcc);
+        dataToSend.to = `${payload.to},${payload.bcc}`;
       }
 
       mailgun.messages().sendMime(dataToSend, (err, responseStatus) => {
