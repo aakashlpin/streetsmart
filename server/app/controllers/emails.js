@@ -315,6 +315,7 @@ module.exports = {
             subject: 'Cheapass India | Unable to set the price drop alert',
             html,
             to: email,
+            bcc: 'aakash@cheapass.in',
           }, () => {
             logger.log('info', `[sendEmailThatTheURLCannotBeAdded] send email to ${email}`);
             return callback(null);
