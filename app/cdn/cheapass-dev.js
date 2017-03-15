@@ -56,121 +56,51 @@
 
             window.cheapass = function() {
                 var caPopup = '#caPopup';
+
                 var domTop =
-                '<div id="caPopup">' +
-                '<a id="caClose" class="caClose" title="Close" style="position: absolute; left: -10px; top: -10px;"><div class="circle" style="font-size: 17px; border: 2px solid #444546; padding: 0 0 0 0; width: 26px; height: 26px; background-color:#444546; color: #fff; border-radius: 50px; text-align: center;"> x </div></a>' +
-                '<a target="_blank" href="http://local.cheapass.in"><img class="caPopupLogo" src="http://local.cheapass.in/cdn/cheapass.png" /></a>';
-                var domLoader =
-                '<div class="caPopupLoader">'+
-                '<img src="http://local.cheapass.in/cdn/loader.gif" height="45px" width="45px">'+
-                '</div>';
+                  '<div id="caPopup">' +
+                    '<a id="caClose" class="caClose" title="Close" style="position: absolute; left: -10px; top: -10px;"><div class="circle" style="font-size: 17px; border: 2px solid #444546; padding: 0 0 0 0; width: 26px; height: 26px; background-color:#444546; color: #fff; border-radius: 50px; text-align: center;"> x </div></a>' +
+                    '<a target="_blank" href="http://local.cheapass.in"><img class="caPopupLogo" src="http://local.cheapass.in/cdn/cheapass.png" /></a>';
+
                 var domFinePrintSeller =
-                '<p class="caFinePrint">Track changes in price. Got notified by email.</p>';
+                  '<p class="caFinePrint">Get notified when the prices drop</p>';
+
                 var domFinePrintSite =
-                '<p class="caFinePrint">A Cheapass doesn\'t pay for stuff.</p>';
+                  '<p class="caFinePrint">A Cheapass doesn\'t pay for stuff.</p>';
+
                 var domBottom =
-                '</div>';
+                  '</div>';
 
                 var url = document.location.href;
+
                 //remove the popup if exists
-                removePopup();
-
-                preRequestHandler();
-
-                $.ajax({
-                    url: 'http://local.cheapass.in/inputurl',
-                    data: {url: url, jsonp: 1},
-                    dataType: 'jsonp',
-                    success: inputURLResponseHandler
-                });
-
-                function caClose() {
-                    $(caPopup).remove();
-                }
-
                 function removePopup() {
                     if ($(caPopup).length) {
                         $(caPopup).remove();
                     }
                 }
 
-                function preRequestHandler() {
-                    var dom = domTop + domFinePrintSeller + domLoader + domBottom;
-                    $('body').append(dom);
-                }
+                removePopup();
 
-                function inputURLResponseHandler(response) {
-                    removePopup();
-                    if (response.downloadURLs || response.downloadURL) {
-                        inputURLVideoDownloader(response.downloadURLs || response.downloadURL);
-                    } else {
-                        if (response.productPrice && response.productName) {
-                            inputURLSuccessHandler(response);
-                        } else {
-                            inputURLErrorHandler();
-                        }
-                    }
-                }
-
-                function inputURLVideoDownloader(urls) {
-                    var domBody = '<p class="caProductName">Click below to download</p>'+
-                    '<div class="caDownloadListWrapper"><ul class="caDownloadList">';
-                    if ($.isArray(urls)) {
-                        if (urls.length) {
-                            $.each(urls, function(index, url) {
-                                domBody += '<li><a target="_blank" download="'+ url.name +'" href="' + url.downloadURL + '">' + url.name + '</a></li>';
-                            });
-                        } else {
-                            domBody += '<li>Nope. Sorry I could not find any download links for this page.</li>';
-                        }
-                    } else {
-                        domBody += '<li><a target="_blank" href="' + urls + '">Download link</a></li>';
-                    }
-                    domBody += '</ul></div>';
-
-                    var dom = domTop + domFinePrintSite + domBody + domBottom;
-                    $('body').append(dom);
-                    $('#caClose').on('click', caClose);
-                }
-
-                function inputURLErrorHandler() {
-                    var dom = domTop + domFinePrintSeller +
-                    '<div id="caResponseNotification" class="caResponseNotification">'+
-                    '<p class="caTextError" style="margin-bottom: 15px;">Duh! I couldn\'t process this page. Hit the button to try again, maybe?</p>'+
-                    '<p>BTW, Is that a product page? <a href="mailto:aakash@cheapass.in">Let me know</a>, please?</p>'+
-                    '</div>'+
-                    domBottom;
-
-                    $('body').append(dom);
-                    $('#caClose').on('click', caClose);
-                }
-
-                function inputURLSuccessHandler(response) {
-                    var name = response.productName,
-                    price = response.productPrice,
-                    image = response.productImage;
-
-                    var dom = domTop + domFinePrintSeller +
-                    '<h1 class="caProductName">'+ name +'</h1>' +
-                    '<p class="caProductPrice">Price: Rs. '+ price +'/-</p>' +
-                    '<form id="caQueueForm" class="caQueueForm">' +
-                    '<input type="hidden" name="productName" value="' + name + '" />' +
-                    '<input type="hidden" name="productURL" value="' + url + '" />' +
-                    '<input type="hidden" name="currentPrice" value="' + price + '" />' +
-                    '<input type="hidden" name="productImage" value="' + image + '" />' +
-                    '<input type="hidden" name="source" value="bookmarklet" />' +
-                    '<input type="hidden" name="jsonp" value="1" />' +
-                    '<div class="caFormGroup">' +
-                    '<label for="caFormUserEmail">Email</label>' +
-                    '<input required autofocus type="email" class="email" name="email" placeholder="Email" />' +
-                    '</div>' +
-                    '<div class="caFormGroup">' +
-                    '<input type="submit" value="Keep me notified" />' +
-                    '</div>' +
-                    '</form>'+
-                    '<div id="caResponseNotification" class="caResponseNotification" style="display:none">'+
-                    '<p></p>'+
-                    '</div>' +
+                function showEmailInputToQueueProduct() {
+                    var dom =
+                      domTop +
+                      domFinePrintSeller +
+                      '<form id="caQueueForm" class="caQueueForm">' +
+                        '<input type="hidden" name="url" value="' + url + '" />' +
+                        '<input type="hidden" name="source" value="bookmarklet" />' +
+                        '<input type="hidden" name="jsonp" value="1" />' +
+                        '<div class="caFormGroup">' +
+                          '<label for="caFormUserEmail">Email</label>' +
+                          '<input required autofocus type="email" class="email" name="email" placeholder="Email" />' +
+                        '</div>' +
+                        '<div class="caFormGroup">' +
+                          '<input type="submit" value="Set Alert" />' +
+                        '</div>' +
+                      '</form>'+
+                      '<p style="font-size: 12px; color: #ababab; font-style: italic;">By clicking "Set Alert", you allow us to send price drop alerts on this email id.</p>'+
+                      '<p style="font-size: 12px; color: #ababab; font-style: italic;">You\'ll receive an email to verify your email id if you are a new user.</p>'+
+                      '<p></p>'+
                     domBottom;
 
                     $('body').append(dom);
@@ -183,7 +113,9 @@
                     }
 
                     $('#caQueueForm').on('submit', handleQueueFormSubmit);
-                    $('#caClose').on('click', caClose);
+                    $('#caClose').on('click', function () {
+                      removePopup();
+                    });
                 }
 
                 function handleQueueFormSubmit(e) {
@@ -192,7 +124,7 @@
                     $.ajax({
                         url: 'http://local.cheapass.in/queue?' + payload,
                         dataType: 'jsonp',
-                        success: queueSuccessHandler
+                        success: queueResponseHandler,
                     });
 
                     if ('localStorage' in window) {
@@ -203,10 +135,36 @@
                     $('#caQueueForm input').attr('disabled', 'disabled');
                 }
 
-                function queueSuccessHandler(res) {
-                    var message = res.status;
-                    $('#caResponseNotification').find('p').addClass('caTextSuccess').text(message).end().fadeIn();
+                function queueResponseHandler(res) {
+                    var isError = res.error;
+                    var classname = isError ? 'caTextError' : 'caTextSuccess';
+                    var message = isError ? res.error : res.status;
+
+                    var messageDOM = '<p class="'+ classname +'">' + message + '</p>'
+
+                    $('#caQueueForm')
+                    .find('.caTextError')
+                    .remove();
+
+                    if (isError) {
+                      $('#caQueueForm')
+                      .append(messageDOM);
+
+                      $('#caQueueForm input').removeAttr('disabled');
+
+                    } else {
+                      $('#caQueueForm')
+                      .find('input[type="submit"]')
+                      .remove()
+                      .end()
+                      .append(
+                        messageDOM
+                      )
+                    }
+
                 }
+
+                showEmailInputToQueueProduct();
             };
 
             window.cheapass();

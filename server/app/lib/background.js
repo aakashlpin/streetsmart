@@ -6,7 +6,6 @@ const sellerUtils = require('../utils/seller');
 const async = require('async');
 const moment = require('moment');
 const logger = require('../../logger').logger;
-const Deal = require('../lib/deals').Deal;
 const mongoose = require('mongoose');
 const UserLookup = require('./userLookup');
 const Emails = require('../controllers/emails');
@@ -16,26 +15,9 @@ const kue = require('kue');
 const UserModel = mongoose.model('User');
 const initialBatchSize = 50;
 const futureBatchSize = 20;
-let currentDeal;
 
 let processedData = [];
 let totalPages = 0;
-
-function refreshDeal(callback) {
-  callback = callback || function () {};
-
-  let deal = new Deal('amazon', 'banner');
-  deal.getDeal((err, dealObj) => {
-    if (!err) {
-      currentDeal = dealObj;
-      callback(null, currentDeal);
-      deal = null;
-    } else {
-      callback(err, null);
-      deal = null;
-    }
-  });
-}
 
 module.exports = {
   getFullContactByEmail() {
@@ -170,17 +152,6 @@ module.exports = {
   },
   getTotalPages() {
     return totalPages;
-  },
-  getCurrentDeal(callback) {
-    if (currentDeal) {
-      callback(null, currentDeal);
-    } else {
-      refreshDeal(callback);
-    }
-  },
-  createAndSendDailyReport() {
-		// fake some numbers right now.
-    Emails.sendDailyReport(_.random(900, 1200), () => {});
   },
   generateAmazonSalesReport(callback) {
     callback = callback || function () {};
@@ -352,5 +323,4 @@ module.exports = {
       });
     });
   },
-  refreshDeal,
 };

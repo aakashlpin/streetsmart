@@ -1,5 +1,4 @@
-const processUrl = require('../lib/processUrl');
-const sites = require('./sites');
+const kue = require('kue');
 const Emails = require('./emails');
 const _ = require('underscore');
 _.str = require('underscore.string');
@@ -10,8 +9,10 @@ const logger = require('../../logger').logger;
 const sellerUtils = require('../utils/seller');
 const async = require('async');
 const bgTask = require('../lib/background');
-const request = require('request');
+const isEmail = require('isemail');
+const queueLib = require('../lib/queue');
 
+const { queue, getUserJobsQueueNameForSeller } = queueLib;
 const server = process.env.SERVER;
 const Job = mongoose.model('Job');
 const User = mongoose.model('User');
@@ -33,270 +34,95 @@ function getResponseMethodAndManipulateHeaders(queryParams, res) {
   return 'json';
 }
 
-function createJob(data, callback) {
-    // data =>
-    // {
-    //     email: String,
-    //     currentPrice: Number,
-    //     productName: String,
-    //     productURL: String,
-    //     productImage: String,
-    //     seller: String,
-    //     source: String
-    // }
+function addJobToQueue(data, cb) {
+  /**
+  data: {seller, email, productURL, source}
+  **/
 
-  callback = callback || function () {};
+  const { seller, email, productURL, source } = data;
+  const queueName = getUserJobsQueueNameForSeller(seller);
+  logger.log('info', 'adding user job to queue', queueName);
 
-  User.findOne({ email: data.email }, (err, userQueryResult) => {
-    if (err) {
-      logger.log('error', 'error finding email in user model', { error: err, email: data.email });
-      return;
+  queue
+  .create(queueName, _.extend({}, data, {
+    title: `Processing ${productURL} from ${source}`,
+  }))
+  .removeOnComplete(true)
+  .attempts(3)
+  .backoff(true)
+  .save((saveErr) => {
+    if (saveErr) {
+      logger.log('error', 'Unable to add job to queue', queueName, saveErr);
+      return cb('Sorry, Please try again later.');
     }
+    logger.log('Added job to queue', queueName, data);
+    return cb(null, 'Fantastic! Check your email for further details.');
+  });
 
-    const isEmailVerified = userQueryResult ? (!!userQueryResult.email) : false;
-    const emailObject = { email: data.email };
-    let responseMessage = '';
-    let responseCode;
-
-    if (!isEmailVerified) {
-      logger.log('info', 'new user unverified', { email: data.email });
-      responseMessage = 'Please verify your email id to activate this alert.';
-      responseCode = 'pending';
-
-      Emails.sendVerifier(emailObject, data, (err, status) => {
-        if (err) {
-          logger.log('error', 'error sending verification email', { error: err, email: emailObject.email });
-          return;
-        }
-        logger.log('info', 'verification email triggered', { status, email: emailObject.email });
-      });
-    } else {
-      logger.log('info', 'returning user', { email: userQueryResult.email });
-      responseMessage = 'Awesome! Price drop alert activated.';
-      responseCode = 'verified';
-    }
-
-    const jobData = {
-      email: emailObject.email,
-      currentPrice: data.currentPrice,
-      productName: data.productName,
-      productURL: data.productURL,
-      productImage: data.productImage,
-      seller: data.seller,
-      source: data.source,
-      isEmailVerified,    // this is needed for some checks while creating a new job
-    };
-
-    Job.post({ query: jobData }, (err, createdJob) => {
-      if (err || !createdJob) {
-        logger.log('error', 'error adding job to db', { error: err });
-        return callback(null, {
-          status: err,
-          code: 'error',
-        });
+  queue.on('job failed', (id) => {
+    kue.Job.get(id, (err, job) => {
+      if (err) {
+        return;
       }
-
-      // increase the products counter in the db
-      sellerUtils.increaseCounter('itemsTracked');
-      callback(null, {
-        status: responseMessage,
-        code: responseCode,
-      });
-
-      if (isEmailVerified) {
-        emailObject._id = userQueryResult._id;
-        Emails.sendHandshake(emailObject, data, (err, status) => {
-          if (err) {
-            logger.log('error', 'error sending acceptance email', { error: err, email: emailObject.email });
-            return;
+      if (job.type.indexOf('userJobs-') !== -1) {
+        logger.log('job failed from queue', { type: job.type });
+        Emails.sendEmailThatTheURLCannotBeAdded(
+          { seller, email, productURL },
+          (err) => {
+            if (err) {
+              logger.log('error', 'unable to Emails.sendEmailThatTheURLCannotBeAdded', { data }, err);
+            }
           }
-          logger.log('info', 'acceptance email triggered', { status, email: emailObject.email });
-        });
+        );
       }
     });
   });
 }
 
 module.exports = {
-  processInputURL(req, res) {
-    const url = req.query.url;
-    const processingMode = sellerUtils.getProcessingMode(url);
-    if (processingMode === 'site') {
-      // video downloader process. only via bookmarklet
-      sites.processSite(url, res);
-      return;
-    }
-
-    const resMethod = getResponseMethodAndManipulateHeaders(req.query, res);
-    const seller = sellerUtils.getSellerFromURL(url);
-
-    if (!config.sellers[seller]) {
-      return res[resMethod]({ error: 'Sorry! This website is not supported at the moment.' });
-    }
-
-    processUrl({
-      productURL: url,
-      seller,
-    }, (err, crawledInfo) => {
-      if (err) {
-        logger.log('error', 'processing URL from UI failed', { error: err });
-        return res[resMethod]({ error: 'Ugh, the page couldn\'t be processed. Try again?' });
-      }
-
-      const {
-        productPrice,
-        productName,
-        productImage,
-      } = crawledInfo;
-
-      res[resMethod]({
-        productPrice,
-        productName,
-        productImage,
-        seller: config.sellers[seller].name,
-      });
-    });
-  },
   processQueue(req, res) {
-    const productData = _.pick(req.query, ['currentPrice', 'productName',
-      'productURL', 'productImage']);
-    const user = _.pick(req.query, ['email']);
+    const { email, url } = req.query;
     const resMethod = getResponseMethodAndManipulateHeaders(req.query, res);
 
-    // Determine the seller here instead of UI
-    const seller = sellerUtils.getSellerFromURL(productData.productURL);
-    // check if legitimate seller
-    if (!sellerUtils.isLegitSeller(seller)) {
-      res[resMethod]({
-        status: 'Sorry! This website is not supported yet!',
-      });
-      return;
-    }
-
-    if (config.sellers[seller].hasDeepLinking) {
-      productData.productURL = sellerUtils.getDeepLinkURL(seller, productData.productURL);
-    }
-
-    productData.seller = seller;
-    productData.productURL = sellerUtils.getURLWithAffiliateId(productData.productURL);
-    productData.email = user.email;
-    if (isJSONPRequested(req.query)) {
-      productData.source = 'bookmarklet';
-    } else {
-      productData.source = 'onsite';
-    }
-
-    createJob(productData, (err, responseObj) => {
-      res[resMethod](responseObj);
-    });
-  },
-  setAlertFromURL(req, res) {
-        // dogfooding own apis => /inputurl and /queue
-    const payload = _.pick(req.query, ['url', 'email']);
-    if (!payload.url || !payload.email) {
-      return res.json({ error: 'Invalid Request' });
-    }
-
-    const inputRequestParams = {
-      url: `${server}/inputurl`,
-      json: true,
-      qs: payload, // only `url` is needed though
-    };
-
-    request(inputRequestParams, (error, response, body) => {
-      if (error) {
-        logger.log('error', 'error internally making request to /inputurl', error);
-        return res.json({ error: 'Something went wrong! Please try again.' });
+    isEmail.validate(email, {
+      checkDNS: true,
+      errorLevel: true,
+    }, (result) => {
+      if (result !== 0) {
+        return res.status(resMethod === 'jsonp' ? 200 : 403)[resMethod]({
+          error: 'Please enter a valid email id'
+        });
       }
-
-      if (body.error) {
-        return res.json({ error: body.error });
-      }
-
-            // at this step, we are sure that there is crawled information
-      const crawledData = body;
-      const queueRequestParams = {
-        url: `${server}/queue`,
-        json: true,
-                // sanitize the data as expected by /queue
-        qs: _.extend({}, crawledData, {
-          email: payload.email,
-          productURL: payload.url,
-          currentPrice: body.productPrice,
-        }),
-      };
-
-      request(queueRequestParams, (error, response, body) => {
-        if (error) {
-          logger.log('error', 'error internally making request to /queue', error);
-          return res.json({ error: 'Something went wrong! Please try again.' });
-        }
-                // body.code can be 'error', 'pending' or 'verified'
-        if (body.code === 'error') {
-          return res.json(body);
-        }
-
-        return res.json(_.extend({}, body, {
-          productName: crawledData.productName,
-          productImage: crawledData.productImage,
-        }));
-      });
-    });
-  },
-  copyTrack(req, res) {
-    const params = _.pick(req.query, ['id', 'seller', 'email', 'productURL']);
-        // check for all params
-    if (!params.id || !params.productURL || !params.seller || !params.email || params.id === 'undefined') {
-      return res.json({ error: 'Invalid Request' });
-    }
-        // check if seller param is valid
-    if (!sellerUtils.isLegitSeller(params.seller)) {
-      return res.json({ error: 'Invalid Seller' });
-    }
-
-    sellerUtils
-    .getSellerJobModelInstance(params.seller)
-    .find({ productURL: params.productURL })
-    .lean()
-    .exec((err, productURLDocs) => {
-      if (err || !productURLDocs) {
-        logger.log('error', 'error finding job in db when trying to copy track', _.extend({}, params, {
-          error: err,
-        }));
-            // if someone adds a track at the same time as OP unsubscribes it
-            // then this case would happen
-        return res.json({ error: 'Something went wrong! Visit the product page to set the price drop alert!' });
-      }
-
-      if (_.find(productURLDocs, productURLDoc => productURLDoc.email === params.email)) {
-        return res.json({
-          id: params.id,
-          error: 'You are already tracking this item',
+      // Determine the seller here instead of UI
+      const seller = sellerUtils.getSellerFromURL(url);
+      // check if legitimate seller
+      if (!sellerUtils.isLegitSeller(seller)) {
+        return res.status(resMethod === 'jsonp' ? 200 : 403)[resMethod]({
+          error: 'Sorry, You can\'t set an alert on this website',
         });
       }
 
-        // find the job requested from ui in the array
-      const jobDoc = _.find(
-        productURLDocs,
-        productURLDoc => productURLDoc._id.toHexString() === params.id
-      );
+      let productURL;
+      const queueData = {};
 
-      if (!jobDoc) {
-        return res.json({ error: 'Something went wrong! Visit the product page to set the price drop alert!' });
+      if (config.sellers[seller].hasDeepLinking) {
+        productURL = sellerUtils.getDeepLinkURL(seller, url);
       }
 
-        // remove the object id. let mongo create a new id
-      delete jobDoc._id;
+      queueData.seller = seller;
+      queueData.productURL = sellerUtils.getURLWithAffiliateId(productURL);
+      queueData.email = email;
+      queueData.source = isJSONPRequested(req.query) ? 'bookmarklet' : 'onsite';
 
-        // update the email id for new user
-      jobDoc.email = params.email;
-      jobDoc.seller = params.seller;
-      jobDoc.source = 'copy';
+      addJobToQueue(queueData, (err, response) => {
+        if (err) {
+          return res.status(resMethod === 'jsonp' ? 200 : 500)[resMethod]({
+            error: err,
+          });
+        }
 
-      createJob(jobDoc, (err, responseObj) => {
-        res.json({
-          status: responseObj.status,
-          id: params.id,
+        res[resMethod]({
+          status: response,
         });
       });
     });

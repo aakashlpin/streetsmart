@@ -20,7 +20,7 @@ const config = {
       hasDeepLinking: true,
       requiresProxy: true,
       hasMicroService: true,
-      isCronActive: false,
+      isCronActive: true,
     },
     amazon: {
       name: 'Amazon.in',

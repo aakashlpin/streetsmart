@@ -160,9 +160,8 @@
 			if (email) {
 				ProductTracks.initiateAddTrack({
 					email: email,
-					seller: seller,
-					productURL: productURL,
-					id: target.closest('.product-track').attr('id')
+					url: productURL,
+					source: 'copy'
 				});
 
 				analytics.track('Alert Set', {
@@ -174,9 +173,8 @@
 
 			} else {
 				ProductTracks.pendingTrackData = {
-					seller: seller,
-					productURL: productURL,
-					id: target.closest('.product-track').attr('id')
+					source: 'copy',
+					url: productURL
 				};
 
 				analytics.track('New User Using Copy', {

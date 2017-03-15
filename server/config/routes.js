@@ -34,10 +34,7 @@ module.exports = function routes(app) {
   // API
 
   // UI AJAX calls
-  app.get('/inputurl', api.processInputURL);
   app.get('/queue', api.processQueue);
-  app.get('/copy', api.copyTrack);
-  app.get('/alert', api.setAlertFromURL);
   app.get('/user/:email', api.getUserDetails);
   app.get('/user/verify/:email', api.resendVerificationEmail);
 

@@ -4,23 +4,16 @@ const CronJob = require('cron').CronJob;
 const config = require('../config/config');
 const sellerUtils = require('./utils/seller');
 const processJob = require('./lib/processJob');
+const processUserJob = require('./lib/processUserJob');
 const bgTask = require('./lib/background');
 const logger = require('../logger').logger;
+const queueLib = require('./lib/queue');
 
+const { queue, getSellerQueueKey, getUserJobsQueueNameForSeller } = queueLib;
 const { sellers } = config;
-
-function getSellerQueueKey(seller) {
-  return `scraper-${seller}`;
-}
-
-const queue = kue.createQueue();
-
-if (process.env.IS_DEV) {
-  kue.app.listen(process.env.KUE_PORT);
-}
+const sellerKeys = Object.keys(sellers);
 
 if (process.env.IS_CRON_ACTIVE) {
-  const sellerKeys = Object.keys(sellers);
   const activeSellerKeys =
     sellerKeys
       .filter(key => sellers[key].isCronActive);
@@ -68,15 +61,15 @@ if (process.env.IS_CRON_ACTIVE) {
 
             sellerJobsMappedWithSeller.forEach((jobData) => {
               queue
-                .create(jobQueueName, jobData)
-                .removeOnComplete(true)
-                .priority(process.env.ADMIN_EMAIL_IDS.indexOf(jobData.email) > -1 ? 'high' : 'normal')
-                .save((saveErr) => {
-                  if (saveErr) {
-                    return logger.log('error', 'Unable to add job to queue', saveErr);
-                  }
-                  return logger.log('Added job to queue', jobQueueName, jobData);
-                });
+              .create(jobQueueName, jobData)
+              .removeOnComplete(true)
+              .priority(process.env.ADMIN_EMAIL_IDS.indexOf(jobData.email) > -1 ? 'high' : 'normal')
+              .save((saveErr) => {
+                if (saveErr) {
+                  return logger.log('error', 'Unable to add job to queue', saveErr);
+                }
+                return logger.log('Added job to queue', jobQueueName, jobData);
+              });
             });
           });
         });
@@ -90,6 +83,15 @@ if (process.env.IS_CRON_ACTIVE) {
     );
   });
 }
+
+sellerKeys.forEach((seller) => {
+  const queueName = getUserJobsQueueNameForSeller(seller);
+  logger.log('info', 'setting up user job queue processing', queueName);
+  const concurrency = config.sellers[seller].hasMicroService ? 1 : 4;
+  queue.process(queueName, concurrency, (job, done) =>
+    processUserJob(job, done)
+  );
+});
 
 queue.on('error', (err) => {
   logger.log('Oops..', err);
@@ -138,7 +140,7 @@ function setup() {
 
   setTimeout(() => {
     bgTask.processAllProducts();
-  }, 2 * 60 * 1000);
+  }, Number(process.env.INIT_HOME_PAGE_FEED_AFTER_MS));
 }
 
 setup();
