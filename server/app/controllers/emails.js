@@ -5,11 +5,11 @@ const _ = require('underscore');
 const config = require('../../config/config');
 const logger = require('../../logger').logger;
 const ses = require('./ses');
-const mandrill = require('./mandrill');
 const mailgun = require('./mailgun');
 
 const templatesDir = path.resolve(__dirname, '..', 'templates');
 const server = process.env.SERVER;
+const emailService = process.env.EMAIL_SERVICE;
 
 function sendEmail(payload, callback) {
   if (process.env.IS_DEV && process.env.ADMIN_EMAIL_IDS.indexOf(payload.to) === -1) {
@@ -21,12 +21,19 @@ function sendEmail(payload, callback) {
     return;
   }
 
-  if (payload.provider && payload.provider === 'mandrill') {
-    mandrill.sendEmail(payload, callback);
-  } else if (payload.provider && payload.provider === 'mailgun') {
-    mailgun.sendEmail(payload, callback);
-  } else {
-    ses.sendEmail(payload, callback);
+  switch (payload.provider) {
+    case 'mailgun':
+      return mailgun.sendEmail(payload, callback);
+    case 'ses':
+      return ses.sendEmail(payload, callback);
+    default:
+      switch (emailService) {
+        case 'mailgun':
+          return mailgun.sendEmail(payload, callback);
+        case 'ses':
+        default:
+          return ses.sendEmail(payload, callback);
+      }
   }
 }
 
