@@ -73,7 +73,7 @@ module.exports = {
         { productURL: 1, productImage: 1, productName: 1, currentPrice: 1 }
       )
       .lean()
-      .limit(500)
+      .limit(100)
       .exec((err, results) => {
         if (err) {
           logger.log({
