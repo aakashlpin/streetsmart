@@ -59,6 +59,8 @@ if (process.env.IS_CRON_ACTIVE) {
               })
             );
 
+            logger.log(`adding ${sellerJobsMappedWithSeller.length} items to ${seller} queue`);
+
             sellerJobsMappedWithSeller.forEach((jobData) => {
               queue
               .create(jobQueueName, jobData)
