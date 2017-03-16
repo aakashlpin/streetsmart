@@ -69,10 +69,11 @@ module.exports = {
 
       sellerModel
       .find(
-        { suspended: { $ne: true }, productImage: { $exists: true, $nin: ['', 'undefined', 'null'] } },
+        { suspended: { $ne: true }, failedAttempts: { $lt: 5 }, productImage: { $exists: true, $nin: ['', 'undefined', 'null'] } },
         { productURL: 1, productImage: 1, productName: 1, currentPrice: 1 }
       )
       .lean()
+      .limit(500)
       .exec((err, results) => {
         if (err) {
           logger.log({
