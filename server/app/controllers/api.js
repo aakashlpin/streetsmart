@@ -462,20 +462,20 @@ module.exports = {
 
     const SellerModel = sellerUtils.getSellerJobModelInstance(seller);
     SellerModel.update(
-        { _id: id },
+      { _id: id },
       { $set: {
         suspended: false,
         createdAt: new Date(),
       } },
-        {},
-        (err, docs) => {
-          if (!err && docs) {
-            res.render('unsuspend.html');
-          } else {
-            res.render('500.html');
-          }
+      {},
+      (err, docs) => {
+        if (!err && docs) {
+          res.render('unsuspend.html');
+        } else {
+          res.render('500.html');
         }
-      );
+      }
+    );
   },
   hikePrices(callback) {
     const { sellers } = config;
