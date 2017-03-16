@@ -1,35 +1,41 @@
-'use strict';
-var _ = require('underscore');
-module.exports = function($) {
-	var nameDOM, imageDOM, priceDOM, name, image, price, response = {};
-	try {
-		priceDOM = $('[itemprop="price"]');
-		price = priceDOM.text() || false;
 
-		if (price) {
-			price = parseInt(price.replace(/,/g, ''), 10);
-		}
+const _ = require('underscore');
+module.exports = function ($) {
+  let nameDOM,
+    imageDOM,
+    priceDOM,
+    name,
+    image,
+    price,
+    response = {};
+  try {
+    priceDOM = $('[itemprop="price"]');
+    price = priceDOM.text() || false;
 
-		if (_.isNaN(price)) {
-			price = false;
-		}
+    if (price) {
+      price = parseInt(price.replace(/,/g, ''), 10);
+    }
 
-		nameDOM = $('.content_inner .proTitle_desk');
+    if (_.isNaN(price)) {
+      price = false;
+    }
 
-		name = nameDOM.text().replace(/^\s+|\s+$/g, '');
+    nameDOM = $('.content_inner .proTitle_desk');
 
-		imageDOM = $('#main_prod_image');
+    name = nameDOM.text().replace(/^\s+|\s+$/g, '');
 
-		image = imageDOM.attr('src');
+    imageDOM = $('#main_prod_image');
 
-		response = {
-			price: price,
-			name: name,
-			image: image
-		};
-	} catch(e) {
+    image = imageDOM.attr('src');
 
-	}
+    response = {
+      price,
+      name,
+      image,
+    };
+  } catch (e) {
 
-	return response;
+  }
+
+  return response;
 };

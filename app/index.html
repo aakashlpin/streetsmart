@@ -247,18 +247,18 @@
     <div class="bg-light">
         <div class="section-padded section-sidewise-padded">
             <h1 class="text-center mb-30">Everything people are tracking</h1>
-            <h4 class="text-light">Narrow down products by sellers:</h4>
+            <h4 class="text-light">Supported sellers:</h4>
             <div id="sticker" class="clearfix filters-container">
                 <div class="pull-left">
-                    <ul id="product-filters" class="list-inline list-unstyled list-filters">
-                        <li data-filter="flipkart">Flipkart</li>
-                        <li data-filter="amazon">Amazon</li>
-                        <li data-filter="snapdeal">Snapdeal</li>
-                        <li data-filter="zivame">Zivame</li>
-                        <li data-filter="healthkart">HealthKart</li>
-                        <li data-filter="jabong">Jabong</li>
-                        <li data-filter="infibeam">Infibeam</li>
-                        <li data-filter="fabfurnish">Fabfurnish</li>
+                    <ul class="list-inline list-unstyled list-filters">
+                        <li>Amazon India</li>
+                        <li>Flipkart</li>
+                        <li>Snapdeal</li>
+                        <li>Zivame</li>
+                        <li>HealthKart</li>
+                        <li>Jabong</li>
+                        <li>Infibeam</li>
+                        <li>Fabfurnish</li>
                     </ul>
                 </div>
                 <div class="pull-right">
@@ -342,28 +342,6 @@
                     </form>
                 </div>
 
-                <div id="addUrlFormContainer" style="display: none;">
-                    <form role="form" class="css-add-url-form js-add-url-form" id="addUrlForm">
-                        <input class="js-hidden-email" type="hidden" name="email" value="">
-                        <div class="form-group">
-                            <label for="url">Product Page Link?</label>
-                            <div class="input-group">
-                                <span class="input-group-addon js-form-reset css-form-reset">
-                                    <i class="fa fa-repeat"></i>
-                                </span>
-                                <input required=required spellcheck=false type="url" name="url" class="form-control input-lg js-modal-input js-add-url-form-input" placeholder="http://www.flipkart.com/apple-iphone-6/p/itmeygpzakjyvwqt?pid=MOBEYHZ2YAXZMF2J">
-                                <span class="input-group-addon css-iga-add-url">
-                                    <input disabled="disabled" type="submit" class="btn btn-primary css-add-url-action js-add-url-action" value="Add Alert!">
-                                </span>
-                            </div>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="js-url-loader" style="display: none;">
-                    <p><i class="fa fa-spinner fa-spin"></i> Doing some magic. You don't have to wait...</p>
-                </div>
-
                 <div class="js-url-submit-loader" style="display: none;">
                     <p><i class="fa fa-spinner fa-spin"></i> Attempting to set alert...</p>
                 </div>
@@ -416,18 +394,7 @@
     <!-- build:js scripts/vendor.js -->
     <!-- bower:js -->
     <script src="../bower_components/jquery/dist/jquery.js"></script>
-    <script src="../bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/affix.js"></script>
-    <script src="../bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/alert.js"></script>
-    <script src="../bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/button.js"></script>
-    <script src="../bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/carousel.js"></script>
-    <script src="../bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/collapse.js"></script>
-    <script src="../bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/dropdown.js"></script>
-    <script src="../bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/tab.js"></script>
-    <script src="../bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/transition.js"></script>
-    <script src="../bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/scrollspy.js"></script>
-    <script src="../bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/modal.js"></script>
     <script src="../bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/tooltip.js"></script>
-    <script src="../bower_components/bootstrap-sass-official/vendor/assets/javascripts/bootstrap/popover.js"></script>
     <script src="../bower_components/underscore/underscore.js"></script>
     <script src="../bower_components/noty/js/noty/packaged/jquery.noty.packaged.js"></script>
     <script src="../bower_components/odometer/odometer.js"></script>
@@ -441,10 +408,6 @@
 
     <script src="//platform.twitter.com/widgets.js" charset="utf-8"></script>
 
-    <!-- build:js scripts/plugins.js -->
-    <script src="../bower_components/jquery-mockjax/jquery.mockjax.js"></script>
-    <!-- endbuild -->
-
     <script>
     window.App = {};
     odometerOptions = { auto: false };
@@ -452,7 +415,6 @@
 
     <!-- build:js({app,.tmp}) scripts/main.js -->
     <script src="scripts/normalize.js"></script>
-    <script src="scripts/mock.js"></script>
     <script src="scripts/events.js"></script>
     <script src="scripts/user.js"></script>
     <script src="scripts/urlForm.js"></script>
