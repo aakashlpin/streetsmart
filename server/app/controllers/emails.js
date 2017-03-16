@@ -325,5 +325,27 @@ module.exports = {
         }
       });
     });
-  }
+  },
+  sendEmailAboutFlipkartSupport(callback) {
+    emailTemplates(templatesDir, (err, template) => {
+      if (err) {
+        return callback(err);
+      }
+
+      template('flipkart-support', {}, (err, html) => {
+        if (err) {
+          callback(err);
+        } else {
+          sendEmail({
+            subject: 'Cheapass India | Testing | Product Updates March',
+            html,
+            to: 'updates-local@cheapass.in',
+          }, () => {
+            logger.log('info', '[sendEmailAboutFlipkartSupport] send email to updates-local@cheapass.in');
+            return callback(null);
+          });
+        }
+      });
+    });
+  },
 };

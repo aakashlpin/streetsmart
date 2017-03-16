@@ -3,6 +3,7 @@ const apiKey = process.env.MAILGUN_API_KEY;
 
 const mailgun = require('mailgun-js')({ apiKey, domain });
 const mailcomposer = require('mailcomposer');
+const logger = require('../../logger').logger;
 
 module.exports = {
   sendEmail(payload, callback) {
@@ -40,4 +41,27 @@ module.exports = {
       });
     });
   },
+  addUsersToProductUpdatesMailingList(users, callback) {
+    /**
+    users - ['aakash.lpin@gmail.com', 'aakash@cheapass.in'...]
+    **/
+
+    const members = users.map(email => ({
+      address: email,
+    }));
+
+    const listName = process.env.IS_DEV ? 'updates-local@cheapass.in' : 'updates@cheapass.in';
+
+    mailgun
+    .lists(listName)
+    .members()
+    .add({ members, subscribed: true }, (err, body) => {
+      if (err) {
+        logger.log('error', 'error subscribing to mailing list updates@cheapass.in', err);
+        return callback(err);
+      }
+      logger.log('response from subscribing users to mailing list updates@cheapass.in', body);
+      return callback(null, body);
+    });
+  }
 };
