@@ -4,7 +4,7 @@
 	var eventBus = window.App.eventBus;
 	var EventsHandler = {
 		remoteTrackAdd: function (trackPayload) {
-			$.getJSON('/copy', trackPayload, function (res) {
+			$.getJSON('/queue', trackPayload, function (res) {
 				eventBus.emit('track:added', res);
 			});
 		},

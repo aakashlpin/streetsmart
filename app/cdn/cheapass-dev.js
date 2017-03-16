@@ -60,7 +60,7 @@
                 var domTop =
                   '<div id="caPopup">' +
                     '<a id="caClose" class="caClose" title="Close" style="position: absolute; left: -10px; top: -10px;"><div class="circle" style="font-size: 17px; border: 2px solid #444546; padding: 0 0 0 0; width: 26px; height: 26px; background-color:#444546; color: #fff; border-radius: 50px; text-align: center;"> x </div></a>' +
-                    '<a target="_blank" href="https://cheapass.in"><img class="caPopupLogo" src="https://cheapass.in/cdn/cheapass.png" /></a>';
+                    '<a target="_blank" href="http://local.cheapass.in"><img class="caPopupLogo" src="http://local.cheapass.in/cdn/cheapass.png" /></a>';
 
                 var domFinePrintSeller =
                   '<p class="caFinePrint">Get notified when the prices drop</p>';
@@ -122,7 +122,7 @@
                     e.preventDefault();
                     var payload = $(this).serialize();
                     $.ajax({
-                        url: 'https://cheapass.in/queue?' + payload,
+                        url: 'http://local.cheapass.in/queue?' + payload,
                         dataType: 'jsonp',
                         success: queueResponseHandler,
                     });
@@ -175,7 +175,7 @@
             cssIsFetched();
         } else {
             $.ajax({
-                url: 'https://cheapass.in/cdn/cheapass.css?ts=' + new Date().getTime(),
+                url: 'http://local.cheapass.in/cdn/cheapass.css?ts=' + new Date().getTime(),
                 type: 'get',
                 crossDomain: true,
                 success: cssIsFetched

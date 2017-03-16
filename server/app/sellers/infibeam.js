@@ -1,37 +1,43 @@
-'use strict';
-var _ = require('underscore');
-module.exports = function($) {
-	var nameDOM, imagesDOM, imageDOM, priceDOM, name, image, price, response = {};
-	try {
-		priceDOM = $('[itemprop="price"]');
-		price = priceDOM.attr('content') || false;
-		if (price) {
-			price = price.replace(/,/g, '');
-			price = parseInt(price, 10);
-			if (_.isNaN(price)) {
-				price = false;
-			}
-		}
 
-		imagesDOM = $('[itemprop="image"]');
-		if (imagesDOM.length > 1) {
-			imageDOM = $(imagesDOM[0]);
-		} else {
-			imageDOM = imagesDOM;
-		}
+const _ = require('underscore');
+module.exports = function ($) {
+  let nameDOM,
+    imagesDOM,
+    imageDOM,
+    priceDOM,
+    name,
+    image,
+    price,
+    response = {};
+  try {
+    priceDOM = $('[itemprop="price"]');
+    price = priceDOM.attr('content') || false;
+    if (price) {
+      price = price.replace(/,/g, '');
+      price = parseInt(price, 10);
+      if (_.isNaN(price)) {
+        price = false;
+      }
+    }
 
-		image = imageDOM.attr('_src') || imageDOM.attr('src');
+    imagesDOM = $('[itemprop="image"]');
+    if (imagesDOM.length > 1) {
+      imageDOM = $(imagesDOM[0]);
+    } else {
+      imageDOM = imagesDOM;
+    }
 
-		nameDOM = $('[itemprop="name"]');
-		name = nameDOM.text().replace(/^\s+|\s+$/g, '');
+    image = imageDOM.attr('_src') || imageDOM.attr('src');
 
-		response = {
-			price: price,
-			name: name,
-			image: image
-		};
+    nameDOM = $('[itemprop="name"]');
+    name = nameDOM.text().replace(/^\s+|\s+$/g, '');
 
-	} catch(e) {}
+    response = {
+      price,
+      name,
+      image,
+    };
+  } catch (e) {}
 
-	return response;
+  return response;
 };
