@@ -5,7 +5,7 @@ module.exports = function (shipit) {
     default: {
       workspace: '/tmp/github-monitor',
       deployTo: '/tmp/deploy_to',
-      branch: 'feature/queue-split',
+      branch: 'master',
       repositoryUrl: 'https://github.com/aakashlpin/streetsmart.git',
       ignores: ['.git', 'node_modules'],
       rsync: ['--del'],
