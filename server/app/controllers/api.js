@@ -102,7 +102,7 @@ module.exports = {
         });
       }
 
-      let productURL;
+      let productURL = url;
       const queueData = {};
 
       if (config.sellers[seller].hasDeepLinking) {
