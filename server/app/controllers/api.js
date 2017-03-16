@@ -512,6 +512,22 @@ module.exports = {
       }
     );
   },
+  unsuspendAllJobsBySeller({ seller }, callback) {
+    const SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
+
+    SellerJobModel
+    .update(
+      { suspended: true },
+      { $set: { suspended: false } },
+      { multi: true },
+      (err, updatedDocs) => {
+        if (err) {
+          return callback(err);
+        }
+        return callback(null, updatedDocs);
+      }
+    );
+  },
   ping(req, res) {
     // to test if server is up
     res.json({ status: 'ok' });
