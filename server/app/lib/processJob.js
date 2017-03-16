@@ -109,10 +109,32 @@ function processJob(jobData, done) {
       logger.log('Job Errored', { id, err });
       if (err.statusCode === 404) {
         jobModelConnections[seller]
-        .update({ _id }, { $set: { suspended: true } }, {}, updateErr =>
-          done(updateErr)
+        .update(
+          { _id },
+          { $set: { suspended: true } },
+          {},
+          (err) => {
+            if (err) {
+              logger.log('error', 'error suspending a 404ed page', { productURL, seller }, err);
+            } else {
+              logger.log('suspended a 404ed page', { productURL, seller });
+            }
+          }
         );
-        return;
+      } else {
+        jobModelConnections[seller]
+        .update(
+          { _id },
+          { $inc: { failedAttempts: 1 } },
+          {},
+          (err) => {
+            if (err) {
+              logger.log('error', 'error updating failedAttempts for a failed job', { productURL, seller }, err);
+            } else {
+              logger.log('increased failedAttempts', { productURL, seller });
+            }
+          }
+        );
       }
       return done(err.error);
     }
