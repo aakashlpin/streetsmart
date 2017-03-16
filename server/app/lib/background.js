@@ -73,7 +73,7 @@ module.exports = {
         { productURL: 1, productImage: 1, productName: 1, currentPrice: 1 }
       )
       .lean()
-      .limit(100)
+      .limit(500)
       .exec((err, results) => {
         if (err) {
           logger.log({
@@ -100,7 +100,11 @@ module.exports = {
               sellerModelProductPriceHistory: sellerModelProductPriceHistory.modelName,
             });
 
-            return sellerAsyncCb(err);
+            return sellerAsyncCb(null, []);
+          }
+
+          if (!aggregatedResults || (aggregatedResults && !aggregatedResults.length)) {
+            return sellerAsyncCb(null, []);
           }
 
           const idToMinPriceMap =
