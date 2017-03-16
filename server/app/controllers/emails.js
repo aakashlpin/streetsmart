@@ -15,11 +15,6 @@ function sendEmail(payload, callback) {
   if (process.env.IS_DEV && process.env.ADMIN_EMAIL_IDS.indexOf(payload.to) === -1) {
     return;
   }
-    // ESP Throttling happening for hotmail and yahoo emails
-  if (_.find(['@hotmail.', '@live.', '@ymail.', '@yahoo.'], provider => payload.to.indexOf(provider) > 0)) {
-    ses.sendEmail(payload, callback);
-    return;
-  }
 
   switch (payload.provider) {
     case 'mailgun':
