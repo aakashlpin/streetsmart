@@ -9,6 +9,8 @@ const fundraise = require('../app/controllers/fundraise');
 const passport = require('passport');
 const errorHandler = require('errorhandler');
 const background = require('../app/lib/background');
+const mailgun = require('../app/controllers/mailgun');
+const Emails = require('../app/controllers/emails');
 // const migrations = require('../app/migrations/index');
 
 function ensureAuthenticated(req, res, next) {
@@ -182,6 +184,31 @@ module.exports = function routes(app) {
         status: 'ok',
         response,
       });
+    });
+  });
+
+  app.get('/add-user-to-mailing-list', (req, res) => {
+    const { email } = req.query;
+    if (!email) {
+      return res.status(403).json({
+        error: 'require email key'
+      });
+    }
+    mailgun.addUsersToProductUpdatesMailingList([email], (err, response) => {
+      if (err) {
+        return res.status(500).json({
+          err,
+        });
+      }
+      return res.json({
+        response,
+      });
+    });
+  });
+
+  app.get('/send-email-about-flipkart-support', (req, res) => {
+    Emails.sendEmailAboutFlipkartSupport(() => {
+      res.json({ status: 'ok' });
     });
   });
 
