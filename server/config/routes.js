@@ -145,6 +145,26 @@ module.exports = function routes(app) {
     });
   });
 
+  app.get('/reset-failed-count-for-seller', (req, res) => {
+    const { seller } = req.query;
+    if (!seller) {
+      res.status(403).json({
+        error: 'require seller key'
+      });
+    }
+    api.resetFailedCount({ seller }, (err, response) => {
+      if (err) {
+        return res.status(500).json({
+          error: err,
+        });
+      }
+      res.json({
+        status: 'ok',
+        response,
+      });
+    });
+  });
+
   app.use((req, res) => {
     res.status(404).render('404', { title: '404' });
   });

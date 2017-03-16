@@ -496,6 +496,22 @@ module.exports = {
       callback(err);
     });
   },
+  resetFailedCount({ seller }, callback) {
+    const SellerJobModel = sellerUtils.getSellerJobModelInstance(seller);
+
+    SellerJobModel
+    .update(
+      { failedAttempts: { $gte: 5 } },
+      { $set: { failedAttempts: 0 } },
+      { multi: true },
+      (err, updatedDocs) => {
+        if (err) {
+          return callback(err);
+        }
+        return callback(null, updatedDocs);
+      }
+    );
+  },
   ping(req, res) {
     // to test if server is up
     res.json({ status: 'ok' });
