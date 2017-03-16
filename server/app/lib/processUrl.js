@@ -8,7 +8,6 @@ const healthkartScraper = require('../sellers/healthkart');
 const infibeamScraper = require('../sellers/infibeam');
 const snapdealScraper = require('../sellers/snapdeal');
 const zivameScraper = require('../sellers/zivame');
-const myntraScraper = require('../sellers/myntra');
 const jabongScraper = require('../sellers/jabong');
 
 const scrapers = {
@@ -19,7 +18,6 @@ const scrapers = {
   healthkart: healthkartScraper,
   infibeam: infibeamScraper,
   zivame: zivameScraper,
-  myntra: myntraScraper,
   jabong: jabongScraper,
 };
 
