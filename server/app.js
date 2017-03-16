@@ -11,8 +11,8 @@ const logger = require('./logger').logger;
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.DB_CONNECTION, {
   server: {
-    connectTimeoutMS: 30000,
-    socketTimeoutMS: 30000,
+    connectTimeoutMS: 2 * 60 * 1000,
+    socketTimeoutMS: 2 * 60 * 1000,
   },
 });
 const db = mongoose.connection;
