@@ -15,7 +15,9 @@ module.exports = {
     res.render('adminIndex.html');
   },
   dashboard(req, res) {
-    res.render('adminDashboard.html');
+    res.render('adminDashboard.html', {
+      baseUrl: process.env.SERVER,
+    });
   },
   getUsers(req, res) {
     JobModel.find().lean().exec((err, jobs) => {
