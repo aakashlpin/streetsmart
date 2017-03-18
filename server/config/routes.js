@@ -103,7 +103,7 @@ module.exports = function routes(app) {
   app.get('/auth/twitter/callback',
     passport.authenticate('twitter', { successRedirect: '/admin/dashboard', failureRedirect: '/admin' }));
 
-  app.get('/auth/facebook', passport.authenticate('facebook', { scope: ['public_profile', 'email'] }));
+  app.get('/auth/facebook', passport.authenticate('facebook', { scope: 'public_profile,email' }));
   app.get('/auth/facebook/callback',
     passport.authenticate('facebook', { successRedirect: '/admin/dashboard', failureRedirect: '/admin' }));
 

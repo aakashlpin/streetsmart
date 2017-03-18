@@ -11,14 +11,15 @@ const favicon = require('serve-favicon');
 const compression = require('compression');
 const logger = require('morgan');
 const methodOverride = require('method-override');
-const dd_options = {
+
+const ddOptions = {
   response_code: true,
   tags: ['app:cheapass'],
 };
 
-const connect_datadog = require('connect-datadog')(dd_options);
+const connectDatadog = require('connect-datadog')(ddOptions);
 
-module.exports = function (app, config) {
+module.exports = (app, config) => {
   app.use(compression());
   app.use(express.static(`${config.root}/public`));
   app.set('port', config.port);
@@ -44,5 +45,5 @@ module.exports = function (app, config) {
   app.use(methodOverride());
   app.use(passport.initialize());
   app.use(passport.session());
-  app.use(connect_datadog);
+  app.use(connectDatadog);
 };
