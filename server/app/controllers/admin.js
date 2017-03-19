@@ -1,12 +1,9 @@
 const mongoose = require('mongoose');
 const Emails = require('./emails');
-const _ = require('underscore');
-_.str = require('underscore.string');
 const async = require('async');
-const request = require('request');
-const moment = require('moment');
+const config = require('../../config/config');
+const sellerUtils = require('../utils/seller');
 
-const server = process.env.SERVER;
 const JobModel = mongoose.model('Job');
 const UserModel = mongoose.model('User');
 
@@ -19,84 +16,99 @@ module.exports = {
       baseUrl: process.env.SERVER,
     });
   },
-  getUsers(req, res) {
-    JobModel.find().lean().exec((err, jobs) => {
-      if (err) {
-        res.json({ error: err });
-        return;
-      }
-      // find all unique email ids
-      const users = [];
+  processAllUsers(req, res) {
+    const sellers = Object.keys(config.sellers);
+    const map = {};
+    const countToEmailMap = {};
 
-      _.each(jobs, (job) => {
-        if (!_.find(users, user => user.email === job.email)) {
-          users.push({
-            email: job.email,
-            isActive: job.isActive,
-            isReminded: !!job.isReminded,
-          });
-        }
+    console.time('processAllUsers');
+
+    const userQueue = async.queue((doc, callback) => {
+      const { email, _id } = doc;
+
+      const sellerQueue = async.queue((sellerDoc, sellerCallback) => {
+        const { seller } = sellerDoc;
+
+        sellerUtils
+        .getSellerJobModelInstance(seller)
+        .find({ email, suspended: { $ne: true } })
+        .lean()
+        .exec((err, results) => {
+          if (err) {
+            return sellerCallback(err);
+          }
+
+          if (!map[email]) {
+            map[email] = {
+              signup: _id.getTimestamp(),
+              total: 0,
+              sellers: {},
+            };
+          }
+
+          map[email].sellers[seller] = results ? results.length : 0;
+          map[email].total += map[email].sellers[seller];
+
+          sellerCallback(null);
+        });
       });
 
-      async.each(users, (user, asyncEachCb) => {
-        let currentTracks = 0;
-        let lifetimeTracks;
+      sellers.forEach((seller) => {
+        sellerQueue.push({ seller });
+      });
 
-        UserModel
-        .findOne({ email: user.email })
-        .exec((err, userFromDb) => {
-          if (err) {
-            throw err;
-          }
-          if (userFromDb) {
-            user.since = moment(userFromDb._id.getTimestamp()).format('DD/MMM/YYYY');
-          } else {
-            user.since = '-';
-          }
-
-          request.get({
-            url: (`${server}/api/dashboard/tracks/${user.email}`),
-            json: true,
-          }, (err, response, tracksArray) => {
-            if (err) {
-              return asyncEachCb(err);
-            }
-
-            tracksArray = tracksArray || [];
-
-            _.each(tracksArray, (sellerTracks) => {
-              if (sellerTracks && sellerTracks.tracks) {
-                currentTracks += sellerTracks.tracks.length;
-              }
-            });
-
-            lifetimeTracks = _.filter(jobs, userJob => userJob.email === user.email);
-
-            user.currentTracks = currentTracks;
-            user.lifetimeTracks = lifetimeTracks.length;
-            user.fullContact = userFromDb ? userFromDb.fullContact : {};
-            asyncEachCb();
-          });
+      sellerQueue.drain = () => {
+        console.log({
+          email,
         });
-      }, (err) => {
-        if (err) {
-          return res.json({ error: err });
+
+        const countForEmail = map[email].total;
+
+        if (!countToEmailMap[countForEmail]) {
+          countToEmailMap[countForEmail] = 1;
+        } else {
+          countToEmailMap[countForEmail] += 1;
         }
-        res.json(users);
+
+        callback();
+      };
+    });
+
+    UserModel
+    .find({}, { email: 1, _id: 1 })
+    .lean()
+    .exec((err, docs) => {
+      docs.forEach((doc) => {
+        userQueue.push(doc);
       });
     });
+
+    userQueue.drain = () => {
+      // console.log(map);
+      console.log(countToEmailMap);
+      const numberOfUsersTrackingMoreThan3Items =
+        Object.keys(countToEmailMap).reduce((counter, count) => {
+          if (Number(count) >= 1) {
+            return countToEmailMap[count] + counter;
+          }
+          return counter;
+        }, 0);
+      console.log({ numberOfUsersTrackingMoreThan3Items });
+      console.timeEnd('processAllUsers');
+      res.json(map);
+    };
   },
   reminderEmail(req, res) {
-    const emailObj = _.pick(req.query, ['email']);
-    if (!emailObj.email) {
+    const { email } = req.query;
+    if (!email) {
       return res.json({ error: 'Error! Expected an email' });
     }
 
-    Emails.sendReminderEmail(emailObj, (err) => {
+    Emails.sendReminderEmail({ email }, (err) => {
       if (err) {
         return res.json({ err });
       }
-      const userUpdate = emailObj;
+      const userUpdate = { email };
       const updateWith = { isReminded: true };
       const updateOptions = { multi: true };
       JobModel.update(userUpdate, updateWith, updateOptions, (err, updatedDocs) => {
