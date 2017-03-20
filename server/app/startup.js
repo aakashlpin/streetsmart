@@ -89,7 +89,7 @@ if (process.env.IS_CRON_ACTIVE) {
 sellerKeys.forEach((seller) => {
   const queueName = getUserJobsQueueNameForSeller(seller);
   logger.log('info', 'setting up user job queue processing', queueName);
-  const concurrency = config.sellers[seller].hasMicroService ? 1 : 4;
+  const concurrency = 4;
   queue.process(queueName, concurrency, (job, done) =>
     processUserJob(job, done)
   );
@@ -140,9 +140,7 @@ function setup() {
     timeZone: 'Asia/Kolkata'
   });
 
-  setTimeout(() => {
-    bgTask.processAllProducts();
-  }, Number(process.env.INIT_HOME_PAGE_FEED_AFTER_MS));
+  bgTask.processAllProducts();
 }
 
 setup();
