@@ -18,6 +18,7 @@ const futureBatchSize = 20;
 
 let processedData = [];
 let totalPages = 0;
+let isProcessing = false;
 
 module.exports = {
   getFullContactByEmail() {
@@ -58,6 +59,12 @@ module.exports = {
     });
   },
   processAllProducts() {
+    if (isProcessing) {
+      return;
+    }
+
+    isProcessing = true;
+
     console.time('processing all products for home page');
 
     processedData = [];
@@ -114,6 +121,8 @@ module.exports = {
       logger.log(console.timeEnd('processing all products for home page'));
 
       logger.log('completed processing all products for home page', { totalPages });
+
+      isProcessing = false;
     };
 
     const sellerQueue = async.queue((doc, callback) => {
