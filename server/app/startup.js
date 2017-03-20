@@ -140,9 +140,7 @@ function setup() {
     timeZone: 'Asia/Kolkata'
   });
 
-  setTimeout(() => {
-    bgTask.processAllProducts();
-  }, Number(process.env.INIT_HOME_PAGE_FEED_AFTER_MS));
+  bgTask.processAllProducts();
 }
 
 setup();
