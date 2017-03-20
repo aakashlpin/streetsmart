@@ -4,7 +4,7 @@
 	var ProductTracks = {
 		$el: $('#product-tracks'),
 		dataPage: 1,
-		isXHRPending: false,
+		lastPageHadResults: true,
 		wookmarkHandler: null,
 		pendingTrackData: null,
 		tmpl: function (data) {
@@ -116,7 +116,8 @@
 			winHeight = window.innerHeight ? window.innerHeight : $window.height(), // iphone fix
 			closeToBottom = ($window.scrollTop() + winHeight > $document.height() - 100);
 			if (closeToBottom) {
-				ProductTracks.loadTracksForPage(ProductTracks.dataPage + 1);
+				var nextPage = ProductTracks.lastPageHadResults ? ProductTracks.dataPage + 1 : ProductTracks.dataPage;
+				ProductTracks.loadTracksForPage(nextPage);
 			}
 		},
 		initiateAddTrack: function (trackPayload) {
@@ -214,22 +215,24 @@
 			$('#loading').addClass('hide');
 		},
 		loadTracksForPage: function (page) {
-			if (ProductTracks.isXHRPending) {
-				return;
-			}
 			if (ProductTracks.maxPages && (page > ProductTracks.maxPages)) {
 				ProductTracks.hideLoading();
 				return;
 			}
 
 			ProductTracks.toggleLoading();
-			ProductTracks.isXHRPending = true;
+
 			$.getJSON('/api/tracks/' + page, function(res) {
-				ProductTracks.render(res.data);
-				ProductTracks.lazyLoad();
-				ProductTracks.dataPage = page;
-				ProductTracks.maxPages = res.pages;
-				ProductTracks.isXHRPending = false;
+				if (res.data && res.data.length) {
+					ProductTracks.render(res.data);
+					ProductTracks.lazyLoad();
+					ProductTracks.dataPage = page;
+					ProductTracks.maxPages = res.pages;
+					ProductTracks.lastPageHadResults = true;
+				} else {
+					ProductTracks.lastPageHadResults = false;
+				}
+
 				ProductTracks.toggleLoading();
 			});
 
