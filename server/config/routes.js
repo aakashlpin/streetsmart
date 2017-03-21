@@ -187,6 +187,18 @@ module.exports = function routes(app) {
     });
   });
 
+  app.get('/once/add-active-users-to-mailing-list', ensureAuthenticated, (req, res) => {
+    background.addUsersToMailingList((err, reply) => {
+      if (err) {
+        return res.status(500).json({
+          error: err,
+        });
+      }
+
+      res.json(reply);
+    });
+  });
+
   // app.get('/send-email-about-flipkart-support', (req, res) => {
   //   Emails.sendEmailAboutFlipkartSupport(() => {
   //     res.json({ status: 'ok' });
