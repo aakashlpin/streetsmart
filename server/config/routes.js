@@ -98,14 +98,14 @@ module.exports = function routes(app) {
   // Admin
   app.get('/admin', admin.index);
   app.get('/admin/dashboard', ensureAuthenticated, admin.dashboard);
-  app.get('/admin/dashboard/users', ensureAuthenticated, admin.getUsers);
+  app.get('/admin/dashboard/users', ensureAuthenticated, admin.getAdminUsers);
   app.get('/admin/dashboard/reminder', ensureAuthenticated, admin.reminderEmail);
 
   app.get('/auth/twitter', passport.authenticate('twitter'));
   app.get('/auth/twitter/callback',
     passport.authenticate('twitter', { successRedirect: '/admin/dashboard', failureRedirect: '/admin' }));
 
-  app.get('/auth/facebook', passport.authenticate('facebook', { scope: ['public_profile', 'email'] }));
+  app.get('/auth/facebook', passport.authenticate('facebook', { scope: 'public_profile,email' }));
   app.get('/auth/facebook/callback',
     passport.authenticate('facebook', { successRedirect: '/admin/dashboard', failureRedirect: '/admin' }));
 
@@ -114,9 +114,9 @@ module.exports = function routes(app) {
   app.post('/fundraise', fundraise.add);
 
   // Reports
-  app.get('/get-report', api.generateAmazonReport);
+  app.get('/get-report', ensureAuthenticated, api.generateAmazonReport);
 
-  app.get('/suspend', (req, res) => {
+  app.get('/suspend', ensureAuthenticated, (req, res) => {
     background.generateReviewEmailForAlertsTask((err, alerts) => {
       if (err) {
         return res.status(500).json({ error: err });
@@ -127,7 +127,7 @@ module.exports = function routes(app) {
     });
   });
 
-  app.get('/send-suspend-email', (req, res) => {
+  app.get('/send-suspend-email', ensureAuthenticated, (req, res) => {
     background.sendSuspensionEmail((err, alerts) => {
       if (err) {
         return res.status(500).json({ error: err });
@@ -138,7 +138,7 @@ module.exports = function routes(app) {
     });
   });
 
-  app.get('/hikeprices', (req, res) => {
+  app.get('/hikeprices', ensureAuthenticated, (req, res) => {
     api.hikePrices((err) => {
       if (err) {
         return res.json({ err });
@@ -147,7 +147,7 @@ module.exports = function routes(app) {
     });
   });
 
-  app.get('/reset-failed-count-for-seller', (req, res) => {
+  app.get('/reset-failed-count-for-seller', ensureAuthenticated, (req, res) => {
     const { seller } = req.query;
     if (!seller) {
       return res.status(403).json({
@@ -167,7 +167,7 @@ module.exports = function routes(app) {
     });
   });
 
-  app.get('/unsuspend-all-jobs-by-seller', (req, res) => {
+  app.get('/unsuspend-all-jobs-by-seller', ensureAuthenticated, (req, res) => {
     const { seller } = req.query;
     if (!seller) {
       return res.status(403).json({
