@@ -11,13 +11,17 @@ const UserLookup = require('./userLookup');
 const Emails = require('../controllers/emails');
 const request = require('request');
 const kue = require('kue');
+const redis = require('redis');
 
+const redisClient = redis.createClient();
 const UserModel = mongoose.model('User');
 const initialBatchSize = 50;
 const futureBatchSize = 20;
 
 let processedData = [];
 let totalPages = 0;
+let isProcessing = false;
+let isProcessingUsers = false;
 
 module.exports = {
   getFullContactByEmail() {
@@ -58,14 +62,75 @@ module.exports = {
     });
   },
   processAllProducts() {
-    logger.log('processing all products for home page', { at: moment().format('MMMM Do YYYY, h:mm:ss a') });
+    if (isProcessing) {
+      return;
+    }
 
-    async.mapSeries(Object.keys(config.sellers), (seller, sellerAsyncCb) => {
-      const sellerModel =
-        sellerUtils.getSellerJobModelInstance(seller);
+    isProcessing = true;
+
+    console.time('processing all products for home page');
+
+    processedData = [];
+
+    const q = async.queue((doc, callback) => {
+      const { seller, item } = doc;
 
       const sellerModelProductPriceHistory =
         sellerUtils.getSellerProductPriceHistoryModelInstance(seller);
+
+      sellerModelProductPriceHistory
+      .aggregate([
+        { $match: { jobId: item._id } },
+        { $group: {
+          _id: { jobId: '$jobId' },
+          min: { $min: '$price' },
+        } },
+      ])
+      .exec((err, aggregatedResults) => {
+        if (err) {
+          logger.log({
+            err,
+            sellerModelProductPriceHistory: sellerModelProductPriceHistory.modelName,
+          });
+
+          return callback(err);
+        }
+
+        const resultForItem = aggregatedResults[0];
+
+        if (!resultForItem || !resultForItem.min) {
+          return callback();
+        }
+
+        processedData.push(
+          _.extend({}, item, {
+            seller,
+            ltp: resultForItem.min,
+          })
+        );
+
+        callback(null);
+      });
+    });
+
+    q.drain = () => {
+      processedData = _.shuffle(processedData);
+      if (processedData.length < initialBatchSize) {
+        totalPages = 1;
+      } else {
+        totalPages = Math.ceil((processedData.length - initialBatchSize) / futureBatchSize);
+      }
+
+      logger.log(console.timeEnd('processing all products for home page'));
+
+      logger.log('completed processing all products for home page', { totalPages });
+
+      isProcessing = false;
+    };
+
+    const sellerQueue = async.queue((doc, callback) => {
+      const { seller } = doc;
+      const sellerModel = sellerUtils.getSellerJobModelInstance(seller);
 
       sellerModel
       .find(
@@ -73,7 +138,6 @@ module.exports = {
         { productURL: 1, productImage: 1, productName: 1, currentPrice: 1 }
       )
       .lean()
-      .limit(500)
       .exec((err, results) => {
         if (err) {
           logger.log({
@@ -81,74 +145,32 @@ module.exports = {
             sellerModel: sellerModel.modelName,
             error: err,
           });
+          return callback(err);
         }
-
-        logger.log({ seller, resultsLength: results.length });
-
-        sellerModelProductPriceHistory
-        .aggregate([
-          { $match: { jobId: { $in: results.map(result => result._id) } } },
-          { $group: {
-            _id: { jobId: '$jobId' },
-            min: { $min: '$price' },
-          } },
-        ])
-        .exec((err, aggregatedResults) => {
-          if (err) {
-            logger.log({
-              err,
-              sellerModelProductPriceHistory: sellerModelProductPriceHistory.modelName,
-            });
-
-            return sellerAsyncCb(null, []);
-          }
-
-          if (!aggregatedResults || (aggregatedResults && !aggregatedResults.length)) {
-            return sellerAsyncCb(null, []);
-          }
-
-          const idToMinPriceMap =
-            aggregatedResults
-            .filter(item => item.min)
-            .reduce((obj, item) => {
-              obj[item._id.jobId] = item.min;
-              return obj;
-            }, {});
-
-          const resultsMappedWithMinPrice =
-            results
-            .map(result => _.extend({}, result, {
-              seller,
-              ltp: idToMinPriceMap[result._id],
-            }))
-            .filter(result => result.ltp);
-
-          sellerAsyncCb(null, resultsMappedWithMinPrice);
-        });
+        results.forEach(result => q.push({ seller, item: result }));
+        return callback(null);
       });
-    }, (err, sellerResultsWithMinPrice) => {
-      processedData = _.shuffle(_.flatten(sellerResultsWithMinPrice, true));
-      if (processedData.length < initialBatchSize) {
-        totalPages = 1;
-      } else {
-        totalPages = Math.ceil((processedData.length - initialBatchSize) / futureBatchSize);
-      }
+    });
 
-      logger.log({ totalPages });
+    sellerQueue.drain = () => {
+      // all sellers have been processed
+      logger.log('all seller items have been sent for processing');
+    };
 
-      logger.log('completed processing all products for home page', { at: moment().format('MMMM Do YYYY, h:mm:ss a') });
+    Object.keys(config.sellers).forEach((seller) => {
+      sellerQueue.push({ seller });
     });
   },
   getPagedProducts(page) {
-    page = Number(page);
-    if (page <= 0) {
+    const pageNumber = Number(page);
+    if (pageNumber <= 0) {
       return [];
     }
-    if (page === 1) {
-      // initial page request
+    if (pageNumber === 1) {
+      // initial pageNumber request
       return _.first(processedData, initialBatchSize);
     }
-    const beginIndex = initialBatchSize + ((page - 2) * futureBatchSize) - 1;
+    const beginIndex = (initialBatchSize + ((pageNumber - 2) * futureBatchSize)) - 1;
     const endIndex = beginIndex + futureBatchSize;
     return processedData.slice(beginIndex, endIndex);
   },
@@ -159,8 +181,6 @@ module.exports = {
     return totalPages;
   },
   generateAmazonSalesReport(callback) {
-    callback = callback || function () {};
-
     const requestOptions = {
       url: 'http://flipkart.cheapass.in/generate-report',
       method: 'POST',
@@ -171,14 +191,17 @@ module.exports = {
 
     request(requestOptions, (error, response, body) => {
       if (!error && response.statusCode === 200) {
+        let parsedBody = body;
         try {
           if (typeof body !== 'object') {
-            body = JSON.parse(body);
+            parsedBody = JSON.parse(body);
           }
-        } catch (e) {}
+        } catch (e) {
+          logger.log('error', 'unable to JSON.parse body', body);
+        }
 
-        body.month = `http://flipkart.cheapass.in${body.month}`;
-        body.yesterday = `http://flipkart.cheapass.in${body.yesterday}`;
+        parsedBody.month = `http://flipkart.cheapass.in${parsedBody.month}`;
+        parsedBody.yesterday = `http://flipkart.cheapass.in${parsedBody.yesterday}`;
 
         Emails.sendAmazonSalesReport(body, () => {});
         callback(null);
@@ -326,6 +349,86 @@ module.exports = {
           }
         });
       });
+    });
+  },
+  processAllUsers(cb = () => {}) {
+    if (isProcessingUsers) {
+      return logger.log('not processing all users because it\'s already in progress');
+    }
+
+    isProcessingUsers = true;
+
+    logger.log('processing all users');
+
+    redisClient.hget('timestamps', 'emailAlertsSet', (err, reply) => {
+      if (!err && reply) {
+        if (moment().diff(moment(Number(reply)), 'hours') < 1) {
+          return;
+        }
+      }
+
+      console.time('processAllUsers');
+
+      const sellers = Object.keys(config.sellers);
+      const map = {};
+
+      const userQueue = async.queue((doc, callback) => {
+        const { email, _id } = doc;
+
+        const sellerQueue = async.queue((sellerDoc, sellerCallback) => {
+          const { seller } = sellerDoc;
+
+          sellerUtils
+          .getSellerJobModelInstance(seller)
+          .find({ email, suspended: { $ne: true } })
+          .lean()
+          .exec((err, results) => {
+            if (err) {
+              return sellerCallback(err);
+            }
+
+            if (!map[email]) {
+              map[email] = {
+                signup: _id.getTimestamp(),
+                total: 0,
+                sellers: {},
+              };
+            }
+
+            map[email].sellers[seller] = results ? results.length : 0;
+            map[email].total += map[email].sellers[seller];
+
+            sellerCallback(null);
+          });
+        });
+
+        sellers.forEach((seller) => {
+          sellerQueue.push({ seller });
+        });
+
+        sellerQueue.drain = () => {
+          redisClient.zadd('emailAlertsSet', map[email].total, email);
+          callback();
+        };
+      });
+
+      UserModel
+      .find({}, { email: 1, _id: 1 })
+      .lean()
+      .exec((err, docs) => {
+        docs.forEach((doc) => {
+          userQueue.push(doc);
+        });
+      });
+
+      userQueue.drain = () => {
+        logger.log('completed processing all users', console.timeEnd('processAllUsers'));
+
+        redisClient.hset('timestamps', 'emailAlertsSet', +new Date());
+        isProcessingUsers = false;
+
+        cb(null, map);
+      };
     });
   },
 };

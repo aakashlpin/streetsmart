@@ -4,7 +4,6 @@ let mongoose = require('mongoose'),
 // _ = require('underscore');
 
 const CounterSchema = new Schema({
-  totalUsers: Number,
   emailsSent: Number,
   itemsTracked: Number,
 });

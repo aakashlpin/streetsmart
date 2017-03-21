@@ -89,7 +89,7 @@ if (process.env.IS_CRON_ACTIVE) {
 sellerKeys.forEach((seller) => {
   const queueName = getUserJobsQueueNameForSeller(seller);
   logger.log('info', 'setting up user job queue processing', queueName);
-  const concurrency = config.sellers[seller].hasMicroService ? 1 : 4;
+  const concurrency = 4;
   queue.process(queueName, concurrency, (job, done) =>
     processUserJob(job, done)
   );
@@ -119,30 +119,44 @@ process.once('uncaughtException', (err) => {
 });
 
 function setup() {
-  new CronJob({
-    cronTime: process.env.HOME_PAGE_FEED_INTERVAL,
-    onTick: bgTask.processAllProducts,
-    start: true,
-    timeZone: 'Asia/Kolkata'
-  });
+  if (process.env.HOME_PAGE_FEED_INTERVAL) {
+    new CronJob({
+      cronTime: process.env.HOME_PAGE_FEED_INTERVAL,
+      onTick: bgTask.processAllProducts,
+      start: true,
+      timeZone: 'Asia/Kolkata'
+    });
+  }
 
-  new CronJob({
-    cronTime: process.env.FULL_CONTACT_INTERVAL,
-    onTick: bgTask.getFullContactByEmail,
-    start: true,
-    timeZone: 'Asia/Kolkata'
-  });
+  if (process.env.FULL_CONTACT_INTERVAL) {
+    new CronJob({
+      cronTime: process.env.FULL_CONTACT_INTERVAL,
+      onTick: bgTask.getFullContactByEmail,
+      start: true,
+      timeZone: 'Asia/Kolkata'
+    });
+  }
 
-  new CronJob({
-    cronTime: process.env.REMOVE_FAILED_JOBS_INTERVAL,
-    onTick: bgTask.removeFailedJobs,
-    start: true,
-    timeZone: 'Asia/Kolkata'
-  });
+  if (process.env.REMOVE_FAILED_JOBS_INTERVAL) {
+    new CronJob({
+      cronTime: process.env.REMOVE_FAILED_JOBS_INTERVAL,
+      onTick: bgTask.removeFailedJobs,
+      start: true,
+      timeZone: 'Asia/Kolkata'
+    });
+  }
 
-  setTimeout(() => {
-    bgTask.processAllProducts();
-  }, Number(process.env.INIT_HOME_PAGE_FEED_AFTER_MS));
+  if (process.env.PROCESS_ALL_USERS_INTERVAL) {
+    new CronJob({
+      cronTime: process.env.PROCESS_ALL_USERS_INTERVAL,
+      onTick: bgTask.processAllUsers,
+      start: true,
+      timeZone: 'Asia/Kolkata'
+    });
+  }
+
+  bgTask.processAllProducts();
+  bgTask.processAllUsers();
 }
 
 setup();

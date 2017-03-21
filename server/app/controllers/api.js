@@ -16,6 +16,7 @@ const { queue, getUserJobsQueueNameForSeller } = queueLib;
 const server = process.env.SERVER;
 const Job = mongoose.model('Job');
 const User = mongoose.model('User');
+const CountersModel = mongoose.model('Counter');
 
 function illegalRequest(res) {
   res.redirect('/500');
@@ -39,7 +40,7 @@ function addJobToQueue(data, cb) {
   data: {seller, email, productURL, source}
   **/
 
-  const { seller, email, productURL, source } = data;
+  const { seller, productURL, source } = data;
   const queueName = getUserJobsQueueNameForSeller(seller);
   logger.log('info', 'adding user job to queue', queueName);
 
@@ -58,26 +59,27 @@ function addJobToQueue(data, cb) {
     logger.log('Added job to queue', queueName, data);
     return cb(null, 'Fantastic! Check your email for further details.');
   });
-
-  queue.on('job failed', (id) => {
-    kue.Job.get(id, (err, job) => {
-      if (err) {
-        return;
-      }
-      if (job.type.indexOf('userJobs-') !== -1) {
-        logger.log('job failed from queue', { type: job.type });
-        Emails.sendEmailThatTheURLCannotBeAdded(
-          { seller, email, productURL },
-          (err) => {
-            if (err) {
-              logger.log('error', 'unable to Emails.sendEmailThatTheURLCannotBeAdded', { data }, err);
-            }
-          }
-        );
-      }
-    });
-  });
 }
+
+queue.on('job failed', (id) => {
+  kue.Job.get(id, (err, job) => {
+    if (err) {
+      return;
+    }
+    const { seller, email, productURL } = job.data;
+    if (job.type.indexOf('userJobs-') !== -1) {
+      logger.log('job failed from queue', { type: job.type });
+      Emails.sendEmailThatTheURLCannotBeAdded(
+        { seller, email, productURL },
+        (err) => {
+          if (err) {
+            logger.log('error', 'unable to Emails.sendEmailThatTheURLCannotBeAdded', { data: job.data }, err);
+          }
+        }
+      );
+    }
+  });
+});
 
 module.exports = {
   processQueue(req, res) {
@@ -238,13 +240,9 @@ module.exports = {
           // put this email in the users collection
           userQuery.query.fullContact = err ? {} : data;
           userQuery.query.fullContactAttempts = 1;
-          User.post(userQuery, (err, userQueryResponse) => {
+          User.post(userQuery, (err) => {
             if (err) {
               logger.log('error', 'error putting user info in db', { error: err });
-            }
-            if (userQueryResponse) {
-                // update the users counter
-              sellerUtils.increaseCounter('totalUsers');
             }
           });
         });
@@ -362,10 +360,15 @@ module.exports = {
     });
   },
   getStats(req, res) {
-    const CountersModel = mongoose.model('Counter');
     CountersModel.findOne().lean().exec((err, doc) => {
-      const resObj = _.pick(doc, ['totalUsers', 'emailsSent', 'itemsTracked']);
-      res.json(resObj);
+      const { emailsSent, itemsTracked } = doc;
+      User.count((err, totalUsers) => {
+        res.json({
+          emailsSent,
+          itemsTracked,
+          totalUsers,
+        });
+      });
     });
   },
   getDashboard(req, res) {
