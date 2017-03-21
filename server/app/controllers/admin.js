@@ -1,12 +1,12 @@
 const mongoose = require('mongoose');
-const Emails = require('./emails');
-const _ = require('underscore');
-_.str = require('underscore.string');
+const redis = require('redis');
 const async = require('async');
-const request = require('request');
 const moment = require('moment');
+const _ = require('underscore');
+const Emails = require('./emails');
+const logger = require('../../logger').logger;
 
-const server = process.env.SERVER;
+const redisClient = redis.createClient();
 const JobModel = mongoose.model('Job');
 const UserModel = mongoose.model('User');
 
@@ -15,86 +15,21 @@ module.exports = {
     res.render('adminIndex.html');
   },
   dashboard(req, res) {
-    res.render('adminDashboard.html');
-  },
-  getUsers(req, res) {
-    JobModel.find().lean().exec((err, jobs) => {
-      if (err) {
-        res.json({ error: err });
-        return;
-      }
-      // find all unique email ids
-      const users = [];
-
-      _.each(jobs, (job) => {
-        if (!_.find(users, user => user.email === job.email)) {
-          users.push({
-            email: job.email,
-            isActive: job.isActive,
-            isReminded: !!job.isReminded,
-          });
-        }
-      });
-
-      async.each(users, (user, asyncEachCb) => {
-        let currentTracks = 0;
-        let lifetimeTracks;
-
-        UserModel
-        .findOne({ email: user.email })
-        .exec((err, userFromDb) => {
-          if (err) {
-            throw err;
-          }
-          if (userFromDb) {
-            user.since = moment(userFromDb._id.getTimestamp()).format('DD/MMM/YYYY');
-          } else {
-            user.since = '-';
-          }
-
-          request.get({
-            url: (`${server}/api/dashboard/tracks/${user.email}`),
-            json: true,
-          }, (err, response, tracksArray) => {
-            if (err) {
-              return asyncEachCb(err);
-            }
-
-            tracksArray = tracksArray || [];
-
-            _.each(tracksArray, (sellerTracks) => {
-              if (sellerTracks && sellerTracks.tracks) {
-                currentTracks += sellerTracks.tracks.length;
-              }
-            });
-
-            lifetimeTracks = _.filter(jobs, userJob => userJob.email === user.email);
-
-            user.currentTracks = currentTracks;
-            user.lifetimeTracks = lifetimeTracks.length;
-            user.fullContact = userFromDb ? userFromDb.fullContact : {};
-            asyncEachCb();
-          });
-        });
-      }, (err) => {
-        if (err) {
-          return res.json({ error: err });
-        }
-        res.json(users);
-      });
+    res.render('adminDashboard.html', {
+      baseUrl: process.env.SERVER,
     });
   },
   reminderEmail(req, res) {
-    const emailObj = _.pick(req.query, ['email']);
-    if (!emailObj.email) {
+    const { email } = req.query;
+    if (!email) {
       return res.json({ error: 'Error! Expected an email' });
     }
 
-    Emails.sendReminderEmail(emailObj, (err) => {
+    Emails.sendReminderEmail({ email }, (err) => {
       if (err) {
         return res.json({ err });
       }
-      const userUpdate = emailObj;
+      const userUpdate = { email };
       const updateWith = { isReminded: true };
       const updateOptions = { multi: true };
       JobModel.update(userUpdate, updateWith, updateOptions, (err, updatedDocs) => {
@@ -102,6 +37,78 @@ module.exports = {
           return res.json({ error: err });
         }
         return res.json({ status: 'ok', updatedDocs });
+      });
+    });
+  },
+  getAdminUsers(req, res) {
+    const { draw, start, length } = req.query;
+    const nDraw = Number(draw);
+    const nStart = Number(start);
+    const nLength = Number(length);
+
+    redisClient.zcount('emailAlertsSet', 3, '+inf', (err, count) => {
+      if (err) {
+        logger.log('err', 'error getting redisClient.zcount(emailAlertsSet)', err);
+        return res.status(500).json({
+          error: err,
+        });
+      }
+
+      redisClient.zrevrangebyscore('emailAlertsSet', '+inf', 3, 'WITHSCORES', 'LIMIT', nStart, nLength, (err, reply) => {
+        if (err) {
+          return res.status(500).json({
+            error: err,
+          });
+        }
+
+        if (!reply || (reply && !reply.length)) {
+          return res.status(500).json({
+            error: 'nothing found in redis for specified query',
+          });
+        }
+
+        const emails = reply.filter((item, index) => index % 2 === 0);
+        const emailToAlertsCount = {};
+        for (let i = 0; i < reply.length; i += 2) {
+          emailToAlertsCount[reply[i]] = Number(reply[i + 1]);
+        }
+
+        const userData = [];
+
+        const q = async.queue((doc, callback) => {
+          const { email } = doc;
+
+          UserModel.findOne(
+            { email },
+            { _id: 1, email: 1, fullContact: 1 }
+          )
+          .lean()
+          .exec((err, userDoc) => {
+            if (err) {
+              return callback(err);
+            }
+
+            userData.push(
+              _.extend({}, userDoc, {
+                activeAlerts: emailToAlertsCount[email],
+                signedUpAt: moment(userDoc._id.getTimestamp()).format('YYYY MMM Do, h:m a'),
+              })
+            );
+
+            return callback();
+          });
+        });
+
+        q.drain = () => {
+          res.json({
+            draw: nDraw,
+            recordsTotal: count,
+            recordsFiltered: count,
+            data: userData,
+          });
+        };
+
+        emails.forEach(email => q.push({ email }));
       });
     });
   },
