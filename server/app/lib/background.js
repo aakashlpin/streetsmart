@@ -210,7 +210,7 @@ module.exports = {
       }
     });
   },
-  removeFailedJobs: () => {
+  removeFailedJobs() {
     kue.Job.rangeByState('failed', 0, 100, 'asc', (err, jobs) => {
       jobs.forEach((job) => {
         job.remove(() => {
