@@ -96,7 +96,7 @@ module.exports = function routes(app) {
   // Admin
   app.get('/admin', admin.index);
   app.get('/admin/dashboard', ensureAuthenticated, admin.dashboard);
-  // app.get('/admin/dashboard/users', ensureAuthenticated, admin.processAllUsers);
+  app.get('/admin/dashboard/users', ensureAuthenticated, admin.getAdminUsers);
   app.get('/admin/dashboard/reminder', ensureAuthenticated, admin.reminderEmail);
 
   app.get('/auth/twitter', passport.authenticate('twitter'));

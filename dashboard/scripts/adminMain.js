@@ -3,15 +3,8 @@
 
 (function(cheapassApp) {
     var Users = new cheapassApp.Users();
-    Users.getAllUsers(function(users) {
-        var usersBody = '';
-        users.forEach(function(userItem) {
-            usersBody += Users.drawUserItem(userItem);
-        });
-
-        Users.drawUsersTable(usersBody);
-        Users.bindAllEvents();
-    });
+    Users.drawUsersTable();
+    Users.bindAllEvents();
 
     setInterval(function () {
     	Users.getStats(Users.drawStats.bind(Users));
