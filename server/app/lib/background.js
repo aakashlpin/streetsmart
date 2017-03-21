@@ -11,7 +11,9 @@ const UserLookup = require('./userLookup');
 const Emails = require('../controllers/emails');
 const request = require('request');
 const kue = require('kue');
+const redis = require('redis');
 
+const redisClient = redis.createClient();
 const UserModel = mongoose.model('User');
 const initialBatchSize = 50;
 const futureBatchSize = 20;
@@ -347,5 +349,92 @@ module.exports = {
         });
       });
     });
+  },
+  processAllUsers(cb) {
+    const sellers = Object.keys(config.sellers);
+    const map = {};
+    const alertsCountToEmailCountMap = {};
+
+    console.time('processAllUsers');
+
+    const userQueue = async.queue((doc, callback) => {
+      const { email, _id } = doc;
+
+      const sellerQueue = async.queue((sellerDoc, sellerCallback) => {
+        const { seller } = sellerDoc;
+
+        sellerUtils
+        .getSellerJobModelInstance(seller)
+        .find({ email, suspended: { $ne: true } })
+        .lean()
+        .exec((err, results) => {
+          if (err) {
+            return sellerCallback(err);
+          }
+
+          if (!map[email]) {
+            map[email] = {
+              signup: _id.getTimestamp(),
+              total: 0,
+              sellers: {},
+            };
+          }
+
+          map[email].sellers[seller] = results ? results.length : 0;
+          map[email].total += map[email].sellers[seller];
+
+          sellerCallback(null);
+        });
+      });
+
+      sellers.forEach((seller) => {
+        sellerQueue.push({ seller });
+      });
+
+      sellerQueue.drain = () => {
+        console.log({
+          email,
+        });
+
+        const countForEmail = map[email].total;
+
+        redisClient.zadd('emailAlertsSet', countForEmail, email);
+
+        if (!alertsCountToEmailCountMap[countForEmail]) {
+          // initialize count
+          alertsCountToEmailCountMap[countForEmail] = 1;
+        } else {
+          // increment email count for same alert count
+          alertsCountToEmailCountMap[countForEmail] += 1;
+        }
+
+        callback();
+      };
+    });
+
+    UserModel
+    .find({}, { email: 1, _id: 1 })
+    .lean()
+    .exec((err, docs) => {
+      docs.forEach((doc) => {
+        userQueue.push(doc);
+      });
+    });
+
+    userQueue.drain = () => {
+      // console.log(map);
+      console.log(alertsCountToEmailCountMap);
+      const numberOfUsersTrackingMoreThan3Items =
+        Object.keys(alertsCountToEmailCountMap).reduce((counter, count) => {
+          if (Number(count) >= 1) {
+            return alertsCountToEmailCountMap[count] + counter;
+          }
+          return counter;
+        }, 0);
+      console.log({ numberOfUsersTrackingMoreThan3Items });
+      console.timeEnd('processAllUsers');
+
+      cb(null, map);
+    };
   },
 };
