@@ -353,10 +353,12 @@ module.exports = {
   },
   processAllUsers(cb = () => {}) {
     if (isProcessingUsers) {
-      return;
+      return logger.log('not processing all users because it\'s already in progress');
     }
 
     isProcessingUsers = true;
+
+    logger.log('processing all users');
 
     redisClient.hget('timestamps', 'emailAlertsSet', (err, reply) => {
       if (!err && reply) {
@@ -369,7 +371,6 @@ module.exports = {
 
       const sellers = Object.keys(config.sellers);
       const map = {};
-      const alertsCountToEmailCountMap = {};
 
       const userQueue = async.queue((doc, callback) => {
         const { email, _id } = doc;
@@ -406,22 +407,7 @@ module.exports = {
         });
 
         sellerQueue.drain = () => {
-          console.log({
-            email,
-          });
-
-          const countForEmail = map[email].total;
-
-          redisClient.zadd('emailAlertsSet', countForEmail, email);
-
-          if (!alertsCountToEmailCountMap[countForEmail]) {
-            // initialize count
-            alertsCountToEmailCountMap[countForEmail] = 1;
-          } else {
-            // increment email count for same alert count
-            alertsCountToEmailCountMap[countForEmail] += 1;
-          }
-
+          redisClient.zadd('emailAlertsSet', map[email].total, email);
           callback();
         };
       });
@@ -436,22 +422,9 @@ module.exports = {
       });
 
       userQueue.drain = () => {
-        // console.log(map);
-        // console.log(alertsCountToEmailCountMap);
-
-        // const numberOfUsersTrackingMoreThan3Items =
-        //   Object.keys(alertsCountToEmailCountMap).reduce((counter, count) => {
-        //     if (Number(count) >= 1) {
-        //       return alertsCountToEmailCountMap[count] + counter;
-        //     }
-        //     return counter;
-        //   }, 0);
-
-        // console.log({ numberOfUsersTrackingMoreThan3Items });
-        console.timeEnd('processAllUsers');
+        logger.log('completed processing all users', console.timeEnd('processAllUsers'));
 
         redisClient.hset('timestamps', 'emailAlertsSet', +new Date());
-
         isProcessingUsers = false;
 
         cb(null, map);
