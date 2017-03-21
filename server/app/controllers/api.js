@@ -16,6 +16,7 @@ const { queue, getUserJobsQueueNameForSeller } = queueLib;
 const server = process.env.SERVER;
 const Job = mongoose.model('Job');
 const User = mongoose.model('User');
+const CountersModel = mongoose.model('Counter');
 
 function illegalRequest(res) {
   res.redirect('/500');
@@ -239,13 +240,9 @@ module.exports = {
           // put this email in the users collection
           userQuery.query.fullContact = err ? {} : data;
           userQuery.query.fullContactAttempts = 1;
-          User.post(userQuery, (err, userQueryResponse) => {
+          User.post(userQuery, (err) => {
             if (err) {
               logger.log('error', 'error putting user info in db', { error: err });
-            }
-            if (userQueryResponse) {
-                // update the users counter
-              sellerUtils.increaseCounter('totalUsers');
             }
           });
         });
@@ -363,10 +360,15 @@ module.exports = {
     });
   },
   getStats(req, res) {
-    const CountersModel = mongoose.model('Counter');
     CountersModel.findOne().lean().exec((err, doc) => {
-      const resObj = _.pick(doc, ['totalUsers', 'emailsSent', 'itemsTracked']);
-      res.json(resObj);
+      const { emailsSent, itemsTracked } = doc;
+      User.count((err, totalUsers) => {
+        res.json({
+          emailsSent,
+          itemsTracked,
+          totalUsers,
+        });
+      });
     });
   },
   getDashboard(req, res) {
