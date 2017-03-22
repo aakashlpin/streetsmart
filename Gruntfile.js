@@ -331,6 +331,13 @@ module.exports = function (grunt) {
                 cwd: '<%= config.app %>',
                 dest: '<%= config.dist %>',
                 src: 'scripts/{,*/}*.js'
+            },
+            original_images: {
+                expand: true,
+                dot: true,
+                cwd: '<%= config.app %>',
+                dest: '<%= config.dist %>',
+                src: 'images/{,*/}*.*'
             }
         },
 
@@ -407,6 +414,7 @@ module.exports = function (grunt) {
         'rev',
         'usemin',
         'htmlmin',
+        'copy:original_images',
         'copy:js'
     ]);
 
