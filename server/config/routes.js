@@ -10,7 +10,7 @@ const passport = require('passport');
 const errorHandler = require('errorhandler');
 const background = require('../app/lib/background');
 // const mailgun = require('../app/controllers/mailgun');
-// const Emails = require('../app/controllers/emails');
+const Emails = require('../app/controllers/emails');
 // const migrations = require('../app/migrations/index');
 
 function ensureAuthenticated(req, res, next) {
@@ -199,11 +199,11 @@ module.exports = function routes(app) {
     });
   });
 
-  // app.get('/send-email-about-flipkart-support', (req, res) => {
-  //   Emails.sendEmailAboutFlipkartSupport(() => {
-  //     res.json({ status: 'ok' });
-  //   });
-  // });
+  app.get('/send-survey-email', ensureAuthenticated, (req, res) => {
+    Emails.sendSurveyPromoEmail(() => {
+      res.json({ status: 'ok' });
+    });
+  });
 
   app.use((req, res) => {
     res.status(404).render('404', { title: '404' });
