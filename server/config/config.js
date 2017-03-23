@@ -21,6 +21,7 @@ const config = {
       requiresProxy: true,
       hasMicroService: true,
       isCronActive: true,
+      concurrency: 2,
     },
     amazon: {
       name: 'Amazon.in',
