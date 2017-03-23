@@ -3,6 +3,9 @@ const apiKey = process.env.MAILGUN_API_KEY;
 
 const mailgun = require('mailgun-js')({ apiKey, domain });
 const mailcomposer = require('mailcomposer');
+const async = require('async');
+const logger = require('../../logger').logger;
+const chunkify = require('../lib/chunkify');
 
 module.exports = {
   sendEmail(payload, callback) {
@@ -40,4 +43,43 @@ module.exports = {
       });
     });
   },
+  addUsersToProductUpdatesMailingList(users, callback) {
+    /**
+    users - ['aakash.lpin@gmail.com', 'aakash@cheapass.in'...]
+    **/
+
+    const members = users.map(email => ({
+      address: email,
+    }));
+
+    const listName = process.env.IS_DEV ? 'updates-local@cheapass.in' : 'updates@cheapass.in';
+    const callsRequired = Math.ceil(members.length / 1000);
+    const batches = chunkify(members, callsRequired, true);
+
+    const q = async.queue((doc, qcb) => {
+      const { emails } = doc;
+
+      mailgun
+      .lists(listName)
+      .members()
+      .add({ members: emails, subscribed: true }, (err, body) => {
+        if (err) {
+          logger.log('error', 'error subscribing to mailing list updates@cheapass.in', err);
+          return qcb(err);
+        }
+
+        logger.log('response from subscribing users to mailing list updates@cheapass.in', body);
+        return qcb(null);
+      });
+    });
+
+    q.drain = () => {
+      callback(null, {
+        status: 'ok'
+      });
+    };
+
+    batches.forEach(batch => q.push({ emails: batch }));
+  }
+
 };

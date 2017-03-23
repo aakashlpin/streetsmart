@@ -12,6 +12,7 @@ const Emails = require('../controllers/emails');
 const request = require('request');
 const kue = require('kue');
 const redis = require('redis');
+const mailgun = require('../controllers/mailgun');
 
 const redisClient = redis.createClient();
 const UserModel = mongoose.model('User');
@@ -210,7 +211,7 @@ module.exports = {
       }
     });
   },
-  removeFailedJobs: () => {
+  removeFailedJobs() {
     kue.Job.rangeByState('failed', 0, 100, 'asc', (err, jobs) => {
       jobs.forEach((job) => {
         job.remove(() => {
@@ -429,6 +430,21 @@ module.exports = {
 
         cb(null, map);
       };
+    });
+  },
+  addUsersToMailingList(cb = () => {}) {
+    redisClient.zrangebyscore('emailAlertsSet', 1, '+inf', (err, reply) => {
+      if (err) {
+        logger.log('error', 'unable to redisClient.zrangebyscore(emailAlertsSet', err);
+        return cb(err);
+      }
+
+      if (!reply || (reply && !reply.length)) {
+        logger.log('no results fro redisClient.zrangebyscore(emailAlertsSet');
+        return cb('no results');
+      }
+
+      mailgun.addUsersToProductUpdatesMailingList(reply, cb);
     });
   },
 };
