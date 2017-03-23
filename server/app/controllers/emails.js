@@ -6,8 +6,11 @@ const config = require('../../config/config');
 const logger = require('../../logger').logger;
 const ses = require('./ses');
 const mailgun = require('./mailgun');
+const ejs = require('ejs');
+const fs = require('fs');
 
 const templatesDir = path.resolve(__dirname, '..', 'templates');
+const promoEmailsDir = path.resolve(__dirname, '..', '..', 'emails', 'promotional', 'dist');
 const server = process.env.SERVER;
 const emailService = process.env.EMAIL_SERVICE;
 
@@ -325,5 +328,25 @@ module.exports = {
         }
       });
     });
-  }
+  },
+  sendSurveyPromoEmail(callback) {
+    const file = fs.readFileSync(`${promoEmailsDir}/promo-survey.html`, {
+      encoding: 'utf-8'
+    });
+
+    const html = ejs.render(file, {
+      SERVER: process.env.SERVER,
+    });
+
+    const to = process.env.IS_DEV ? 'local-test@cheapass.in' : 'updates@cheapass.in';
+
+    sendEmail({
+      subject: '[Cheapass.in] Hello! We really need your help with a few questions.',
+      html,
+      to,
+    }, () => {
+      logger.log('info', `[sendSurveyPromoEmail] send email to ${to}`);
+      return callback(null);
+    });
+  },
 };

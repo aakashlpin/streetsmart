@@ -9,6 +9,8 @@ const fundraise = require('../app/controllers/fundraise');
 const passport = require('passport');
 const errorHandler = require('errorhandler');
 const background = require('../app/lib/background');
+// const mailgun = require('../app/controllers/mailgun');
+const Emails = require('../app/controllers/emails');
 // const migrations = require('../app/migrations/index');
 
 function ensureAuthenticated(req, res, next) {
@@ -182,6 +184,24 @@ module.exports = function routes(app) {
         status: 'ok',
         response,
       });
+    });
+  });
+
+  app.get('/once/add-active-users-to-mailing-list', ensureAuthenticated, (req, res) => {
+    background.addUsersToMailingList((err, reply) => {
+      if (err) {
+        return res.status(500).json({
+          error: err,
+        });
+      }
+
+      res.json(reply);
+    });
+  });
+
+  app.get('/send-survey-email', ensureAuthenticated, (req, res) => {
+    Emails.sendSurveyPromoEmail(() => {
+      res.json({ status: 'ok' });
     });
   });
 
