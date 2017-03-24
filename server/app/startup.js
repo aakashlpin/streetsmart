@@ -79,7 +79,7 @@ function setupCronFromSeller(seller) {
     if (sellerConfig.keepSlow) {
       setTimeout(() => {
         processJob(job, done);
-      }, 10 * 1000);
+      }, (Math.floor(Math.random() * ((10 - 2) + 1)) + 2) * 1000);
     } else {
       processJob(job, done);
     }
