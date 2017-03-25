@@ -97,8 +97,9 @@ if (process.env.IS_CRON_ACTIVE) {
 // start processing items added from UI
 sellerKeys.forEach((seller) => {
   const queueName = getUserJobsQueueNameForSeller(seller);
+  const sellerConfig = config.sellers[seller];
   logger.log('info', 'setting up user job queue processing', queueName);
-  const concurrency = 4;
+  const concurrency = sellerConfig.userJobConcurrency || 4;
   queue.process(queueName, concurrency, (job, done) =>
     processUserJob(job, done)
   );

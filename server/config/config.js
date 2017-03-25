@@ -22,6 +22,7 @@ const config = {
       hasMicroService: true,
       isCronActive: true,
       concurrency: 2,
+      userJobConcurrency: 1,
     },
     amazon: {
       name: 'Amazon.in',
