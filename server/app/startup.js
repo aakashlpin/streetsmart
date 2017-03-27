@@ -8,6 +8,7 @@ const processUserJob = require('./lib/processUserJob');
 const bgTask = require('./lib/background');
 const logger = require('../logger').logger;
 const queueLib = require('./lib/queue');
+const shuffleArray = require('shuffle-array');
 
 const { queue, getSellerQueueKey, getUserJobsQueueNameForSeller } = queueLib;
 const { sellers } = config;
@@ -56,7 +57,9 @@ function setupCronFromSeller(seller) {
 
           logger.log(`adding ${sellerJobsMappedWithSeller.length} items to ${seller} queue`);
 
-          sellerJobsMappedWithSeller.forEach((jobData) => {
+          const shuffledSellerJobs = shuffleArray(sellerJobsMappedWithSeller, { copy: true });
+
+          shuffledSellerJobs.forEach((jobData) => {
             queue
             .create(jobQueueName, jobData)
             .removeOnComplete(true)
