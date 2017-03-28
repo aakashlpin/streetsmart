@@ -1,15 +1,7 @@
+const mongoose = require('mongoose');
+const config = require('../../config/config');
 
-
-let mongoose = require('mongoose'),
-  Schema = mongoose.Schema,
-  _ = require('underscore'),
-  config = require('../../config/config');
-// var sellerUtils = require('../utils/seller.js');
-
-const ProductPriceHistorySchema = new Schema({
-  date: Date,
-  price: Number,
-}, { _id: false });
+const Schema = mongoose.Schema;
 
 const SellerJobSchema = new Schema({
   email: { type: String, index: true },
@@ -24,20 +16,19 @@ const SellerJobSchema = new Schema({
   failedAttempts: Number,
   createdAt: Date,
   suspended: Boolean,
-  productPriceHistory: [ProductPriceHistorySchema],
 });
 
 SellerJobSchema.index({ email: 1, productURL: 1 });
 
-SellerJobSchema.statics.removeJob = function (query, callback) {
+SellerJobSchema.statics.removeJob = (query, callback) => {
   this.find(query).remove(callback);
 };
 
-SellerJobSchema.statics.getOneGeneric = function (query, callback) {
+SellerJobSchema.statics.getOneGeneric = (query, callback) => {
   this.findOne(query).lean().exec(callback);
 };
 
-SellerJobSchema.statics.get = function (callback) {
+SellerJobSchema.statics.get = (callback) => {
   this.find({
     suspended: { $ne: true },
     $or: [
@@ -49,17 +40,24 @@ SellerJobSchema.statics.get = function (callback) {
     .exec(callback);
 };
 
-SellerJobSchema.statics.addJob = function (jobData, callback) {
-  const data = _.pick(jobData, ['email', 'currentPrice', 'productURL',
-    'productImage', 'productName', 'productPriceHistory', 'source']);
+SellerJobSchema.statics.addJob = (jobData, callback) => {
+  const { email, currentPrice, productURL, productImage, productName, source } = jobData;
 
-  data.createdAt = new Date();
+  const data = {
+    email,
+    currentPrice,
+    productURL,
+    productName,
+    productImage,
+    source,
+    createdAt: new Date(),
+  };
 
-  (new this(data)).save(callback);
+  const JobData = new this(data);
+  JobData.save(callback);
 };
 
-const sellers = _.keys(config.sellers);
-_.each(sellers, (seller) => {
+Object.keys(config.sellers).forEach((seller) => {
   const modelName = `${seller}_job`;
   mongoose.model(modelName, SellerJobSchema);
 });
