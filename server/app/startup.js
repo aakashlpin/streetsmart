@@ -1,21 +1,18 @@
 const kue = require('kue');
-const _ = require('underscore');
 const CronJob = require('cron').CronJob;
 const config = require('../config/config');
-const sellerUtils = require('./utils/seller');
 const processJob = require('./lib/processJob');
 const processUserJob = require('./lib/processUserJob');
 const bgTask = require('./lib/background');
 const logger = require('../logger').logger;
 const queueLib = require('./lib/queue');
-const shuffleArray = require('shuffle-array');
+const tickHandler = require('./lib/tickHandler');
 
 const { queue, getSellerQueueKey, getUserJobsQueueNameForSeller } = queueLib;
 const { sellers } = config;
 const sellerKeys = Object.keys(sellers);
 
 function setupCronFromSeller(seller) {
-  const sellerModelKey = seller === 'amazonSlow' ? 'amazon' : seller;
   const jobQueueName = getSellerQueueKey(seller);
   const sellerConfig = config.sellers[seller];
 
@@ -27,65 +24,14 @@ function setupCronFromSeller(seller) {
     start: true,
     timeZone: 'Asia/Kolkata',
     onTick: () => {
-      logger.log(`cron ticking for ${seller}`);
-      queue.inactiveCount(jobQueueName, (err, total) => {
-        logger.log({ err, inactiveCount: total });
-        if (err) {
-          return logger.log('error', `error getting queue.inactiveCount on ${jobQueueName}`, err);
-        }
-
-        if (total) {
-          return logger.log(`not processing cron tick because ${total} items in ${jobQueueName} queue.`);
-        }
-
-        const SellerJobModel = sellerUtils.getSellerJobModelInstance(sellerModelKey);
-        SellerJobModel.get((err, sellerJobs) => {
-          if (err) {
-            return logger.log('error', `CRITICAL: error in doing SellerJobModel.get on ${SellerJobModel.modelName}`);
-          }
-
-          if (!sellerJobs) {
-            return logger.log('warning', `cron tick: no seller jobs for ${seller}`);
-          }
-
-          const sellerJobsMappedWithSeller = sellerJobs.map(sellerJob =>
-            _.extend({}, sellerJob, {
-              seller,
-              title: `Processing ${sellerJob.productName}`,
-            })
-          );
-
-          logger.log(`adding ${sellerJobsMappedWithSeller.length} items to ${seller} queue`);
-
-          const shuffledSellerJobs = shuffleArray(sellerJobsMappedWithSeller, { copy: true });
-
-          shuffledSellerJobs.forEach((jobData) => {
-            queue
-            .create(jobQueueName, jobData)
-            .removeOnComplete(true)
-            .priority(process.env.ADMIN_EMAIL_IDS.indexOf(jobData.email) > -1 ? 'high' : 'normal')
-            .save((saveErr) => {
-              if (saveErr) {
-                return logger.log('error', 'Unable to add job to queue', saveErr);
-              }
-              return logger.log('Added job to queue', jobQueueName, jobData);
-            });
-          });
-        });
-      });
+      tickHandler(seller, jobQueueName);
     },
   });
 
   // Start processing existing jobs
   const concurrency = sellerConfig.concurrency || 4;
   queue.process(jobQueueName, concurrency, (job, done) => {
-    if (sellerConfig.keepSlow) {
-      setTimeout(() => {
-        processJob(job, done);
-      }, (Math.floor(Math.random() * ((10 - 2) + 1)) + 2) * 1000);
-    } else {
-      processJob(job, done);
-    }
+    processJob(job, done);
   });
 }
 
