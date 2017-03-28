@@ -12,6 +12,7 @@ const jabongScraper = require('../sellers/jabong');
 
 const scrapers = {
   amazon: amazonScraper,
+  amazonSlow: amazonScraper,
   flipkart: flipkartScraper,
   snapdeal: snapdealScraper,
   fabfurnish: fabfurnishScraper,
