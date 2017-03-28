@@ -1,7 +1,6 @@
 
 const home = require('../app/controllers/home');
 const api = require('../app/controllers/api');
-const tasks = require('../app/tasks/freecharge');
 const dashboard = require('../app/controllers/dashboard');
 const mobile = require('../app/controllers/mobile');
 const admin = require('../app/controllers/admin');
@@ -61,10 +60,6 @@ module.exports = function routes(app) {
 
   // new relic ping
   app.get('/ping', api.ping);
-
-  // Tasks
-  // app.get('/emails/freecharge', tasks.sendMail);
-  app.get('/emails/mailer', tasks.sendMailer);
 
   app.get('/stats', api.getStats);
 
