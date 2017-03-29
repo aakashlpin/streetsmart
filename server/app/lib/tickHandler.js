@@ -9,6 +9,7 @@ const config = require('../../config/config');
 const { queue } = queueLib;
 
 function addJobsToQueue(jobQueueName, jobs, { delay = false } = {}) {
+  logger.log(`adding ${jobs.length} jobs to ${jobQueueName}`);
   jobs.forEach((jobData, index) => {
     queue
     .create(jobQueueName, jobData)
@@ -18,7 +19,6 @@ function addJobsToQueue(jobQueueName, jobs, { delay = false } = {}) {
       if (saveErr) {
         return logger.log('error', 'Unable to add job to queue', saveErr);
       }
-      return logger.log('Added job to queue', jobQueueName, jobData);
     });
   });
 }
