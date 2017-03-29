@@ -9,7 +9,7 @@ const config = require('../../config/config');
 const { queue } = queueLib;
 
 function addJobsToQueue(jobQueueName, jobs, { delay = false } = {}) {
-  logger.log(`adding ${jobs.length} jobs to ${jobQueueName}`);
+  logger.log(`adding ${jobs.length} items to ${jobQueueName} queue`);
   jobs.forEach((jobData, index) => {
     queue
     .create(jobQueueName, jobData)
@@ -107,7 +107,6 @@ function tickHandler(seller, jobQueueName) {
         }, batchInterval);
         batchProcessing[jobQueueName] = true;
       } else {
-        logger.log(`adding ${sellerJobsMappedWithSeller.length} items to ${seller} queue`);
         addJobsToQueue(jobQueueName, shuffledSellerJobs);
       }
     });
