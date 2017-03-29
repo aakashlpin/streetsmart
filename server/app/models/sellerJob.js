@@ -20,15 +20,15 @@ const SellerJobSchema = new Schema({
 
 SellerJobSchema.index({ email: 1, productURL: 1 });
 
-SellerJobSchema.statics.removeJob = (query, callback) => {
+SellerJobSchema.statics.removeJob = function (query, callback) {
   this.find(query).remove(callback);
 };
 
-SellerJobSchema.statics.getOneGeneric = (query, callback) => {
+SellerJobSchema.statics.getOneGeneric = function (query, callback) {
   this.findOne(query).lean().exec(callback);
 };
 
-SellerJobSchema.statics.get = (callback) => {
+SellerJobSchema.statics.get = function (callback) {
   this.find({
     suspended: { $ne: true },
     $or: [
@@ -40,7 +40,7 @@ SellerJobSchema.statics.get = (callback) => {
     .exec(callback);
 };
 
-SellerJobSchema.statics.addJob = (jobData, callback) => {
+SellerJobSchema.statics.addJob = function (jobData, callback) {
   const { email, currentPrice, productURL, productImage, productName, source } = jobData;
 
   const data = {

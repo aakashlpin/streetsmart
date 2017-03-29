@@ -17,7 +17,7 @@ const UserSchema = new Schema({
   suspended: Boolean,
 });
 
-UserSchema.statics.post = (req, callback) => {
+UserSchema.statics.post = function (req, callback) {
   const { email, fullContact, fullContactAttempts } = req.query;
   const data = { email, fullContact, fullContactAttempts };
 
@@ -34,7 +34,7 @@ UserSchema.statics.post = (req, callback) => {
   });
 };
 
-UserSchema.statics.get = (req, callback) => {
+UserSchema.statics.get = function (req, callback) {
   const { email } = req.query;
   this.findOne({ email }).lean().exec(callback);
 };
