@@ -1,7 +1,6 @@
 
 const home = require('../app/controllers/home');
 const api = require('../app/controllers/api');
-const tasks = require('../app/tasks/freecharge');
 const dashboard = require('../app/controllers/dashboard');
 const mobile = require('../app/controllers/mobile');
 const admin = require('../app/controllers/admin');
@@ -38,10 +37,9 @@ module.exports = function routes(app) {
   // UI AJAX calls
   app.get('/queue', api.processQueue);
   app.get('/user/:email', api.getUserDetails);
-  app.get('/user/verify/:email', api.resendVerificationEmail);
 
   // Email verification
-  app.get('/verify', api.verifyEmail);
+  app.get('/verify/:id', api.verifyUserId);
 
   // Email Remove Suspension
   app.get('/keep-tracking/:seller/:id', api.removeSuspension);
@@ -61,10 +59,6 @@ module.exports = function routes(app) {
 
   // new relic ping
   app.get('/ping', api.ping);
-
-  // Tasks
-  // app.get('/emails/freecharge', tasks.sendMail);
-  app.get('/emails/mailer', tasks.sendMailer);
 
   app.get('/stats', api.getStats);
 
@@ -99,7 +93,7 @@ module.exports = function routes(app) {
   app.get('/admin', admin.index);
   app.get('/admin/dashboard', ensureAuthenticated, admin.dashboard);
   app.get('/admin/dashboard/users', ensureAuthenticated, admin.getAdminUsers);
-  app.get('/admin/dashboard/reminder', ensureAuthenticated, admin.reminderEmail);
+  // app.get('/admin/dashboard/reminder', ensureAuthenticated, admin.reminderEmail);
 
   app.get('/auth/twitter', passport.authenticate('twitter'));
   app.get('/auth/twitter/callback',

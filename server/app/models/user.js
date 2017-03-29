@@ -1,7 +1,6 @@
+const mongoose = require('mongoose');
 
-let mongoose = require('mongoose'),
-  Schema = mongoose.Schema,
-  _ = require('underscore');
+const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
   facebookId: String,
@@ -14,13 +13,15 @@ const UserSchema = new Schema({
   fullContact: Schema.Types.Mixed,
   fullContactAttempts: Number,
   androidDeviceToken: [String],
+  normalizedEmail: { type: String },
+  suspended: Boolean,
 });
 
 UserSchema.statics.post = function (req, callback) {
-  let data = _.pick(req.query, ['email', 'fullContact', 'fullContactAttempts']),
-    User;
+  const { email, fullContact, fullContactAttempts } = req.query;
+  const data = { email, fullContact, fullContactAttempts };
 
-  this.findOne({ email: data.email }, (err, user) => {
+  this.findOne({ email }, (err, user) => {
     if (err) {
       return callback(err);
     }
@@ -28,18 +29,14 @@ UserSchema.statics.post = function (req, callback) {
       return callback(null, user);
     }
 
-    User = new this(data);
+    const User = new this(data);
     User.save(callback);
   });
 };
 
 UserSchema.statics.get = function (req, callback) {
-  const data = _.pick(req.query, ['email']);
-  this.findOne({ email: data.email }).lean().exec(callback);
-};
-
-UserSchema.statics.getAll = function (callback) {
-  this.find().lean().exec(callback);
+  const { email } = req.query;
+  this.findOne({ email }).lean().exec(callback);
 };
 
 mongoose.model('User', UserSchema);

@@ -3,11 +3,9 @@ const redis = require('redis');
 const async = require('async');
 const moment = require('moment');
 const _ = require('underscore');
-const Emails = require('./emails');
 const logger = require('../../logger').logger;
 
 const redisClient = redis.createClient();
-const JobModel = mongoose.model('Job');
 const UserModel = mongoose.model('User');
 
 module.exports = {
@@ -17,27 +15,6 @@ module.exports = {
   dashboard(req, res) {
     res.render('adminDashboard.html', {
       baseUrl: process.env.SERVER,
-    });
-  },
-  reminderEmail(req, res) {
-    const { email } = req.query;
-    if (!email) {
-      return res.json({ error: 'Error! Expected an email' });
-    }
-
-    Emails.sendReminderEmail({ email }, (err) => {
-      if (err) {
-        return res.json({ err });
-      }
-      const userUpdate = { email };
-      const updateWith = { isReminded: true };
-      const updateOptions = { multi: true };
-      JobModel.update(userUpdate, updateWith, updateOptions, (err, updatedDocs) => {
-        if (err) {
-          return res.json({ error: err });
-        }
-        return res.json({ status: 'ok', updatedDocs });
-      });
     });
   },
   getAdminUsers(req, res) {
