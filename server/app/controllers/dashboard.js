@@ -8,7 +8,6 @@ const sellerUtils = require('../utils/seller');
 const async = require('async');
 
 const User = mongoose.model('User');
-const Job = mongoose.model('Job');
 
 module.exports = {
   getTracks(req, res) {
@@ -62,25 +61,6 @@ module.exports = {
           res.json({ status: 'ok' });
         }
       });
-    });
-  },
-  getUsers(req, res) {
-    Job.find().lean().exec((err, jobs) => {
-      if (err) {
-        res.json({ error: err });
-        return;
-      }
-            // find all unique email ids
-      const uniqueEmails = [];
-      _.each(jobs, (job) => {
-        if (!_.find(uniqueEmails, emailObj => emailObj.email === job.email)) {
-          uniqueEmails.push({
-            email: job.email,
-            isActive: job.isActive,
-          });
-        }
-      });
-      res.json(uniqueEmails);
     });
   },
   setPreferences(req, res) {

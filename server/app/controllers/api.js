@@ -3,7 +3,6 @@ const Emails = require('./emails');
 const _ = require('underscore');
 _.str = require('underscore.string');
 const mongoose = require('mongoose');
-const UserLookup = require('../lib/userLookup');
 const config = require('../../config/config');
 const logger = require('../../logger').logger;
 const sellerUtils = require('../utils/seller');
@@ -11,12 +10,15 @@ const async = require('async');
 const bgTask = require('../lib/background');
 const isEmail = require('isemail');
 const queueLib = require('../lib/queue');
+const dbConnections = require('../lib/dbConnections');
+const redis = require('redis');
 
+const { jobModelConnections } = dbConnections;
 const { queue, getUserJobsQueueNameForSeller } = queueLib;
 const server = process.env.SERVER;
-const Job = mongoose.model('Job');
 const User = mongoose.model('User');
 const CountersModel = mongoose.model('Counter');
+const redisClient = redis.createClient();
 
 function illegalRequest(res) {
   res.redirect('/500');
@@ -130,132 +132,79 @@ module.exports = {
     });
   },
   getUserDetails(req, res) {
-    const userEmail = _.pick(req.params, ['email']);
-    if (!userEmail.email) {
+    const { email: unformattedEmail } = req.params;
+    if (!unformattedEmail) {
       return res.json({ error: 'Invalid request' });
     }
 
-    const email = decodeURIComponent(userEmail.email);
-    User.findOne({ email }).lean().exec((err, userDoc) => {
+    const email = decodeURIComponent(unformattedEmail);
+    User.findOne({ email }, { suspended: 1, email: 1 }).lean().exec((err, userDoc) => {
       if (err || !userDoc) {
         if (err) {
           logger.log('error', 'error finding user from ui', { error: err, email });
         }
-
-        // if user not found in users collection
-        // check for pending jobs in the jobs collections
-        Job.find({ email }).lean().exec((err, pendingJobs) => {
-          if (err) {
-            logger.log('error', 'error finding user in jobs collection', { error: err, email });
-            return res.json({ status: 'error', error: 'User not found' });
-          } else if (!pendingJobs.length) {
-            return res.json({ status: 'error', error: 'User not found' });
-          }
-          return res.json({ status: 'pending', alerts: pendingJobs.length });
-        });
-      } else {
-        let userJobsCount = 0;
-        async.each(_.keys(config.sellers), (seller, asyncEachCb) => {
-          sellerUtils
-          .getSellerJobModelInstance(seller)
-          .find({ email })
-          .lean()
-          .exec((err, userJobs) => {
-            if (!err && userJobs) {
-              userJobsCount += userJobs.length;
-            }
-            asyncEachCb();
-          });
-        }, () => {
-          res.json({
-            status: 'verified',
-            email,
-            id: userDoc._id,
-            alerts: userJobsCount,
-          });
-        });
+        return res.json({ status: 'error', error: 'User not found' });
       }
+
+      if (userDoc.suspended) {
+        return res.json({ status: 'pending' });
+      }
+
+      redisClient.zscore('emailAlertsSet', email, (err, reply) => {
+        if (!err && reply) {
+          return res.json({
+            email,
+            status: 'verified',
+            id: userDoc._id,
+            alerts: reply,
+          });
+        }
+        return res.json({
+          email,
+          status: 'verified',
+          id: userDoc._id,
+        });
+      });
     });
   },
-  verifyEmail(req, res) {
-    const queryObject = req.query;
-    if (!queryObject.email) {
-      illegalRequest(res);
-      return;
+  verifyUserId(req, res) {
+    const { id: _id } = req.params;
+    if (!_id) {
+      return illegalRequest(res);
     }
 
-    let email;
-    if (queryObject.email === decodeURIComponent(queryObject.email)) {
-      // query string isn't encoded
-      email = queryObject.email;
-    } else {
-      // query string is encoded
-      email = decodeURIComponent(queryObject.email);
-    }
-
-    if (!email || (typeof email === 'undefined')) {
-      illegalRequest(res);
-      return;
-    }
-
-    const userQuery = {
-      query: {
-        email,
-      },
-    };
-
-    // check if email has already been verified
-    User.get(userQuery, (err, userQueryResponse) => {
+    User.findOne({ _id }, { email: 1, _id: 1 }, (err, user) => {
       if (err) {
-        logger.log('error', 'querying user db failed', { error: err });
-      }
-      if (userQueryResponse && userQueryResponse.email) {
-        // the user has already been verified
-        res.redirect('/gameon');
-        return;
+        logger.log('error', 'querying user db failed', { _id, err });
+        return illegalRequest(res);
       }
 
-      // just verify that atleast one entry exists in the jobs collection for this email
-      Job.get(userQuery, (err, user) => {
-        let isLegit = true;
-        if (err) {
-          logger.log('error', 'error getting user information in job collection', { error: err });
-          isLegit = false;
-        }
-        if (!user) {
-          // bummer! Illegal request
-          logger.log('warning', 'Nice! Someone is trying to be hack around with the verification email!');
-          isLegit = false;
-        }
+      if (!user) {
+        logger.log('error', 'user not found when querying', _id);
+        return illegalRequest(res);
+      }
 
-        if (!isLegit) {
-          illegalRequest(res);
-          return;
+      const { email } = user;
+      User.update({ _id }, { $set: { suspended: false } }, {}, (err, result) => {
+        if (!err && result) {
+          return res.redirect(`/dashboard/${_id}?v=1`);
         }
+        return illegalRequest(res);
+      });
 
-        // send the emailVerified template to client
-        res.redirect('/gameon');
-
-        UserLookup.get(email, (err, data) => {
-          // put this email in the users collection
-          userQuery.query.fullContact = err ? {} : data;
-          userQuery.query.fullContactAttempts = 1;
-          User.post(userQuery, (err) => {
+      Object.keys(jobModelConnections).forEach((seller) => {
+        const sellerConnection = jobModelConnections[seller];
+        sellerConnection.update(
+          { email },
+          { $set: { suspended: false } },
+          { multi: true },
+          (err, result) => {
             if (err) {
-              logger.log('error', 'error putting user info in db', { error: err });
+              return logger.log('error', 'unable to lift suspension after email verification from user', { email, err });
             }
-          });
-        });
-
-        // update isActive for all jobs for this email to be true
-        Job.activateAllJobsForEmail(userQuery, (err, updateRes) => {
-          if (err) {
-            logger.log('error', 'error activating jobs', { error: err });
+            logger.log(`email verification activated alerts for ${seller}`, result);
           }
-          if (updateRes) {
-            // logger.log('activated all jobs for email ', email);
-          }
-        });
+        );
       });
     });
   },
@@ -301,6 +250,7 @@ module.exports = {
           res.redirect('/unsubscribed');
         }
         logger.log('info', 'unsubscribed user', dbQuery);
+        redisClient.zincrby('emailAlertsSet', -1, queryParams.email);
       });
     } else if (req.xhr) {
       res.json({ error: 'Invalid Request' });
@@ -373,6 +323,7 @@ module.exports = {
   },
   getDashboard(req, res) {
     const id = req.params.id;
+    const { v: viaEmailVerification } = req.query;
 
     User.findById(id, (err, doc) => {
       if (err || !doc) {
@@ -383,6 +334,7 @@ module.exports = {
       const tmplData = _.pick(doc, ['email', 'dropOnlyAlerts']);
       tmplData._id = id;
       tmplData.baseUrl = server;
+      tmplData.isViaEmailVerification = !!viaEmailVerification;
       res.render('dashboard.ejs', tmplData);
     });
   },
@@ -414,37 +366,6 @@ module.exports = {
     res.json({
       data: bgTask.getPagedProducts(page),
       pages: bgTask.getTotalPages(),
-    });
-  },
-  resendVerificationEmail(req, res) {
-    let email = req.params.email;
-    if (!email) {
-      return res.json({ error: 'Expected Email' });
-    }
-
-    email = decodeURIComponent(email);
-    User.findOne({ email }).lean().exec((err, user) => {
-      if (err || !user) {
-        // search for user in Jobs collections
-        Job.findOne({ email }).lean().exec((err, user) => {
-          if (user) {
-            // send verification email
-            Emails.resendVerifierEmail(user, (err, status) => {
-              if (err) {
-                logger.log('error', 'error resending verification email', { error: err, email: user.email });
-                return;
-              }
-              logger.log('info', 'verification email resent', { status, email: user.email });
-            });
-
-            res.json({ status: 'Done! Check your inbox now?' });
-          } else {
-            return res.json({ error: 'Invalid Request' });
-          }
-        });
-      } else {
-        return res.json({ error: 'Invalid Request' });
-      }
     });
   },
   generateAmazonReport(req, res) {

@@ -15,8 +15,10 @@ const server = process.env.SERVER;
 const emailService = process.env.EMAIL_SERVICE;
 
 function sendEmail(payload, callback) {
-  if (process.env.IS_DEV && process.env.ADMIN_EMAIL_IDS.indexOf(payload.to) === -1) {
-    return;
+  if (process.env.IS_DEV) {
+    const matchesWhitelist = process.env.ADMIN_EMAIL_IDS.indexOf(payload.to) > -1;
+    // const isCheapassDomain = payload.to.indexOf('@cheapass.in') > 0;
+    if (!matchesWhitelist) return;
   }
 
   switch (payload.provider) {
@@ -41,20 +43,14 @@ module.exports = {
       if (err) {
         callback(err);
       } else {
-        if (!user.email || (user.email && !user.email.length)) {
-          return callback('Recipient not found');
-        }
-
-        const encodedEmail = encodeURIComponent(user.email);
-        if (product.seller) {
-          // human readable seller name
-          product.seller = config.sellers[product.seller].name;
-        }
+        _.extend(product, {
+          seller: config.sellers[product.seller].name,
+        });
 
         const locals = {
           user,
           product,
-          verificationLink: `${server}/verify?email=${encodedEmail}`,
+          verificationLink: `${server}/verify/${user._id}`,
         };
 
         template('verifier', locals, (err, html) => {
@@ -62,7 +58,7 @@ module.exports = {
             callback(err);
           } else {
             sendEmail({
-              subject: 'Cheapass | Verify your email id',
+              subject: '[IMPORTANT] Verify email id to continue...',
               html,
               bcc: 'aakash@cheapass.in',
               to: locals.user.email,
@@ -79,7 +75,9 @@ module.exports = {
       } else {
         if (product.seller) {
           // human readable seller name
-          product.seller = config.sellers[product.seller].name;
+          _.extend(product, {
+            seller: config.sellers[product.seller].name,
+          });
         }
 
         const locals = {
@@ -92,13 +90,13 @@ module.exports = {
           dashboardURL: (`${server}/dashboard/${user._id}`),
         });
 
-                // Send a single email
+        // Send a single email
         template('notifier', locals, (err, html) => {
           if (err) {
             callback(err);
           } else {
             sendEmail({
-              subject: `Price Drop Alert | ${locals.product.seller} | ${locals.product.productName}`,
+              subject: `[PRICE DROP ALERT] ${locals.product.seller} - ${locals.product.productName}`,
               html,
               to: locals.user.email,
             }, callback);
@@ -114,7 +112,9 @@ module.exports = {
       } else {
         if (product.seller) {
           // human readable seller name
-          product.seller = config.sellers[product.seller].name;
+          _.extend(product, {
+            seller: config.sellers[product.seller].name,
+          });
         }
 
         const locals = {
@@ -132,60 +132,9 @@ module.exports = {
             callback(err);
           } else {
             sendEmail({
-              subject: `Price Alert Set | ${locals.product.seller} | ${locals.product.productName}`,
+              subject: `[ALERT SUCCESS] ${locals.product.seller} - ${locals.product.productName}`,
               html,
               to: locals.user.email,
-            }, callback);
-          }
-        });
-      }
-    });
-  },
-  resendVerifierEmail(user, callback) {
-    emailTemplates(templatesDir, (err, template) => {
-      if (err) {
-        callback(err);
-      } else {
-        const encodedEmail = encodeURIComponent(user.email);
-        const locals = {
-          user,
-          verificationLink: `${server}/verify?email=${encodedEmail}`,
-        };
-
-        template('reverifier', locals, (err, html) => {
-          if (err) {
-            callback(err);
-          } else {
-            sendEmail({
-              subject: 'Cheapass | Verify your email id',
-              html,
-              to: locals.user.email,
-            }, callback);
-          }
-        });
-      }
-    });
-  },
-  sendReminderEmail(user, callback) {
-    emailTemplates(templatesDir, (err, template) => {
-      if (err) {
-        callback(err);
-      } else {
-        const encodedEmail = encodeURIComponent(user.email);
-        const locals = {
-          user,
-          verificationLink: `${server}/verify?email=${encodedEmail}`,
-        };
-
-        template('reminder', locals, (err, html) => {
-          if (err) {
-            callback(err);
-          } else {
-            sendEmail({
-              subject: 'Cheapass | What happened?',
-              html,
-              to: locals.user.email,
-              from: 'Aakash Goel <aakash@cheapass.in>',
             }, callback);
           }
         });
@@ -204,37 +153,12 @@ module.exports = {
             callback(err);
           } else {
             sendEmail({
-              subject: `Cheapass | App Login OTP | ${locals.verificationCode}`,
+              subject: `[App Login OTP] ${locals.verificationCode}`,
               html,
               to: locals.email,
               bcc: 'aakash@cheapass.in',
             }, callback);
           }
-        });
-      }
-    });
-  },
-  sendMailer(users, callback) {
-        // pass to this method an array of user emails
-    emailTemplates(templatesDir, (err, template) => {
-      if (err) {
-        callback(err);
-      } else {
-        async.eachLimit(users, 500, (user, asyncEachCb) => {
-          template('android_app', user, (err, html) => {
-            if (err) {
-              asyncEachCb(err);
-            } else {
-              sendEmail({
-                subject: '💥🎉🎊Launching Cheapass Android App 🎂✨💞',
-                html,
-                to: user.email,
-                provider: 'mailgun',
-              }, asyncEachCb);
-            }
-          });
-        }, () => {
-          callback(null, 'emails sent');
         });
       }
     });
@@ -317,7 +241,7 @@ module.exports = {
           callback(err);
         } else {
           sendEmail({
-            subject: 'Cheapass India | Unable to set the price drop alert',
+            subject: '[Cheapass India] Unable to set the price drop alert',
             html,
             to: email,
             bcc: 'aakash@cheapass.in',
