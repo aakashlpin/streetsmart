@@ -14,6 +14,7 @@ const UserSchema = new Schema({
   fullContactAttempts: Number,
   androidDeviceToken: [String],
   normalizedEmail: { type: String },
+  suspended: Boolean,
 });
 
 UserSchema.statics.post = (req, callback) => {
