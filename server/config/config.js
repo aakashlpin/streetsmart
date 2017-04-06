@@ -36,7 +36,7 @@ const config = {
       hasProductAPI: false,
       hasDeepLinking: true,
       requiresProxy: true,
-      isCronActive: false,
+      isCronActive: true,
     },
     amazonSlow: {
       name: 'Amazon.in',
