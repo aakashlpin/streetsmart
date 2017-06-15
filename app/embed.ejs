@@ -1,0 +1,55 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Price changes for <%= productName %>&nbsp;on&nbsp;<%= productSeller %></title>
+    <meta name="description" content="Buy <%= productName %> on <%= productSeller %> at best price online.">
+    <meta name="viewport" content="width=device-width">
+    <meta name="google-site-verification" content="Wu9IL2WJLd4pQoZSQdDKhvMqVJZkje_p1FYRIFU94J0" />
+    <link href="https://fonts.googleapis.com/css?family=Merriweather:300,400" rel="stylesheet">
+    <link rel="shortcut icon" href="http://faviconist.com/icons/d924a197b16ce0732340f3dd6987c1ef/favicon.ico" />
+    <base href="<%= baseUrl %>/">
+    <!-- build:css(.tmp) styles/main.css -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- endbuild -->
+</head>
+<body class="constrained page--embed">
+    <div id="prettyGraphContainer" style="min-height: 400px;"></div>
+
+    <div style="padding: 1rem; text-align: right">
+      <div>
+        <p style="border-bottom: 4px solid #5C636F; display: inline-block;"><span>Most recent price: </span> <span>₹<%= currentPrice %></span></p>
+      </div>
+      <div>
+        <p style="border-bottom: 4px solid #98C379; display: inline-block;"><span>Lowest known price: </span> <span>₹<%= leastPriceTracked %></span></p>
+      </div>
+    </div>
+
+
+    <!-- build:js scripts/vendor.js -->
+    <!-- bower:js -->
+    <script src="../bower_components/jquery/dist/jquery.js"></script>
+    <script src="../bower_components/underscore/underscore.js"></script>
+    <!-- endbower -->
+    <!-- endbuild -->
+
+    <script>
+      caObj = {};
+      caObj.priceHistory = [
+      <% for(var i=0; i<productPriceHistory.length; i++) { %>
+          {
+              date: "<%= productPriceHistory[i].date %>",
+              price: <%= productPriceHistory[i].price %>
+          },
+      <% } %>
+      ];
+      caObj.productName = "<%= productName %>";
+      caObj.productImage = "<%= productImage %>";
+    </script>
+
+    <script src="//cdnjs.cloudflare.com/ajax/libs/highcharts/4.0.3/highcharts.js"></script>
+    <!-- build:js({app,.tmp}) scripts/embed.js -->
+    <script src="scripts/embed.js"></script>
+    <!-- endbuild -->
+</body>
+</html>

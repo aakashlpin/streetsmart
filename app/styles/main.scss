@@ -749,3 +749,11 @@ figure.effect-zoe:hover figcaption > span:nth-child(2) {
     border-radius: 0 0 3px 3px;
     opacity: 1;
 }
+
+
+.page--embed > * {
+  font-family: 'Merriweather', serif;
+  p {
+      font-weight: 300;
+  }
+}

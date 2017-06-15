@@ -8,6 +8,7 @@ const logger = require('../../logger').logger;
 const sellerUtils = require('../utils/seller');
 const async = require('async');
 const bgTask = require('../lib/background');
+const getPriceHistoryForProduct = require('../lib/getPriceHistoryForProduct');
 const isEmail = require('isemail');
 const queueLib = require('../lib/queue');
 const dbConnections = require('../lib/dbConnections');
@@ -270,43 +271,19 @@ module.exports = {
       return;
     }
 
-    // fetch the price from productPriceHistory Collection
-    sellerUtils
-    .getSellerProductPriceHistoryModelInstance(seller)
-    .find({ jobId: id }, { price: 1, date: 1 })
-    .sort({ date: 1 })
-    .lean()
-    .exec((err, priceHistoryDocs) => {
-      if (err) {
-        logger.log('error', 'error getting price history docs for %s', id);
-        res.redirect('/500');
-        return;
+    getPriceHistoryForProduct({ seller, id, queryParams }, (err, data) => {
+      if (err && !queryParams.app) {
+        return res.redirect(500);
       }
 
       if (queryParams.app) {
-        res.json(priceHistoryDocs);
-        return;
+        if (err) {
+          return res.status(500).json({});
+        }
+        return res.json(data);
       }
 
-      sellerUtils
-        .getSellerJobModelInstance(seller)
-        .findById(id, { productPriceHistory: 0 }, (err, doc) => {
-          if (err || !doc) {
-            res.redirect('/500');
-            return;
-          }
-
-          const tmplData = _.pick(doc, ['productName', 'productURL',
-            'currentPrice', 'productImage']);
-
-          tmplData.productPriceHistory = priceHistoryDocs;
-
-          tmplData.productSeller = _.str.capitalize(seller);
-
-          tmplData.baseUrl = server;
-
-          res.render('track.ejs', tmplData);
-        });
+      return res.render('track.ejs', data);
     });
   },
   getStats(req, res) {
