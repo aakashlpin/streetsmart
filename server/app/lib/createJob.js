@@ -145,6 +145,7 @@ function createJob(data, callback) {
           logger.log('info', 'verification email triggered', { status, email });
         });
       });
+      return;
     }
 
     if (user && user.suspended) {
@@ -159,6 +160,7 @@ function createJob(data, callback) {
         }
         logger.log('info', 'verification email triggered', { status, email });
       });
+      return;
     }
 
     // existing user flow
