@@ -6,6 +6,7 @@ const Schema = mongoose.Schema;
 const SellerJobSchema = new Schema({
   email: { type: String, index: true },
   source: String,
+  copySourceId: String,
   productURL: String,
   productName: String,
   productImage: String,

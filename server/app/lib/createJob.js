@@ -34,9 +34,15 @@ function createJob(data, callback) {
     productURL,
     seller,
     source,
+    copySourceId,
   } = data;
 
-  UserModel.findOne({ email }, { _id: 1, email: 1, suspended: 1 }, (err, user) => {
+  UserModel.findOne(
+    { email },
+    { _id: 1, email: 1, suspended: 1 }
+  )
+  .lean()
+  .exec((err, user) => {
     if (err) {
       logger.log('error', 'error finding email in user model', {
         error: err,
@@ -58,9 +64,16 @@ function createJob(data, callback) {
       createdAt: new Date(),
     };
 
+    if (source === 'blog') {
+      jobData.copySourceId = copySourceId;
+    }
+
     const SellerJobModel = jobModelConnections[seller];
     const SellerPriceHistoryModel = priceHistoryConnections[seller];
-    SellerJobModel.collection.update({ email, productURL }, jobData, { upsert: true },
+    SellerJobModel.collection.update(
+      { email, productURL },
+      jobData,
+      { upsert: true },
       (err, reply) => {
         if (err) {
           logger.log('error', 'unable to upsert', jobData, err);
@@ -70,21 +83,43 @@ function createJob(data, callback) {
         if (reply.result.nModified) {
           // however, the entry gets updated with createdAt timestamp
           logger.log('job already exists', jobData);
+          if (source === 'blog') {
+            SellerJobModel.findOne(
+              { email, productURL },
+              { copySourceId: 1 }
+            )
+            .lean()
+            .exec((err, doc) => {
+              if (err) {
+                logger.log('error', 'no this is not for real', err);
+              }
+              return callback(null, {
+                status: 'ok',
+                createdJobId: doc.copySourceId,
+              });
+            });
+          }
         }
 
         if (reply.result.upserted && reply.result.upserted.length) {
-          const { _id } = reply.result.upserted[0];
           logger.log('job upserted', jobData);
-          SellerPriceHistoryModel.collection.insert({
-            jobId: _id,
-            email,
-            productURL,
-            date: new Date(),
-            price: currentPrice,
-          });
+          const { _id } = reply.result.upserted[0];
+          if (source !== 'blog') {
+            SellerPriceHistoryModel.collection.insert({
+              jobId: _id,
+              email,
+              productURL,
+              date: new Date(),
+              price: currentPrice,
+            });
+          }
 
           sellerUtils.increaseCounter('itemsTracked');
           redisClient.zincrby('emailAlertsSet', 1, email);
+          callback(null, {
+            status: 'ok',
+            createdJobId: _id,
+          });
         }
       }
     );
@@ -110,13 +145,10 @@ function createJob(data, callback) {
           logger.log('info', 'verification email triggered', { status, email });
         });
       });
-      return callback(null, {
-        status: 'ok',
-      });
     }
 
     if (user && user.suspended) {
-      logger.log('newish user unverified and inactive', { email, jobData });
+      logger.log('user in suspended state', { email, jobData });
 
       Emails.sendVerifier({ email, _id: user._id }, data, (err, status) => {
         if (err) {
@@ -127,8 +159,6 @@ function createJob(data, callback) {
         }
         logger.log('info', 'verification email triggered', { status, email });
       });
-
-      return;
     }
 
     // existing user flow
@@ -139,10 +169,6 @@ function createJob(data, callback) {
         return;
       }
       logger.log('info', 'acceptance email triggered', { status, email });
-    });
-
-    return callback(null, {
-      status: 'ok',
     });
   });
 }

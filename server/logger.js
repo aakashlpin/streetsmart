@@ -14,12 +14,22 @@ const fileTransport = new winston.transports.DailyRotateFile({
   handleExceptions: true,
 });
 
-const logger = new (winston.Logger)({
-  transports: [
+let transports;
+if (process.env.IS_DEV) {
+  transports = [
+    new (winston.transports.Console)(),
+    fileTransport,
+  ];
+} else {
+  transports = [
     new (winston.transports.Console)(),
     fileTransport,
     papertrail,
-  ],
+  ];
+}
+
+const logger = new (winston.Logger)({
+  transports,
 });
 
 papertrail.on('error', (err) => {

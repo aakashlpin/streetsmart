@@ -9,13 +9,14 @@ const sellerUtils = require('../utils/seller');
 const async = require('async');
 const bgTask = require('../lib/background');
 const getPriceHistoryForProduct = require('../lib/getPriceHistoryForProduct');
+const copyPriceHistory = require('../lib/copyPriceHistory');
 const isEmail = require('isemail');
 const queueLib = require('../lib/queue');
 const dbConnections = require('../lib/dbConnections');
 const redis = require('redis');
 
 const { jobModelConnections } = dbConnections;
-const { queue, getUserJobsQueueNameForSeller } = queueLib;
+const { queue, getUserJobsQueueNameForSeller, getCopyJobsQueueName } = queueLib;
 const server = process.env.SERVER;
 const User = mongoose.model('User');
 const CountersModel = mongoose.model('Counter');
@@ -36,6 +37,29 @@ function getResponseMethodAndManipulateHeaders(queryParams, res) {
     return 'jsonp';
   }
   return 'json';
+}
+
+function copyExistingAlertToEmail(data, cb) {
+  const { seller, id, email } = data;
+  const queueName = getCopyJobsQueueName();
+  logger.log('info', 'adding copy job to queue', { queueName, seller, id, email });
+
+  queue
+  .create(queueName, {
+    data,
+    title: `Processing ${seller} ${id} from blog`,
+  })
+  .removeOnComplete(true)
+  .attempts(3)
+  .backoff(true)
+  .save((saveErr) => {
+    if (saveErr) {
+      logger.log('error', 'Unable to add copy job to queue', queueName, saveErr);
+      return cb('Sorry, Please try again later.');
+    }
+    logger.log('Added job to copy queue', queueName, data);
+    return cb(null, 'Fantastic! Check your email for further details.');
+  });
 }
 
 function addJobToQueue(data, cb) {
@@ -84,6 +108,7 @@ queue.on('job failed', (id) => {
   });
 });
 
+
 module.exports = {
   processQueue(req, res) {
     const { email, url } = req.query;
@@ -98,6 +123,34 @@ module.exports = {
           error: 'Please enter a valid email id'
         });
       }
+
+      if (url.indexOf(`${process.env.SERVER}/embed/`) !== -1) {
+        // determine if the request came in from /embed/ endpoint.
+        // if so, skip the seller check
+        const parts = url.split('/');
+        const seller = parts[parts.length - 2];
+        if (!sellerUtils.isLegitSeller(seller)) {
+          return res.status(resMethod === 'jsonp' ? 200 : 403)[resMethod]({
+            error: 'Sorry, You can\'t set an alert on this website',
+          });
+        }
+        const id = parts[parts.length - 1];
+
+        copyExistingAlertToEmail({ email, seller, id }, (err, response) => {
+          if (err) {
+            return res.status(resMethod === 'jsonp' ? 200 : 500)[resMethod]({
+              error: err,
+            });
+          }
+
+          res[resMethod]({
+            status: response,
+          });
+        });
+
+        return;
+      }
+
       // Determine the seller here instead of UI
       const seller = sellerUtils.getSellerFromURL(url);
       // check if legitimate seller
@@ -174,7 +227,12 @@ module.exports = {
       return illegalRequest(res);
     }
 
-    User.findOne({ _id }, { email: 1, _id: 1 }, (err, user) => {
+    User.findOne(
+      { _id },
+      { email: 1, suspended: 1 }
+    )
+    .lean()
+    .exec((err, user) => {
       if (err) {
         logger.log('error', 'querying user db failed', { _id, err });
         return illegalRequest(res);
@@ -185,28 +243,89 @@ module.exports = {
         return illegalRequest(res);
       }
 
+      if (user && !user.suspended) {
+        return res.redirect(`/dashboard/${_id}`);
+      }
+
       const { email } = user;
       User.update({ _id }, { $set: { suspended: false } }, {}, (err, result) => {
         if (!err && result) {
           return res.redirect(`/dashboard/${_id}?v=1`);
         }
+        logger.log('error', '[CRITICAL] error while updating user by id for `suspended: false`', err);
         return illegalRequest(res);
       });
 
-      Object.keys(jobModelConnections).forEach((seller) => {
-        const sellerConnection = jobModelConnections[seller];
-        sellerConnection.update(
-          { email },
-          { $set: { suspended: false } },
-          { multi: true },
-          (err, result) => {
-            if (err) {
-              return logger.log('error', 'unable to lift suspension after email verification from user', { email, err });
+      // async update all job models
+      // update priceDropHistory models with price histories
+      // with `copyPriceHistory`
+
+      async.each(
+        Object.keys(jobModelConnections),
+        (seller, asyncEachCb) => {
+          const sellerConnection = jobModelConnections[seller];
+          sellerConnection.update(
+            { email },
+            { $set: { suspended: false } },
+            { multi: true },
+            (err, result) => {
+              if (err) {
+                logger.log('error', 'unable to lift suspension after email verification from user', { email, err });
+                return asyncEachCb(err);
+              }
+              logger.log(`email verification activated alerts for ${seller}`, result);
+              return asyncEachCb();
             }
-            logger.log(`email verification activated alerts for ${seller}`, result);
+          );
+        }, (err) => {
+          if (err) {
+            logger.log('error', 'unable to async each update with `suspended: false`', err);
           }
-        );
-      });
+
+          async.each(
+            Object.keys(jobModelConnections),
+            (seller, asyncEachCb2) => {
+              const sellerConnection = jobModelConnections[seller];
+              sellerConnection.find(
+                { email, source: 'blog' },
+                { copySourceId: 1 }
+              )
+              .lean()
+              .exec((err, docs) => {
+                if (err) {
+                  logger.log('error', 'error in .find on email and source:blog', err);
+                  return asyncEachCb2(err);
+                }
+
+                if (!docs.length) {
+                  return asyncEachCb2();
+                }
+
+                async.each(docs, (doc, asyncEachCb3) => {
+                  copyPriceHistory({
+                    id: doc.copySourceId,
+                    toJobId: doc._id,
+                    seller,
+                    email,
+                    done: asyncEachCb3,
+                  });
+                }, (err) => {
+                  if (err) {
+                    logger.log('error', 'async each error in copyPriceHistory', err);
+                  }
+                  asyncEachCb2(err);
+                });
+              });
+            },
+            (err) => {
+              if (err) {
+                return logger.log('error', 'copying price histories for source:blog task failed', err);
+              }
+              logger.log('info', 'successfully copied price histories', { email });
+            }
+          );
+        }
+      );
     });
   },
   redirectToSeller(req, res) {
