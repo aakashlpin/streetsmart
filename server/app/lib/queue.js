@@ -14,6 +14,11 @@ function getUserJobsQueueNameForSeller(seller) {
   return `userJobs-${seller}`;
 }
 
+function getCopyJobsQueueName() {
+  return 'copyJobsQueue';
+}
+
 exports.queue = queue;
 exports.getSellerQueueKey = getSellerQueueKey;
 exports.getUserJobsQueueNameForSeller = getUserJobsQueueNameForSeller;
+exports.getCopyJobsQueueName = getCopyJobsQueueName;

@@ -9,11 +9,15 @@
 
 module.exports = function (grunt) {
 
+    var serveStatic = require('serve-static');
+    var serveIndex = require('serve-index')
     // Load grunt tasks automatically
     require('load-grunt-tasks')(grunt);
 
     // Time how long tasks take. Can help when optimizing build times
     require('time-grunt')(grunt);
+
+    grunt.loadNpmTasks('grunt-connect-proxy');
 
     // Configurable paths
     var config = {
@@ -77,31 +81,43 @@ module.exports = function (grunt) {
                 port: 9000,
                 open: true,
                 livereload: 35729,
-                // Change this to '0.0.0.0' to access the server from outside
                 hostname: 'localhost'
+            },
+            server: {
+                proxies: [
+                    {
+                        context: '/',
+                        host: 'local.cheapass.in',
+                        changeOrigin: true,
+                    }
+                ],
             },
             livereload: {
                 options: {
-                    middleware: function(connect) {
+                    middleware: function(connect, options) {
                         return [
-                            connect.static('.tmp'),
-                            connect().use('/bower_components', connect.static('./bower_components')),
-                            connect.static(config.app)
+                            serveStatic('.tmp'),
+                            connect().use('/bower_components', serveStatic('./bower_components')),
+                            serveStatic(config.app),
+                            require('grunt-connect-proxy/lib/utils').proxyRequest
                         ];
-                    }
-                }
-            },
-            test: {
-                options: {
-                    open: false,
-                    port: 9001,
-                    middleware: function(connect) {
-                        return [
-                            connect.static('.tmp'),
-                            connect.static('test'),
-                            connect().use('/bower_components', connect.static('./bower_components')),
-                            connect.static(config.app)
-                        ];
+                        // if (!Array.isArray(options.base)) {
+                        //     options.base = [options.base];
+                        // }
+
+                        // // Setup the proxy
+                        // var middlewares = [require('grunt-connect-proxy/lib/utils').proxyRequest];
+
+                        // // Serve static files.
+                        // options.base.forEach(function(base) {
+                        //     middlewares.push(serveStatic(base));
+                        // });
+
+                        // // Make directory browse-able.
+                        // var directory = options.directory || options.base[options.base.length - 1];
+                        // middlewares.push(serveIndex(directory));
+
+                        // return middlewares;
                     }
                 }
             },
@@ -376,6 +392,7 @@ module.exports = function (grunt) {
             'clean:server',
             'concurrent:server',
             'autoprefixer',
+            'configureProxies:server',
             'connect:livereload',
             'watch'
         ]);

@@ -13,7 +13,24 @@ const SellerProductPriceHistorySchema = new Schema({
   price: Number,
 });
 
-// SellerProductPriceHistorySchema.index({email: 1, productURL: 1});
+SellerProductPriceHistorySchema.statics.bulkInsert = function (models, fn) {
+  if (!models || !models.length) {
+    return fn('no models to insert');
+  }
+
+  const bulk = this.collection.initializeOrderedBulkOp();
+  if (!bulk) {
+    return fn('bulkInsertModels: MongoDb connection is not yet established');
+  }
+
+  let model;
+  for (let i = 0; i < models.length; i += 1) {
+    model = models[i];
+    bulk.insert(model);
+  }
+
+  bulk.execute(fn);
+};
 
 const sellers = _.keys(config.sellers);
 _.each(sellers, (seller) => {

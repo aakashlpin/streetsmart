@@ -1,5 +1,6 @@
 
 const home = require('../app/controllers/home');
+const blog = require('../app/controllers/blog');
 const api = require('../app/controllers/api');
 const dashboard = require('../app/controllers/dashboard');
 const mobile = require('../app/controllers/mobile');
@@ -31,6 +32,9 @@ module.exports = function routes(app) {
   app.get('/404', home.pageNotFound);
   app.get('/gameon', home.gameOn);
   app.get('/unsubscribed', home.unsubscribed);
+
+  // blog controller
+  app.get('/embed/:sellerId/:productId', blog.productEmbedOnBlog);
 
   // API
 
