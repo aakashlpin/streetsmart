@@ -16,9 +16,9 @@ const emailService = process.env.EMAIL_SERVICE;
 
 function sendEmail(payload, callback) {
   if (process.env.IS_DEV) {
-    const matchesWhitelist = process.env.ADMIN_EMAIL_IDS.indexOf(payload.to) > -1;
-    // const isCheapassDomain = payload.to.indexOf('@cheapass.in') > 0;
-    if (!matchesWhitelist) return;
+    // const matchesWhitelist = process.env.ADMIN_EMAIL_IDS.indexOf(payload.to) > -1;
+    const isCheapassDomain = payload.to.indexOf('@cheapass.in') > 0;
+    if (!isCheapassDomain) return;
   }
 
   switch (payload.provider) {

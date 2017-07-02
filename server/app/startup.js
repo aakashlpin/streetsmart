@@ -3,12 +3,18 @@ const CronJob = require('cron').CronJob;
 const config = require('../config/config');
 const processJob = require('./lib/processJob');
 const processUserJob = require('./lib/processUserJob');
+const processCopyJob = require('./lib/processCopyJob');
 const bgTask = require('./lib/background');
 const logger = require('../logger').logger;
 const queueLib = require('./lib/queue');
 const tickHandler = require('./lib/tickHandler');
 
-const { queue, getSellerQueueKey, getUserJobsQueueNameForSeller } = queueLib;
+const {
+  queue,
+  getSellerQueueKey,
+  getUserJobsQueueNameForSeller,
+  getCopyJobsQueueName,
+} = queueLib;
 const { sellers } = config;
 const sellerKeys = Object.keys(sellers);
 
@@ -53,6 +59,11 @@ sellerKeys.forEach((seller) => {
     processUserJob(job, done)
   );
 });
+
+const copyQueueName = getCopyJobsQueueName();
+queue.process(copyQueueName, (job, done) =>
+  processCopyJob(job, done)
+);
 
 queue.on('error', (err) => {
   logger.log('error', 'CRITICAL!! queue error', err);
@@ -114,8 +125,10 @@ function setup() {
     });
   }
 
-  bgTask.processAllProducts();
-  bgTask.processAllUsers();
+  if (!process.env.IS_DEV) {
+    bgTask.processAllProducts();
+    bgTask.processAllUsers();
+  }
 }
 
 setup();
