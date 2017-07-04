@@ -95,7 +95,7 @@ function postStatus(alert) {
     }
 
     if (!fingerprint) {
-      TwitterQueue.create('twitterFeed', alert).save();
+      TwitterQueue.create('twitterFeed', alert).removeOnComplete(true).save();
       TwitterFeedStore.set(alertFingerprint, {});
     }
   });
