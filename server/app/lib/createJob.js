@@ -98,6 +98,8 @@ function createJob(data, callback) {
                 createdJobId: doc.copySourceId,
               });
             });
+          } else {
+            callback(null);
           }
         }
 
