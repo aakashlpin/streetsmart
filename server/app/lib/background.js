@@ -447,4 +447,23 @@ module.exports = {
       mailgun.addUsersToProductUpdatesMailingList(reply, cb);
     });
   },
+  grantFailedProductsAnotherChance(cb = () => {}) {
+    const sellers = Object.keys(config.sellers);
+    async.each(sellers, (seller, callback) => {
+      const sellerModel = sellerUtils.getSellerJobModelInstance(seller);
+      sellerModel.update(
+        { failedAttempts: { $gte: 5 } },
+        { $set: { failedAttempts: 3 } },
+        { multi: true },
+        callback
+      );
+    }, (err) => {
+      if (err) {
+        logger.log('error', '[background] `grantFailedProductsAnotherChance` failed', err);
+      } else {
+        logger.log('info', '[background] `grantFailedProductsAnotherChance` succeeded');
+      }
+      cb(err);
+    });
+  },
 };

@@ -125,6 +125,15 @@ function setup() {
     });
   }
 
+  if (process.env.RESET_FAILURE_COUNT_INTERVAL) {
+    new CronJob({
+      cronTime: process.env.RESET_FAILURE_COUNT_INTERVAL,
+      onTick: bgTask.grantFailedProductsAnotherChance,
+      start: true,
+      timeZone: 'Asia/Kolkata'
+    });
+  }
+
   if (!process.env.IS_DEV) {
     bgTask.processAllProducts();
     bgTask.processAllUsers();
