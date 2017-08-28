@@ -42,6 +42,7 @@ function processUrl({ productURL, seller }, cb) {
       url: productURL,
     };
   } else {
+    requestOptions.rejectUnauthorized = false;
     requestOptions.url = productURL;
     requestOptions.timeout = 30000;
 
