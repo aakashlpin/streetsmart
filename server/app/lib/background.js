@@ -453,7 +453,7 @@ module.exports = {
       const sellerModel = sellerUtils.getSellerJobModelInstance(seller);
       sellerModel.update(
         { failedAttempts: { $gte: 5 } },
-        { $set: { failedAttempts: 3 } },
+        { $set: { failedAttempts: 4 } },
         { multi: true },
         callback
       );
