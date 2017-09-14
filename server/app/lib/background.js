@@ -432,8 +432,8 @@ module.exports = {
       };
     });
   },
-  addUsersToMailingList(cb = () => {}) {
-    redisClient.zrangebyscore('emailAlertsSet', 1, '+inf', (err, reply) => {
+  addUsersToMailingList({ alertsCount = 1, listEmailId }, cb = () => {}) {
+    redisClient.zrangebyscore('emailAlertsSet', alertsCount, '+inf', (err, reply) => {
       if (err) {
         logger.log('error', 'unable to redisClient.zrangebyscore(emailAlertsSet', err);
         return cb(err);
@@ -444,7 +444,7 @@ module.exports = {
         return cb('no results');
       }
 
-      mailgun.addUsersToProductUpdatesMailingList(reply, cb);
+      mailgun.addUsersToProductUpdatesMailingList(reply, listEmailId, cb);
     });
   },
   grantFailedProductsAnotherChance(cb = () => {}) {
