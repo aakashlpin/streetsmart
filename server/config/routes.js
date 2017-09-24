@@ -205,8 +205,8 @@ module.exports = function routes(app) {
     });
   });
 
-  app.get('/send-survey-email', ensureAuthenticated, (req, res) => {
-    Emails.sendSurveyPromoEmail(() => {
+  app.get('/send-last-email', ensureAuthenticated, (req, res) => {
+    Emails.sendLastEmail(() => {
       res.json({ status: 'ok' });
     });
   });
