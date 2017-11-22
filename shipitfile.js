@@ -5,7 +5,7 @@ module.exports = function (shipit) {
     default: {
       workspace: '/tmp/github-monitor',
       deployTo: '/tmp/deploy_to',
-      branch: 'master',
+      branch: 'improvement/reset-failure-count-every-week',
       repositoryUrl: 'https://github.com/aakashlpin/streetsmart.git',
       ignores: ['.git', 'node_modules'],
       rsync: ['--del'],

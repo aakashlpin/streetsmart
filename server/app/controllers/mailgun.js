@@ -43,7 +43,7 @@ module.exports = {
       });
     });
   },
-  addUsersToProductUpdatesMailingList(users, callback) {
+  addUsersToProductUpdatesMailingList(users, listEmailId, callback) {
     /**
     users - ['aakash.lpin@gmail.com', 'aakash@cheapass.in'...]
     **/
@@ -52,7 +52,6 @@ module.exports = {
       address: email,
     }));
 
-    const listName = process.env.IS_DEV ? 'updates-local@cheapass.in' : 'updates@cheapass.in';
     const callsRequired = Math.ceil(members.length / 1000);
     const batches = chunkify(members, callsRequired, true);
 
@@ -60,15 +59,15 @@ module.exports = {
       const { emails } = doc;
 
       mailgun
-      .lists(listName)
+      .lists(listEmailId)
       .members()
       .add({ members: emails, subscribed: true }, (err, body) => {
         if (err) {
-          logger.log('error', 'error subscribing to mailing list updates@cheapass.in', err);
+          logger.log('error', `error subscribing to mailing list ${listEmailId}`, err);
           return qcb(err);
         }
 
-        logger.log('response from subscribing users to mailing list updates@cheapass.in', body);
+        logger.log(`response from subscribing users to mailing list ${listEmailId}`, body);
         return qcb(null);
       });
     });

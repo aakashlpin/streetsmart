@@ -39,9 +39,10 @@ function processUrl({ productURL, seller }, cb) {
     requestOptions.method = 'POST';
     requestOptions.form = {
       API_KEY: 'fuck_you_flipkart',
-      url: productURL,
+      url: productURL.replace('affid=aakashlpi', ''),
     };
   } else {
+    requestOptions.rejectUnauthorized = false;
     requestOptions.url = productURL;
     requestOptions.timeout = 30000;
 

@@ -185,8 +185,16 @@ module.exports = function routes(app) {
     });
   });
 
-  app.get('/once/add-active-users-to-mailing-list', ensureAuthenticated, (req, res) => {
-    background.addUsersToMailingList((err, reply) => {
+  app.get('/admin/add-users-to-mailing-list', ensureAuthenticated, (req, res) => {
+    const { alertsCount, listEmailId } = req.query;
+    if (!alertsCount || !listEmailId) {
+      res.status(500).send('sample usage: /admin/add-users-to-mailing-list?alertsCount=5&listEmailId=updates@cheapass.in ');
+      return;
+    }
+    background.addUsersToMailingList({
+      alertsCount: Number(alertsCount),
+      listEmailId,
+    }, (err, reply) => {
       if (err) {
         return res.status(500).json({
           error: err,
@@ -197,8 +205,8 @@ module.exports = function routes(app) {
     });
   });
 
-  app.get('/send-survey-email', ensureAuthenticated, (req, res) => {
-    Emails.sendSurveyPromoEmail(() => {
+  app.get('/send-last-email', ensureAuthenticated, (req, res) => {
+    Emails.sendLastEmail(() => {
       res.json({ status: 'ok' });
     });
   });

@@ -432,8 +432,8 @@ module.exports = {
       };
     });
   },
-  addUsersToMailingList(cb = () => {}) {
-    redisClient.zrangebyscore('emailAlertsSet', 1, '+inf', (err, reply) => {
+  addUsersToMailingList({ alertsCount = 1, listEmailId }, cb = () => {}) {
+    redisClient.zrangebyscore('emailAlertsSet', alertsCount, '+inf', (err, reply) => {
       if (err) {
         logger.log('error', 'unable to redisClient.zrangebyscore(emailAlertsSet', err);
         return cb(err);
@@ -444,7 +444,26 @@ module.exports = {
         return cb('no results');
       }
 
-      mailgun.addUsersToProductUpdatesMailingList(reply, cb);
+      mailgun.addUsersToProductUpdatesMailingList(reply, listEmailId, cb);
+    });
+  },
+  grantFailedProductsAnotherChance(cb = () => {}) {
+    const sellers = Object.keys(config.sellers);
+    async.each(sellers, (seller, callback) => {
+      const sellerModel = sellerUtils.getSellerJobModelInstance(seller);
+      sellerModel.update(
+        { failedAttempts: { $gte: 5 } },
+        { $set: { failedAttempts: 4 } },
+        { multi: true },
+        callback
+      );
+    }, (err) => {
+      if (err) {
+        logger.log('error', '[background] `grantFailedProductsAnotherChance` failed', err);
+      } else {
+        logger.log('info', '[background] `grantFailedProductsAnotherChance` succeeded');
+      }
+      cb(err);
     });
   },
 };

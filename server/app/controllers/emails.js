@@ -273,4 +273,24 @@ module.exports = {
       return callback(null);
     });
   },
+  sendLastEmail(callback) {
+    const file = fs.readFileSync(`${promoEmailsDir}/service-shutdown.html`, {
+      encoding: 'utf-8'
+    });
+
+    const html = ejs.render(file, {
+      SERVER: process.env.SERVER,
+    });
+
+    const to = process.env.IS_DEV ? 'local-test@cheapass.in' : 'mailer@cheapass.in';
+
+    sendEmail({
+      subject: 'Cheapass will shut down on Sunday, 1 Oct 2017',
+      html,
+      to,
+    }, () => {
+      logger.log('info', `[shutdown] send email to ${to}`);
+      return callback(null);
+    });
+  },
 };
